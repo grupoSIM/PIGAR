@@ -1,0 +1,73 @@
+version: 1
+project: PIGAR
+status: implementation
+
+features:
+  - id: feat-001
+    name: Fundaciones técnicas y arquitectura ejecutable
+    status: publication_review
+    priority: must
+    depends_on: []
+    note: Revisión independiente aprobada; publicación, CI remoto y cualquier despliegue siguen pendientes de autorización.
+
+  - id: feat-002
+    name: Identidad, roles y perfiles básicos
+    status: proposed
+    priority: must
+    depends_on: [feat-001]
+
+  - id: feat-003
+    name: Catálogo de servicios, zonas y tarifas
+    status: proposed
+    priority: must
+    depends_on: [feat-001, feat-002]
+
+  - id: feat-004
+    name: Creación de solicitud con domicilio y multimedia
+    status: proposed
+    priority: must
+    depends_on: [feat-002, feat-003]
+
+  - id: feat-005
+    name: Motor de estados, asignación manual y trazabilidad
+    status: proposed
+    priority: must
+    depends_on: [feat-004]
+
+  - id: feat-006
+    name: Flujo móvil del operario para viaje, arribo y diagnóstico
+    status: proposed
+    priority: could
+    depends_on: [feat-005]
+    note: Fuera del MVP; los estados operativos serán actualizados por administración.
+
+  - id: feat-007
+    name: Resolución administrativa, cobro y conformidad
+    status: proposed
+    priority: must
+    depends_on: [feat-003, feat-005]
+
+  - id: feat-008
+    name: Presupuesto complejo, aprobación y reprogramación
+    status: proposed
+    priority: should
+    depends_on: [feat-006, feat-007]
+
+  - id: feat-009
+    name: Notificaciones transaccionales
+    status: proposed
+    priority: should
+    depends_on: [feat-005]
+
+  - id: feat-010
+    name: Calificaciones, garantía e incidencias
+    status: proposed
+    priority: should
+    depends_on: [feat-007]
+
+  - id: feat-011
+    name: Dashboard operativo y asignación asistida
+    status: proposed
+    priority: could
+    depends_on: [feat-005]
+    note: Fuera del MVP; el backoffice inicial tendrá solo bandeja de solicitudes y órdenes.

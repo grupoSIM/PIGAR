@@ -1,0 +1,14 @@
+node_modules/
+.turbo/
+.pnpm-store/
+coverage/
+dist/
+.next/
+*.log
+.env
+.env.*
+!.env.example
+pnpm-debug.log*
+media/
+postgres-data/
+apps/api/src/generated/

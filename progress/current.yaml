@@ -1,0 +1,98 @@
+project: PIGAR
+active_feature: feat-001
+phase: publication_review
+updated_at: 2026-07-25T00:00:00-03:00
+
+blockers: []
+
+architecture_conditions:
+  before_specification_approval:
+    - Convertir las PoC de carga multimedia por streaming y webhooks/idempotencia de pagos en tareas con criterios de aceptación.
+    - Definir la máquina de estados exacta, permisos administrativos y tratamiento de pagos pendientes o rechazados.
+    - Incluir matriz de permisos y pruebas negativas de acceso cruzado a solicitudes y multimedia.
+    - Definir capacidad mínima del VPS, límites por contenedor, alertas y presupuesto/cuotas de proveedores externos.
+    - Validar Auth0, Google Maps y Mercado Pago con cuentas no productivas, incluyendo MFA, restricciones de claves y cuotas.
+    - Documentar el cifrado en reposo aplicable al VPS y mantener ADR-007 sin chat ni mensajería integrada.
+  before_production:
+    - Validar con asesoría legal los plazos de retención y borrado.
+    - Elegir y aprobar un destino externo de backup cifrado y probar una restauración completa.
+    - Completar hardening del VPS, modelado de amenazas, monitoreo y respuesta a incidentes.
+
+risks:
+  - Aplicación, base de datos y multimedia comparten un único VPS y dominio de falla.
+  - El crecimiento de multimedia puede agotar disco, ancho de banda o capacidad del VPS.
+  - Pagos, identidad y mapas agregan dependencia de proveedores externos.
+  - Multimedia y domicilios requieren límites de acceso, retención y borrado verificables.
+
+decisions:
+  - id: ADR-001
+    status: accepted
+  - id: ADR-002
+    status: accepted
+  - id: ADR-003
+    status: accepted
+  - id: ADR-004
+    status: accepted
+  - id: ADR-005
+    status: accepted
+  - id: ADR-006
+    status: accepted
+  - id: ADR-007
+    status: accepted
+  - id: ADR-008
+    status: accepted
+
+approvals:
+  architecture:
+    status: approved
+    approved_by: usuario
+    approved_at: 2026-07-23T11:27:07-03:00
+  specification:
+    status: approved
+    approved_by: usuario
+    approved_at: 2026-07-23T17:24:45-03:00
+  verification:
+    status: approved
+    approved_by: usuario
+    approved_at: 2026-07-25T00:00:00-03:00
+  publication:
+    status: approved
+    approved_by: usuario
+    approved_at: 2026-07-25T00:00:00-03:00
+
+quality:
+  status: partial
+  evidence: specs/features/feat-001/evidence.md
+
+notes:
+  - El repositorio contiene por ahora únicamente el documento de requisitos y solución tecnológica.
+  - feat-001 ingresó en implementation; se inició TASK-001 y no existe autorización de publicación.
+  - El usuario aprobó ADR-001 a ADR-008 con las condiciones registradas el 2026-07-23.
+  - La aprobación arquitectónica no aprueba la especificación ni autoriza cambios en código de producto.
+  - Alcance corregido por el usuario: sin aplicación de operarios ni tracking en el MVP.
+  - Restricción de infraestructura: backend, backoffice y multimedia en un VPS de Hostinger.
+  - Se recibieron y revisaron los ZIP de Google Stitch para cliente y backoffice.
+  - UI-D01 a UI-D03 resueltas por el usuario: comunicación cliente-administración, bandeja operativa sin KPIs y multimedia opcional limitada.
+  - ADR-007 se interpreta como estado e historial dentro del portal, sin chat ni mensajería integrada en el MVP.
+  - Los artefactos obligatorios de feat-001 fueron aprobados explícitamente por el usuario el 2026-07-23.
+  - VPS de desarrollo confirmado: 2 vCPU, 8 GB RAM, 100 GB de disco y 8 TB de transferencia; producción se dimensionará con evidencia.
+  - Las condiciones arquitectónicas se mantienen como tareas y controles verificables; la aprobación no las exime.
+  - TASK-001 completada: monorepo, límites de dependencias y build verificados; quedan tareas de producto e infraestructura.
+  - TASK-002 completada: shells cliente/administración, accesibilidad estructural y respuestas HTTP locales verificadas.
+  - TASK-003 completada: API NestJS/Fastify, worker y healthchecks diferenciados verificados; contrato OpenAPI sincronizado mediante TASK-016.
+  - TASK-004 completada: migración técnica de PostgreSQL/Prisma y readiness con dependencia real verificados con datos sintéticos.
+  - TASK-005 completada: Compose con Nginx como única entrada local, redes privadas, volúmenes persistentes, healthchecks y límites base verificados; la revisión de seguridad integral queda en TASK-013.
+  - TASK-006 completada: PoC aislada de multimedia validó streaming acotado, límites MVP, temporal/rename atómico, checksum, metadatos técnicos, limpieza y entrega interna no pública.
+  - TASK-007 completada: PoC aislada de pagos mediante mock contractual validó firma HMAC, consulta autoritativa, deduplicación concurrente, eventos fuera de orden y conciliación de intención pendiente; falta validación opcional contra Mercado Pago Sandbox con cuenta no productiva.
+  - TASK-008 completada: comandos raíz para formato, lint, tipos/build y suites unitarias, integración, seguridad y E2E; los filtros exigen coincidencia y la E2E ejecuta Compose temporal aislado. CI bloqueante queda en TASK-014.
+  - TASK-009 completada: configuración tipada para API y worker, validación temprana sin revelar valores, requisitos sensibles de producción y `.env.example` sin secretos; logs estructurados quedan en TASK-010.
+  - TASK-010 completada: logs estructurados/sanitizados, correlation ID en healthchecks, telemetría técnica y runbook de alertas; no se agregó proveedor externo de monitoreo.
+  - TASK-011 completada: contrato v1 puro de estados de orden y pago con tabla de transiciones, reasignación versionada/histórica y regla de no adelantar la orden con pagos pendientes o rechazados; permisos quedan en TASK-012.
+  - TASK-012 completada: matriz de permisos v1 y pruebas negativas; el técnico no representa una cuenta/sesión/token de PIGAR y queda denegado en todas las acciones y transiciones.
+  - TASK-013 completada: revisión local de seguridad de red, multimedia, logs y datos sintéticos; permanecen bloqueantes antes de producción la auditoría remota de dependencias, escaneo/pin por digest de imágenes, cifrado, backup y hardening del VPS.
+  - TASK-014 completada: CI bloqueante configurado en GitHub Actions, con instalación reproducible, categorías de calidad y meta-prueba local de regresiones; sin secretos ni despliegue, primera ejecución remota pendiente de publicación.
+  - TASK-015 completada: capacidad, límites, costes/cuotas de referencia y recuperación documentados; no se seleccionó proveedor adicional, y cifrado/backup/restauración siguen bloqueando producción hasta su aprobación y prueba.
+  - TASK-016 completada: `api-contract.yaml` y prueba HTTP de contrato validan healthchecks, error `application/problem+json` y `X-Request-ID`.
+  - TASK-017 completada: evidencia consolidada y revisión independiente preparada; feat-001 pasa a verification, sin autorización de publicación y con CI remoto/bloqueantes de producción pendientes.
+  - El usuario aprobó la revisión independiente de feat-001 el 2026-07-25; la feature pasa a publication_review. Hostinger queda declarado como testing/staging para equipo y cliente, no producción; publicación/despliegue siguen sin autorización.
+  - El usuario autorizó el 2026-07-25 crear el repositorio público grupoSIM/PIGAR, realizar el commit inicial y hacer push; no autorizó despliegues.

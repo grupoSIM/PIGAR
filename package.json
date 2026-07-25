@@ -1,0 +1,37 @@
+{
+  "name": "pigar",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@11.9.0",
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=11.0.0"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "lint": "eslint .",
+    "format:check": "prettier --check package.json pnpm-workspace.yaml turbo.json tsconfig.base.json eslint.config.mjs .prettierrc.json .github apps packages scripts",
+    "format:write": "prettier --write package.json pnpm-workspace.yaml turbo.json tsconfig.base.json eslint.config.mjs .prettierrc.json .github apps packages scripts",
+    "test:architecture": "node --test scripts/architecture.test.mjs",
+    "test:api": "pnpm --filter @pigar/config build && pnpm --filter @pigar/contracts build && pnpm --filter @pigar/api build && node --test scripts/api-health.test.mjs scripts/api-contract.test.mjs",
+    "test:shells": "node --test scripts/shells.test.mjs",
+    "test:worker": "pnpm --filter @pigar/config build && pnpm --filter @pigar/worker build && node --test scripts/worker.test.mjs",
+    "test:payment-poc": "pnpm --filter @pigar/config build && pnpm --filter @pigar/api build && node --test scripts/payment-poc.test.mjs",
+    "test:unit": "pnpm --filter @pigar/config build && pnpm --filter @pigar/observability build && pnpm --filter @pigar/contracts build && node scripts/run-test-suite.mjs unit",
+    "test:integration": "pnpm --filter @pigar/config build && pnpm --filter @pigar/observability build && pnpm --filter @pigar/api build && node scripts/run-test-suite.mjs integration",
+    "test:e2e": "node scripts/run-test-suite.mjs e2e",
+    "test:security": "pnpm --filter @pigar/config build && pnpm --filter @pigar/observability build && pnpm --filter @pigar/contracts build && pnpm --filter @pigar/api build && node scripts/run-test-suite.mjs security",
+    "test:ci-contract": "node --test scripts/ci-contract.test.mjs",
+    "docs:check": "node scripts/docs-check.mjs",
+    "test": "pnpm test:unit"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "eslint": "^9.39.1",
+    "prettier": "^3.8.1",
+    "turbo": "^2.8.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.3"
+  }
+}

@@ -1,0 +1,73 @@
+version: 2
+project: PIGAR
+
+states:
+  - proposed
+  - discovery
+  - specification
+  - spec_review
+  - approved
+  - implementation
+  - verification
+  - publication_review
+  - done
+  - blocked
+
+transitions:
+  proposed: [discovery]
+  discovery: [specification, blocked]
+  specification: [spec_review, blocked]
+  spec_review: [approved, specification, blocked]
+  approved: [implementation]
+  implementation: [verification, blocked]
+  verification: [publication_review, implementation, blocked]
+  publication_review: [done, implementation, blocked]
+
+human_gates:
+  architecture:
+    required_when:
+      - stack_not_decided
+      - payment_or_money_flow_changes
+      - authentication_or_authorization_changes
+      - personal_data_or_location_changes
+      - database_migration_is_destructive
+      - external_provider_is_added
+  specification:
+    required: true
+  publication:
+    required: true
+
+definition_of_ready:
+  - scope_is_bounded
+  - requirements_have_stable_ids
+  - acceptance_criteria_are_testable
+  - dependencies_and_open_questions_are_resolved
+  - design_identifies_security_and_data_impacts
+  - test_plan_exists
+
+definition_of_done:
+  - all_tasks_checked
+  - all_acceptance_criteria_have_evidence
+  - configured_quality_commands_pass
+  - security_review_passes
+  - api_contract_matches_implementation
+  - migrations_have_forward_and_rollback_notes
+  - documentation_is_current
+  - publication_is_approved
+
+quality_commands:
+  policy: discover_from_repository
+  required_categories:
+    - format_check
+    - lint
+    - typecheck_or_build
+    - unit_tests
+    - integration_tests_when_applicable
+    - e2e_for_critical_business_flows
+  missing_command_behavior: block_and_propose_bootstrap
+
+publication:
+  auto_commit: false
+  auto_push: false
+  force_push: forbidden
+  conventional_commits: true

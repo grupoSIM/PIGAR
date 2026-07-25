@@ -1,0 +1,101 @@
+openapi: 3.1.0
+info:
+  title: PIGAR API
+  version: 0.1.0
+  description: Contrato HTTP mínimo de feat-001. No expone operaciones de negocio ni endpoints de PoC.
+servers:
+  - url: /api
+paths:
+  /health/live:
+    get:
+      operationId: getLiveness
+      summary: Confirma que el proceso API está vivo
+      security: []
+      responses:
+        "200":
+          description: Proceso vivo
+          headers:
+            X-Request-ID:
+              $ref: "#/components/headers/RequestId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+  /health/ready:
+    get:
+      operationId: getReadiness
+      summary: Confirma que las dependencias internas obligatorias están disponibles
+      security: []
+      responses:
+        "200":
+          description: Servicio listo
+          headers:
+            X-Request-ID:
+              $ref: "#/components/headers/RequestId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+        "503":
+          description: Servicio vivo pero no listo
+          headers:
+            X-Request-ID:
+              $ref: "#/components/headers/RequestId"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+components:
+  headers:
+    RequestId:
+      description: Correlation ID opaco emitido por la API; no contiene datos personales.
+      schema:
+        type: string
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    HealthResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - status
+        - service
+        - timestamp
+      properties:
+        status:
+          type: string
+          enum:
+            - ok
+        service:
+          type: string
+          const: api
+        timestamp:
+          type: string
+          format: date-time
+    Problem:
+      type: object
+      additionalProperties: false
+      required:
+        - type
+        - title
+        - status
+        - code
+      properties:
+        type:
+          type: string
+          format: uri-reference
+        title:
+          type: string
+        status:
+          type: integer
+          const: 503
+        code:
+          type: string
+          enum:
+            - SERVICE_NOT_READY
+        correlationId:
+          type: string
+          description: ID opaco; no contiene datos personales.

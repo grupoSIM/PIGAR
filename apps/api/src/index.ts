@@ -1,0 +1,26 @@
+import "reflect-metadata";
+import { NestFactory } from "@nestjs/core";
+import { FastifyAdapter, NestFastifyApplication } from "@nestjs/platform-fastify";
+import { loadApiConfiguration } from "@pigar/config";
+import { AppModule } from "./app.module.js";
+
+export async function bootstrap(): Promise<NestFastifyApplication> {
+  const configuration = loadApiConfiguration(process.env);
+  const app = await NestFactory.create<NestFastifyApplication>(
+    AppModule,
+    new FastifyAdapter({ logger: false }),
+    { logger: ["error", "warn", "log"] },
+  );
+
+  app.setGlobalPrefix("api");
+  await app.listen({
+    host: configuration.host,
+    port: configuration.port,
+  });
+
+  return app;
+}
+
+if (process.env.NODE_ENV !== "test") {
+  void bootstrap();
+}

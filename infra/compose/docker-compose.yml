@@ -1,0 +1,194 @@
+name: pigar
+
+x-app-build: &app-build
+  context: ../..
+  dockerfile: infra/docker/app.Dockerfile
+
+x-app-environment: &app-environment
+  NODE_ENV: production
+
+services:
+  nginx:
+    image: nginx:1.28-alpine
+    depends_on:
+      api:
+        condition: service_healthy
+      customer-web:
+        condition: service_healthy
+      admin-web:
+        condition: service_healthy
+    ports:
+      - "${PIGAR_HTTP_BIND:-127.0.0.1}:${PIGAR_HTTP_PORT:-8088}:8080"
+    volumes:
+      - ../nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - pigar-media-data:/var/lib/pigar/media:ro
+    networks:
+      - edge
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/health/live"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    cpus: 0.10
+    mem_limit: 128m
+    restart: unless-stopped
+
+  customer-web:
+    build: *app-build
+    command:
+      [
+        "pnpm",
+        "--filter",
+        "@pigar/customer-web",
+        "exec",
+        "next",
+        "start",
+        "-H",
+        "0.0.0.0",
+        "-p",
+        "3000",
+      ]
+    environment: *app-environment
+    networks:
+      - edge
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'node -e "fetch(''http://127.0.0.1:3000'').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 8
+    cpus: 0.20
+    mem_limit: 256m
+    restart: unless-stopped
+
+  admin-web:
+    build: *app-build
+    command:
+      [
+        "pnpm",
+        "--filter",
+        "@pigar/admin-web",
+        "exec",
+        "next",
+        "start",
+        "-H",
+        "0.0.0.0",
+        "-p",
+        "3000",
+      ]
+    environment: *app-environment
+    networks:
+      - edge
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'node -e "fetch(''http://127.0.0.1:3000/admin'').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 8
+    cpus: 0.20
+    mem_limit: 256m
+    restart: unless-stopped
+
+  migrate:
+    build: *app-build
+    command: ["pnpm", "--filter", "@pigar/api", "prisma:migrate:deploy"]
+    environment:
+      <<: *app-environment
+      DATABASE_URL: postgresql://pigar:pigar_dev_local_only@postgres:5432/pigar?schema=public
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - backend
+    restart: "no"
+
+  api:
+    build: *app-build
+    command: ["node", "apps/api/dist/index.js"]
+    environment:
+      <<: *app-environment
+      HOST: 0.0.0.0
+      PORT: 3000
+      DATABASE_URL: postgresql://pigar:pigar_dev_local_only@postgres:5432/pigar?schema=public
+      MEDIA_ROOT: /var/lib/pigar/media
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    volumes:
+      - pigar-media-data:/var/lib/pigar/media
+    networks:
+      - edge
+      - backend
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'node -e "fetch(''http://127.0.0.1:3000/api/health/ready'').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 8
+    cpus: 0.35
+    mem_limit: 512m
+    restart: unless-stopped
+
+  worker:
+    build: *app-build
+    command: ["node", "apps/worker/dist/index.js"]
+    environment:
+      <<: *app-environment
+      WORKER_POLL_INTERVAL_MS: 30000
+      DATABASE_URL: postgresql://pigar:pigar_dev_local_only@postgres:5432/pigar?schema=public
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - backend
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'node -e "try { process.kill(1, 0); process.exit(0) } catch { process.exit(1) }"',
+        ]
+      interval: 15s
+      timeout: 3s
+      retries: 5
+    cpus: 0.20
+    mem_limit: 256m
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: pigar
+      POSTGRES_USER: pigar
+      POSTGRES_PASSWORD: pigar_dev_local_only
+    volumes:
+      - pigar-postgres-data:/var/lib/postgresql/data
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pigar -d pigar"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    cpus: 0.50
+    mem_limit: 768m
+    restart: unless-stopped
+
+networks:
+  edge:
+    driver: bridge
+  backend:
+    driver: bridge
+    internal: true
+
+volumes:
+  pigar-postgres-data:
+  pigar-media-data:

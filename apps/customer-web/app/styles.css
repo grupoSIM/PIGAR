@@ -1,0 +1,18 @@
+:root {
+  color: #102a43;
+  background: #f7fafc;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+:focus-visible {
+  outline: 3px solid #f6c344;
+  outline-offset: 3px;
+}

@@ -1,0 +1,92 @@
+generator client {
+  provider            = "prisma-client"
+  output              = "../src/generated/prisma"
+  moduleFormat        = "cjs"
+  importFileExtension = "js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ProcessingState {
+  PENDING
+  PROCESSING
+  PROCESSED
+  FAILED
+}
+
+enum ValidationState {
+  RECEIVED
+  VALID
+  INVALID
+}
+
+enum MediaPocState {
+  PENDING
+  AVAILABLE
+  REJECTED
+  EXPIRED
+  DELETED
+}
+
+model OutboxEvent {
+  id String @id @default(uuid()) @db.Uuid
+  eventType String @db.VarChar(100)
+  version Int
+  aggregateType String? @db.VarChar(60)
+  aggregateId String? @db.VarChar(100)
+  payload Json?
+  state ProcessingState @default(PENDING)
+  attempts Int @default(0)
+  availableAt DateTime @default(now()) @db.Timestamptz(3)
+  processedAt DateTime? @db.Timestamptz(3)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  @@index([state, availableAt])
+  @@map("outbox_event")
+}
+
+model ClaimedJob {
+  id String @id @default(uuid()) @db.Uuid
+  jobType String @db.VarChar(100)
+  idempotencyKey String @db.VarChar(160)
+  state ProcessingState @default(PENDING)
+  attempts Int @default(0)
+  availableAt DateTime @default(now()) @db.Timestamptz(3)
+  leaseExpiresAt DateTime? @db.Timestamptz(3)
+  lastSafeError String? @db.VarChar(500)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  @@unique([jobType, idempotencyKey])
+  @@index([state, availableAt])
+  @@map("claimed_job")
+}
+
+model ProviderEventReceipt {
+  id String @id @default(uuid()) @db.Uuid
+  provider String @db.VarChar(60)
+  externalEventIdHash String @db.VarChar(128)
+  eventType String @db.VarChar(100)
+  validationState ValidationState @default(RECEIVED)
+  receivedAt DateTime @default(now()) @db.Timestamptz(3)
+  validatedAt DateTime? @db.Timestamptz(3)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([provider, externalEventIdHash])
+  @@index([validationState, receivedAt])
+  @@map("provider_event_receipt")
+}
+
+model MediaPocObject {
+  id String @id @default(uuid()) @db.Uuid
+  physicalName String @unique @db.VarChar(180)
+  detectedMime String @db.VarChar(120)
+  bytes BigInt
+  checksum String @db.VarChar(128)
+  state MediaPocState @default(PENDING)
+  expiresAt DateTime @db.Timestamptz(3)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  @@index([state, expiresAt])
+  @@map("media_poc_object")
+}
