@@ -5,10 +5,10 @@ status: implementation
 features:
   - id: feat-001
     name: Fundaciones técnicas y arquitectura ejecutable
-    status: publication_review
+    status: done
     priority: must
     depends_on: []
-    note: Revisión independiente aprobada; publicación, CI remoto y cualquier despliegue siguen pendientes de autorización.
+    note: Etapa técnica cerrada: revisión independiente, publicación y CI remoto aprobados. Hostinger sigue reservado para testing/staging; producción requiere un entorno y aprobación independientes.
 
   - id: feat-002
     name: Identidad, roles y perfiles básicos

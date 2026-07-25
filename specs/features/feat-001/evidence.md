@@ -77,7 +77,7 @@
 | AC-008 | Casos negativos y denegación cruzada de `media-poc.test.mjs` del 2026-07-24 | pass |
 | AC-009 | `pnpm test:payment-poc` del 2026-07-24: firma HMAC, fuente autoritativa y deduplicación concurrente | pass |
 | AC-010 | `pnpm test:payment-poc` del 2026-07-24: conciliación de intención pendiente con evento perdido | pass |
-| AC-011 | GitHub Actions runs `30168736165` y `30169145198`; `pnpm format:check && pnpm --filter @pigar/api prisma:generate && pnpm typecheck && pnpm test:ci-contract` del 2026-07-25 | partial: las ejecuciones remotas revelaron dependencias de generación ausentes en checkout limpio. El workflow ahora compila dependencias internas y genera explícitamente Prisma antes de validar tipos; nueva ejecución remota pendiente. |
+| AC-011 | GitHub Actions run `30169241231` sobre commit `ff3b2d3`; `pnpm format:check && pnpm --filter @pigar/api prisma:generate && pnpm typecheck && pnpm test:ci-contract` del 2026-07-25 | pass: CI bloqueante completó todas las categorías en un checkout limpio. |
 | AC-012 | Tests `config-secrets` y `log-sanitization` del 2026-07-24/25 | pass: configuración temprana y logs estructurados/sanitizados verificados. |
 | AC-013 | `pnpm test --grep order-state-machine` y `pnpm test:security --grep permission-matrix` del 2026-07-25 | pass: contrato de estados/pago y matriz de permisos verifican combinaciones permitidas, pagos pendientes/rechazados y técnico sin acceso. |
 | AC-014 | `pnpm docs:check` del 2026-07-25 y `docs/runbooks/capacity-and-recovery.md` | pass: capacidad, límites, cuotas fechadas, cifrado, despliegue y bloqueantes de backup/restauración documentados. |
@@ -118,3 +118,4 @@ El navegador integrado no pudo alcanzar los puertos `127.0.0.1` del entorno de e
 - Corrección: el workflow ejecuta explícitamente `pnpm --filter @pigar/api prisma:generate` tras instalar dependencias, conservando `--ignore-scripts` para no ejecutar scripts arbitrarios de dependencias.
 - Warning Node 20: provenía de los runtimes internos de `actions/checkout@v4`, `actions/setup-node@v4` y `pnpm/action-setup@v4`; el workflow ya ejecutaba PIGAR sobre Node 24. Se actualizaron a `checkout@v7`, `setup-node@v7` y `pnpm/action-setup@v6`, sin habilitar la compatibilidad insegura de Node 20.
 - Verificación local: `pnpm format:check && pnpm --filter @pigar/api prisma:generate && pnpm typecheck && pnpm test:ci-contract` — pass (14/14 tareas de Turbo; 2/2 pruebas de contrato CI).
+- Verificación remota final: GitHub Actions run `30169241231` sobre `ff3b2d3` — pass; todas las categorías del workflow `quality` completadas.

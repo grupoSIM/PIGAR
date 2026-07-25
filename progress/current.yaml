@@ -1,6 +1,6 @@
 project: PIGAR
 active_feature: feat-001
-phase: publication_review
+phase: done
 updated_at: 2026-07-25T00:00:00-03:00
 
 blockers: []
@@ -61,7 +61,7 @@ approvals:
     approved_at: 2026-07-25T00:00:00-03:00
 
 quality:
-  status: partial
+  status: pass
   evidence: specs/features/feat-001/evidence.md
 
 notes:
@@ -96,3 +96,4 @@ notes:
   - TASK-017 completada: evidencia consolidada y revisión independiente preparada; feat-001 pasa a verification, sin autorización de publicación y con CI remoto/bloqueantes de producción pendientes.
   - El usuario aprobó la revisión independiente de feat-001 el 2026-07-25; la feature pasa a publication_review. Hostinger queda declarado como testing/staging para equipo y cliente, no producción; publicación/despliegue siguen sin autorización.
   - El usuario autorizó el 2026-07-25 crear el repositorio público grupoSIM/PIGAR, realizar el commit inicial y hacer push; no autorizó despliegues.
+  - CI remoto aprobado el 2026-07-25 en GitHub Actions run 30169241231; feat-001 queda cerrada. Los bloqueantes de producción siguen vigentes y Hostinger no es producción.
