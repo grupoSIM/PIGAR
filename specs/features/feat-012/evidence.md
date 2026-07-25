@@ -1,0 +1,22 @@
+# Evidencia — feat-012: Staging técnico en Hostinger
+
+Estado: implementación habilitada por aprobación de especificación del usuario el 2026-07-25. No se realizó acceso al VPS, cambio DNS, despliegue ni carga de datos.
+
+## Registro de comandos
+
+| Fecha | Comando | Resultado | Alcance/notas |
+|---|---|---|---|
+| Pendiente | — | — | La ejecución comienza únicamente tras aprobación de la especificación y entrega segura de datos operativos. |
+| 2026-07-25 | `docker compose -f infra/compose/docker-compose.yml config --quiet && pnpm docs:check` | pass | TASK-012-001: Compose validó la interpolación con defaults locales y la documentación fue consistente. Docker informó que el sandbox no puede leer su configuración de usuario, sin impedir la validación. La configuración de PostgreSQL quedó parametrizada y Compose conserva Nginx en loopback; DNS/TLS/acceso remoto siguen como puerta explícita. |
+| 2026-07-25 | Revisión de `infra/hostinger/staging.env.example` y `docs/runbooks/hostinger-staging.md` | pass | TASK-012-002: plantilla sin secretos, uso obligatorio de archivo `0600` fuera de Git, secretos URL-safe y prohibición explícita de datos/cuentas productivas. |
+| 2026-07-25 | `docker compose -f infra/hostinger/docker-compose.traefik.yml config --quiet` con valores sintéticos | pass | Variante autónoma validada: build remoto fijado por SHA, labels Traefik, sin puertos publicados por PIGAR y redes privadas para backend. Docker informó que el sandbox no puede leer su configuración de usuario, sin impedir la validación. |
+
+## Publicación y despliegue
+
+- La autorización de publicación de `feat-001` no autoriza el despliegue de esta feature.
+- Cualquier despliegue en Hostinger requiere aprobación explícita de ejecución, acceso operativo entregado fuera del repositorio y evidencia sanitizada.
+- Este entorno es exclusivamente testing/staging; no constituye producción.
+
+## Decisiones de staging
+
+- STG-012-001: el usuario eligió Traefik administrado por Hostinger para HTTPS y enrutamiento de staging el 2026-07-25. La inspección del proyecto existente `hermes-agent-oixa` confirmó que no publica 80/443 y ya usa etiquetas de Traefik; no se realizó aún el despliegue de Traefik.

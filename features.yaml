@@ -10,6 +10,13 @@ features:
     depends_on: []
     note: Etapa técnica cerrada: revisión independiente, publicación y CI remoto aprobados. Hostinger sigue reservado para testing/staging; producción requiere un entorno y aprobación independientes.
 
+  - id: feat-012
+    name: Staging técnico en Hostinger
+    status: implementation
+    priority: must
+    depends_on: [feat-001]
+    note: Especificación aprobada por el usuario el 2026-07-25. Incremento operativo sin funcionalidades de producto ni producción.
+
   - id: feat-002
     name: Identidad, roles y perfiles básicos
     status: proposed
