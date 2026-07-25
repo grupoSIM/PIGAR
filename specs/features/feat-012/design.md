@@ -20,10 +20,10 @@ STG-012-001: el usuario eligió el Traefik administrado por Hostinger el 2026-07
 
 ## Operación prevista
 
-1. Preparar un directorio remoto dedicado y una copia de la revisión Git aprobada.
-2. Crear configuración de staging fuera de Git con permisos restrictivos.
-3. Construir/iniciar Compose y esperar healthchecks.
-4. Desplegar el proyecto Traefik de Hostinger y configurar sus etiquetas/HTTPS únicamente tras contar con el subdominio y control DNS aprobados.
+1. Crear en Docker Manager el proyecto bootstrap desde la revisión Git aprobada; no inicia PIGAR, PostgreSQL ni expone rutas.
+2. Cargar en Docker Manager la configuración de staging fuera de Git, incluido el secreto aleatorio y `COMPOSE_PROFILES=app`.
+3. Aplicar **Update** para construir/iniciar el perfil `app` y esperar healthchecks.
+4. Usar las etiquetas/HTTPS de Traefik únicamente tras contar con el subdominio y control DNS aprobados.
 5. Ejecutar smoke tests HTTPS y pruebas negativas de superficie/red.
 6. Registrar hash de revisión, resultados y procedimiento de rollback en `evidence.md`.
 

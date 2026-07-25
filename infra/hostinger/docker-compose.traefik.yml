@@ -2,7 +2,9 @@
 # Hostinger Docker Manager clona el repositorio del URL de Compose en el commit
 # indicado por ese URL. Los contextos relativos reutilizan esa copia y evitan
 # depender de variables durante la interpolación inicial del proyecto.
-# Requiere PIGAR_STAGING_FQDN y valores PostgreSQL de staging. No contiene secretos.
+# La primera ejecución crea sólo el servicio bootstrap: Docker Manager permite
+# cargar variables únicamente después de crear el proyecto. Tras cargarlas, usar
+# COMPOSE_PROFILES=app y Update para iniciar el stack. No contiene secretos.
 name: pigar-staging
 
 x-app-build: &app-build
@@ -17,8 +19,14 @@ x-app-environment: &app-environment
   NODE_ENV: production
 
 services:
+  bootstrap:
+    image: alpine:3.21
+    command: ["sh", "-c", "while true; do sleep 3600; done"]
+    restart: unless-stopped
+
   nginx:
     build: *nginx-build
+    profiles: ["app"]
     depends_on:
       api:
         condition: service_healthy
@@ -32,7 +40,7 @@ services:
       - edge
     labels:
       - traefik.enable=true
-      - "traefik.http.routers.pigar-staging.rule=Host(`${PIGAR_STAGING_FQDN:?Definir el FQDN de staging}`)"
+      - "traefik.http.routers.pigar-staging.rule=Host(`${PIGAR_STAGING_FQDN:-}`)"
       - traefik.http.routers.pigar-staging.entrypoints=websecure
       - traefik.http.routers.pigar-staging.tls.certresolver=letsencrypt
       - traefik.http.services.pigar-staging.loadbalancer.server.port=8080
@@ -47,6 +55,7 @@ services:
 
   customer-web:
     build: *app-build
+    profiles: ["app"]
     command: ["pnpm", "--filter", "@pigar/customer-web", "exec", "next", "start", "-H", "0.0.0.0", "-p", "3000"]
     environment: *app-environment
     networks:
@@ -62,6 +71,7 @@ services:
 
   admin-web:
     build: *app-build
+    profiles: ["app"]
     command: ["pnpm", "--filter", "@pigar/admin-web", "exec", "next", "start", "-H", "0.0.0.0", "-p", "3000"]
     environment: *app-environment
     networks:
@@ -77,10 +87,11 @@ services:
 
   migrate:
     build: *app-build
+    profiles: ["app"]
     command: ["pnpm", "--filter", "@pigar/api", "prisma:migrate:deploy"]
     environment:
       <<: *app-environment
-      DATABASE_URL: ${PIGAR_DATABASE_URL:?Definir PIGAR_DATABASE_URL de staging}
+      DATABASE_URL: ${PIGAR_DATABASE_URL:-}
     depends_on:
       postgres:
         condition: service_healthy
@@ -90,12 +101,13 @@ services:
 
   api:
     build: *app-build
+    profiles: ["app"]
     command: ["node", "apps/api/dist/index.js"]
     environment:
       <<: *app-environment
       HOST: 0.0.0.0
       PORT: 3000
-      DATABASE_URL: ${PIGAR_DATABASE_URL:?Definir PIGAR_DATABASE_URL de staging}
+      DATABASE_URL: ${PIGAR_DATABASE_URL:-}
       MEDIA_ROOT: /var/lib/pigar/media
     depends_on:
       migrate:
@@ -116,11 +128,12 @@ services:
 
   worker:
     build: *app-build
+    profiles: ["app"]
     command: ["node", "apps/worker/dist/index.js"]
     environment:
       <<: *app-environment
       WORKER_POLL_INTERVAL_MS: 30000
-      DATABASE_URL: ${PIGAR_DATABASE_URL:?Definir PIGAR_DATABASE_URL de staging}
+      DATABASE_URL: ${PIGAR_DATABASE_URL:-}
     depends_on:
       postgres:
         condition: service_healthy
@@ -137,10 +150,11 @@ services:
 
   postgres:
     image: postgres:17-alpine
+    profiles: ["app"]
     environment:
-      POSTGRES_DB: ${PIGAR_POSTGRES_DB:?Definir PIGAR_POSTGRES_DB de staging}
-      POSTGRES_USER: ${PIGAR_POSTGRES_USER:?Definir PIGAR_POSTGRES_USER de staging}
-      POSTGRES_PASSWORD: ${PIGAR_POSTGRES_PASSWORD:?Definir PIGAR_POSTGRES_PASSWORD de staging}
+      POSTGRES_DB: ${PIGAR_POSTGRES_DB:-pigar_staging}
+      POSTGRES_USER: ${PIGAR_POSTGRES_USER:-pigar_staging}
+      POSTGRES_PASSWORD: ${PIGAR_POSTGRES_PASSWORD:-}
     volumes:
       - pigar-postgres-data:/var/lib/postgresql/data
     networks:

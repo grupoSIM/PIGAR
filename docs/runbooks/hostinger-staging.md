@@ -25,13 +25,17 @@ API, worker ni multimedia.
 2. En Docker Manager, usar **Compose → Compose from URL** con la URL raw del
    archivo `infra/hostinger/docker-compose.traefik.yml` de esa misma revisión.
 3. Nombrar el proyecto `pigar-staging`.
-4. Cargar como variables de proyecto los nombres de
+4. Desplegar: esta primera operación inicia exclusivamente el contenedor
+   `bootstrap`, sin PIGAR, PostgreSQL, builds ni puertos publicados.
+5. En **Administrar → Update**, cargar las variables de
    `infra/hostinger/docker-manager.env.example`. Reemplazar únicamente los
    marcadores de contraseña por un secreto aleatorio URL-safe, generado y
-   cargado directamente en Hostinger; nunca compartirlo.
-5. Revisar que el servicio `nginx` tenga las etiquetas `traefik.*`, no tenga
+   cargado directamente en Hostinger; nunca compartirlo. Incluir
+   `COMPOSE_PROFILES=app`.
+6. Aplicar **Update**: recién entonces se construye e inicia PIGAR.
+7. Revisar que el servicio `nginx` tenga las etiquetas `traefik.*`, no tenga
    `ports:` y que PostgreSQL/API/worker tampoco expongan puertos.
-6. Usar la vista previa YAML y desplegar solo después de la aprobación explícita
+8. Usar la vista previa YAML y desplegar solo después de la aprobación explícita
    de ejecución.
 
 Docker Manager clona el repositorio en el commit que indica la URL raw del
