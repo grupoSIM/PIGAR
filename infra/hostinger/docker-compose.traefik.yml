@@ -1,14 +1,16 @@
 # Compose autónomo para Hostinger Docker Manager.
-# Requiere variables de proyecto: PIGAR_DEPLOY_REF (SHA completo),
-# PIGAR_STAGING_FQDN y valores PostgreSQL de staging. No contiene secretos.
+# Hostinger Docker Manager clona el repositorio del URL de Compose en el commit
+# indicado por ese URL. Los contextos relativos reutilizan esa copia y evitan
+# depender de variables durante la interpolación inicial del proyecto.
+# Requiere PIGAR_STAGING_FQDN y valores PostgreSQL de staging. No contiene secretos.
 name: pigar-staging
 
 x-app-build: &app-build
-  context: "https://github.com/grupoSIM/PIGAR.git#${PIGAR_DEPLOY_REF:?Definir el SHA completo aprobado en PIGAR_DEPLOY_REF}"
+  context: ../..
   dockerfile: infra/docker/app.Dockerfile
 
 x-nginx-build: &nginx-build
-  context: "https://github.com/grupoSIM/PIGAR.git#${PIGAR_DEPLOY_REF:?Definir el SHA completo aprobado en PIGAR_DEPLOY_REF}"
+  context: ../..
   dockerfile: infra/docker/nginx.Dockerfile
 
 x-app-environment: &app-environment

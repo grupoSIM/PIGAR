@@ -34,9 +34,9 @@ API, worker ni multimedia.
 6. Usar la vista previa YAML y desplegar solo después de la aprobación explícita
    de ejecución.
 
-El Compose descarga el contexto de build desde el commit aprobado de GitHub.
-Esto conserva la reproducibilidad sin requerir un registry de imágenes ni acceso
-SSH al VPS.
+Docker Manager clona el repositorio en el commit que indica la URL raw del
+Compose; los contextos de build relativos reutilizan esa copia. Esto conserva la
+reproducibilidad sin requerir un registry de imágenes ni acceso SSH al VPS.
 
 ## DNS y TLS
 
@@ -61,9 +61,9 @@ Para un reinicio controlado, usar **Administrar → reiniciar** sobre el proyect
 ## Actualización y rollback
 
 Antes de actualizar, anotar el hash en ejecución. Para volver a una revisión
-anterior, editar las variables del proyecto con el SHA previo aprobado, aplicar
-**Update** y repetir los smoke tests. Este rollback no sustituye backups ni
-restauración productiva.
+anterior, usar la URL raw que incluya el SHA previo aprobado, aplicar **Update**
+y repetir los smoke tests. Este rollback no sustituye backups ni restauración
+productiva.
 
 ## Prohibiciones
 
