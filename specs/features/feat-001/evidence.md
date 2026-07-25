@@ -77,7 +77,7 @@
 | AC-008 | Casos negativos y denegación cruzada de `media-poc.test.mjs` del 2026-07-24 | pass |
 | AC-009 | `pnpm test:payment-poc` del 2026-07-24: firma HMAC, fuente autoritativa y deduplicación concurrente | pass |
 | AC-010 | `pnpm test:payment-poc` del 2026-07-24: conciliación de intención pendiente con evento perdido | pass |
-| AC-011 | GitHub Actions run `30168736165`, `pnpm format:check && pnpm typecheck && pnpm test:ci-contract` del 2026-07-25 | partial: la primera ejecución remota falló por resolución de tipos de paquetes internos en checkout limpio; se corrigió `typecheck` para compilar dependencias `^build` y se actualizaron acciones a runtimes Node 24. Nueva ejecución remota pendiente. |
+| AC-011 | GitHub Actions runs `30168736165` y `30169145198`; `pnpm format:check && pnpm --filter @pigar/api prisma:generate && pnpm typecheck && pnpm test:ci-contract` del 2026-07-25 | partial: las ejecuciones remotas revelaron dependencias de generación ausentes en checkout limpio. El workflow ahora compila dependencias internas y genera explícitamente Prisma antes de validar tipos; nueva ejecución remota pendiente. |
 | AC-012 | Tests `config-secrets` y `log-sanitization` del 2026-07-24/25 | pass: configuración temprana y logs estructurados/sanitizados verificados. |
 | AC-013 | `pnpm test --grep order-state-machine` y `pnpm test:security --grep permission-matrix` del 2026-07-25 | pass: contrato de estados/pago y matriz de permisos verifican combinaciones permitidas, pagos pendientes/rechazados y técnico sin acceso. |
 | AC-014 | `pnpm docs:check` del 2026-07-25 y `docs/runbooks/capacity-and-recovery.md` | pass: capacidad, límites, cuotas fechadas, cifrado, despliegue y bloqueantes de backup/restauración documentados. |
@@ -114,5 +114,7 @@ El navegador integrado no pudo alcanzar los puertos `127.0.0.1` del entorno de e
 
 - Diagnóstico remoto: `gh run view 30168736165 --repo grupoSIM/PIGAR --log-failed` identificó que `@pigar/worker` no resolvía `@pigar/config` ni `@pigar/observability` en un checkout limpio; las otras marcas de error eran propagación de ese fallo.
 - Corrección: `turbo.json` hace que `typecheck` dependa de `^build`, generando las declaraciones de paquetes internos antes de validarlos.
+- Diagnóstico remoto adicional: el run `30169145198` llegó a `@pigar/api` y reveló que el cliente Prisma no existe tras `pnpm install --ignore-scripts`.
+- Corrección: el workflow ejecuta explícitamente `pnpm --filter @pigar/api prisma:generate` tras instalar dependencias, conservando `--ignore-scripts` para no ejecutar scripts arbitrarios de dependencias.
 - Warning Node 20: provenía de los runtimes internos de `actions/checkout@v4`, `actions/setup-node@v4` y `pnpm/action-setup@v4`; el workflow ya ejecutaba PIGAR sobre Node 24. Se actualizaron a `checkout@v7`, `setup-node@v7` y `pnpm/action-setup@v6`, sin habilitar la compatibilidad insegura de Node 20.
-- Verificación local: `pnpm format:check && pnpm typecheck && pnpm test:ci-contract` — pass (14/14 tareas de Turbo; 2/2 pruebas de contrato CI).
+- Verificación local: `pnpm format:check && pnpm --filter @pigar/api prisma:generate && pnpm typecheck && pnpm test:ci-contract` — pass (14/14 tareas de Turbo; 2/2 pruebas de contrato CI).
