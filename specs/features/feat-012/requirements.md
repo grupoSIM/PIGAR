@@ -9,7 +9,7 @@ Establecer un entorno técnico de **testing/staging** en el VPS de Hostinger ya 
 - Producción, alta disponibilidad, migración productiva, SLA o recuperación ante desastre productiva.
 - Funciones de negocio, autenticación de usuarios, solicitudes, pagos o multimedia de clientes.
 - Datos personales, ubicaciones, datos de pago, credenciales productivas o cuentas reales de proveedores.
-- CI/CD automático, despliegue continuo, DNS definitivo o selección de un proveedor de backup externo.
+- Despliegue continuo, DNS definitivo o selección de un proveedor de backup externo. GitHub Actions puede publicar imágenes inmutables en GHCR después de aprobar calidad, pero no despliega en Hostinger.
 
 ## Requisitos funcionales
 
@@ -52,6 +52,6 @@ Establecer un entorno técnico de **testing/staging** en el VPS de Hostinger ya 
 
 - DEP-012-001: VPS Hostinger de staging de 2 vCPU, 8 GB RAM, 100 GB de disco y 8 TB de transferencia, ya declarado para testing/staging.
 - OQ-012-001: resuelta — FQDN de staging `pigar.ferchamorro.cloud`; el usuario creó el registro A el 2026-07-25. Falta comprobar propagación al momento de emitir TLS.
-- OQ-012-002: el despliegue inicial usará Docker Manager; no requiere acceso SSH mientras el build remoto funcione.
+- OQ-012-002: resuelta — Docker Manager consume imágenes inmutables de GHCR; el workflow sólo publica imágenes tras calidad exitosa y no tiene acceso ni credenciales de Hostinger.
 - OQ-012-003: ventana de despliegue y personas autorizadas para acceder al staging.
 - OQ-012-004: se confirma que ningún dato ni cuenta productiva se cargará durante esta feature.

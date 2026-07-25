@@ -18,14 +18,17 @@ Traefik será el único proyecto que publica los puertos 80/443 en el VPS. El Ng
 
 STG-012-001: el usuario eligió el Traefik administrado por Hostinger el 2026-07-25 para el HTTPS de staging. Esta elección no aplica a producción y no habilita despliegue automático.
 
+STG-012-002: el usuario aprobó GitHub Container Registry (GHCR) el 2026-07-25 para distribuir imágenes inmutables de staging. GitHub Actions publica las imágenes sólo después de la calidad exitosa; Hostinger las descarga durante una actualización manual y no recibe credenciales de GitHub.
+
 ## Operación prevista
 
-1. Crear en Docker Manager el proyecto bootstrap desde la revisión Git aprobada; no inicia PIGAR, PostgreSQL ni expone rutas.
-2. Cargar en Docker Manager la configuración de staging fuera de Git, incluido el secreto aleatorio y `COMPOSE_PROFILES=app`.
-3. Aplicar **Update** para construir/iniciar el perfil `app` y esperar healthchecks.
-4. Usar las etiquetas/HTTPS de Traefik únicamente tras contar con el subdominio y control DNS aprobados.
-5. Ejecutar smoke tests HTTPS y pruebas negativas de superficie/red.
-6. Registrar hash de revisión, resultados y procedimiento de rollback en `evidence.md`.
+1. GitHub Actions publica en GHCR las imágenes `pigar-app` y `pigar-nginx`, etiquetadas con el SHA completo, después de validar calidad.
+2. Crear en Docker Manager el proyecto bootstrap desde la revisión Git aprobada; no inicia PIGAR, PostgreSQL ni expone rutas.
+3. Cargar en Docker Manager la configuración de staging fuera de Git, incluido el secreto aleatorio, `COMPOSE_PROFILES=app` y el mismo SHA en `PIGAR_IMAGE_TAG`.
+4. Aplicar **Update** para descargar/iniciar el perfil `app` y esperar healthchecks.
+5. Usar las etiquetas/HTTPS de Traefik únicamente tras contar con el subdominio y control DNS aprobados.
+6. Ejecutar smoke tests HTTPS y pruebas negativas de superficie/red.
+7. Registrar hash de revisión, resultados y procedimiento de rollback en `evidence.md`.
 
 ## Controles de seguridad
 

@@ -13,6 +13,7 @@ Estado: implementación habilitada por aprobación de especificación del usuari
 | 2026-07-25 | `docker compose -f infra/hostinger/docker-compose.traefik.yml config --quiet` con valores sintéticos, tras usar `context: ../..` | pass | Corrección de compatibilidad con Compose from URL: Docker Manager ya clona el repositorio en el SHA de la URL raw antes de interpretar el Compose. El archivo ya no requiere `PIGAR_DEPLOY_REF` durante la creación inicial. Docker informó que el sandbox no puede leer su configuración de usuario, sin impedir la validación. |
 | 2026-07-25 | `pnpm docs:check` | pass | El runbook y la plantilla de variables se actualizaron para fijar la revisión por la URL raw del Compose, sin requerir una variable de SHA en Docker Manager. |
 | 2026-07-25 | `docker compose -f infra/hostinger/docker-compose.traefik.yml config --quiet` sin variables y con `COMPOSE_PROFILES=app` más valores sintéticos; `pnpm docs:check` | pass | Corrección para el flujo de Docker Manager: sin variables sólo queda el servicio `bootstrap`; con el perfil `app` y configuración sintética, el stack completo valida. No se introdujeron valores secretos por defecto. Docker informó que el sandbox no puede leer su configuración de usuario, sin impedir la validación. |
+| 2026-07-25 | `docker compose -f infra/hostinger/docker-compose.traefik.yml config --quiet` con y sin perfil; `pnpm format:check`; `pnpm docs:check`; `pnpm test:ci-contract`; `docker build` de `app.Dockerfile` y `nginx.Dockerfile` | pass | STG-012-002: Compose valida referencias inmutables a GHCR sin builds remotos; las dos imágenes construyen localmente y el contrato CI mantiene las categorías bloqueantes. El workflow publicará sólo después de calidad exitosa y no contiene credenciales de Hostinger. Docker informó que el sandbox no puede leer su configuración de usuario, sin impedir la validación. |
 
 ## Publicación y despliegue
 
@@ -23,3 +24,4 @@ Estado: implementación habilitada por aprobación de especificación del usuari
 ## Decisiones de staging
 
 - STG-012-001: el usuario eligió Traefik administrado por Hostinger para HTTPS y enrutamiento de staging el 2026-07-25. La inspección del proyecto existente `hermes-agent-oixa` confirmó que no publica 80/443 y ya usa etiquetas de Traefik; no se realizó aún el despliegue de Traefik.
+- STG-012-002: el usuario aprobó GHCR el 2026-07-25 para imágenes inmutables de staging. No habilita despliegue automático ni otorga acceso de GitHub al VPS.

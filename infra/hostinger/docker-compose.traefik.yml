@@ -1,19 +1,12 @@
 # Compose autónomo para Hostinger Docker Manager.
-# Hostinger Docker Manager clona el repositorio del URL de Compose en el commit
-# indicado por ese URL. Los contextos relativos reutilizan esa copia y evitan
-# depender de variables durante la interpolación inicial del proyecto.
 # La primera ejecución crea sólo el servicio bootstrap: Docker Manager permite
 # cargar variables únicamente después de crear el proyecto. Tras cargarlas, usar
-# COMPOSE_PROFILES=app y Update para iniciar el stack. No contiene secretos.
+# COMPOSE_PROFILES=app y PIGAR_IMAGE_TAG (SHA publicado en GHCR) para iniciar el
+# stack. No contiene secretos ni construye imágenes en el VPS.
 name: pigar-staging
 
-x-app-build: &app-build
-  context: ../..
-  dockerfile: infra/docker/app.Dockerfile
-
-x-nginx-build: &nginx-build
-  context: ../..
-  dockerfile: infra/docker/nginx.Dockerfile
+x-app-image: &app-image "ghcr.io/gruposim/pigar-app:${PIGAR_IMAGE_TAG:-bootstrap}"
+x-nginx-image: &nginx-image "ghcr.io/gruposim/pigar-nginx:${PIGAR_IMAGE_TAG:-bootstrap}"
 
 x-app-environment: &app-environment
   NODE_ENV: production
@@ -25,7 +18,7 @@ services:
     restart: unless-stopped
 
   nginx:
-    build: *nginx-build
+    image: *nginx-image
     profiles: ["app"]
     depends_on:
       api:
@@ -54,7 +47,7 @@ services:
     restart: unless-stopped
 
   customer-web:
-    build: *app-build
+    image: *app-image
     profiles: ["app"]
     command: ["pnpm", "--filter", "@pigar/customer-web", "exec", "next", "start", "-H", "0.0.0.0", "-p", "3000"]
     environment: *app-environment
@@ -70,7 +63,7 @@ services:
     restart: unless-stopped
 
   admin-web:
-    build: *app-build
+    image: *app-image
     profiles: ["app"]
     command: ["pnpm", "--filter", "@pigar/admin-web", "exec", "next", "start", "-H", "0.0.0.0", "-p", "3000"]
     environment: *app-environment
@@ -86,7 +79,7 @@ services:
     restart: unless-stopped
 
   migrate:
-    build: *app-build
+    image: *app-image
     profiles: ["app"]
     command: ["pnpm", "--filter", "@pigar/api", "prisma:migrate:deploy"]
     environment:
@@ -100,7 +93,7 @@ services:
     restart: "no"
 
   api:
-    build: *app-build
+    image: *app-image
     profiles: ["app"]
     command: ["node", "apps/api/dist/index.js"]
     environment:
@@ -127,7 +120,7 @@ services:
     restart: unless-stopped
 
   worker:
-    build: *app-build
+    image: *app-image
     profiles: ["app"]
     command: ["node", "apps/worker/dist/index.js"]
     environment:

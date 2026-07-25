@@ -12,6 +12,7 @@ Las decisiones comienzan como `proposed` y solo pasan a `accepted` con aprobaci�
 | [ADR-006](adr/ADR-006.md) | Multimedia privada en el VPS | accepted | feat-004 |
 | [ADR-007](adr/ADR-007.md) | Estado in-app y canales externos diferidos | accepted | feat-009 |
 | [ADR-008](adr/ADR-008.md) | MVP online y estrategia offline diferida | accepted | feat-004, feat-006 |
+| [ADR-009](adr/ADR-009.md) | Imágenes inmutables de staging en GHCR | accepted | feat-012 |
 
 La recomendación consolidada y el alcance propuesto se encuentran en [discovery-mvp.md](discovery-mvp.md).
 

@@ -41,6 +41,8 @@ decisions:
     status: accepted
   - id: ADR-008
     status: accepted
+  - id: ADR-009
+    status: accepted
 
 approvals:
   architecture:

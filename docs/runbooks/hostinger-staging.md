@@ -21,26 +21,33 @@ API, worker ni multimedia.
 
 ## Preparación del proyecto en Docker Manager
 
-1. Elegir el hash completo de una revisión publicada y aprobada en GitHub.
-2. En Docker Manager, usar **Compose → Compose from URL** con la URL raw del
+1. Elegir el hash completo de una revisión publicada y aprobada en GitHub cuya
+   ejecución `publish-staging-images` haya terminado correctamente.
+2. Confirmar una única vez que los paquetes `pigar-app` y `pigar-nginx` de
+   `grupoSIM` sean públicos en GitHub Packages. Hostinger debe poder descargarlos
+   sin credenciales de GitHub.
+3. En Docker Manager, usar **Compose → Compose from URL** con la URL raw del
    archivo `infra/hostinger/docker-compose.traefik.yml` de esa misma revisión.
-3. Nombrar el proyecto `pigar-staging`.
-4. Desplegar: esta primera operación inicia exclusivamente el contenedor
+4. Nombrar el proyecto `pigar-staging`.
+5. Desplegar: esta primera operación inicia exclusivamente el contenedor
    `bootstrap`, sin PIGAR, PostgreSQL, builds ni puertos publicados.
-5. En **Administrar → Update**, cargar las variables de
+6. En **Administrar → Update**, cargar las variables de
    `infra/hostinger/docker-manager.env.example`. Reemplazar únicamente los
    marcadores de contraseña por un secreto aleatorio URL-safe, generado y
    cargado directamente en Hostinger; nunca compartirlo. Incluir
-   `COMPOSE_PROFILES=app`.
-6. Aplicar **Update**: recién entonces se construye e inicia PIGAR.
-7. Revisar que el servicio `nginx` tenga las etiquetas `traefik.*`, no tenga
+   `COMPOSE_PROFILES=app` y establecer `PIGAR_IMAGE_TAG` con el hash elegido en
+   el paso 1.
+7. Aplicar **Update**: recién entonces Hostinger descarga las imágenes e inicia
+   PIGAR. No debe compilar código en el VPS.
+8. Revisar que el servicio `nginx` tenga las etiquetas `traefik.*`, no tenga
    `ports:` y que PostgreSQL/API/worker tampoco expongan puertos.
-8. Usar la vista previa YAML y desplegar solo después de la aprobación explícita
+9. Usar la vista previa YAML y desplegar solo después de la aprobación explícita
    de ejecución.
 
-Docker Manager clona el repositorio en el commit que indica la URL raw del
-Compose; los contextos de build relativos reutilizan esa copia. Esto conserva la
-reproducibilidad sin requerir un registry de imágenes ni acceso SSH al VPS.
+El SHA de la URL raw y `PIGAR_IMAGE_TAG` deben ser el mismo. Docker Manager usa
+el primero para obtener la configuración y el segundo para descargar las
+imágenes OCI inmutables desde GHCR. GitHub Actions no conoce ni usa acceso al
+VPS.
 
 ## DNS y TLS
 
@@ -65,9 +72,9 @@ Para un reinicio controlado, usar **Administrar → reiniciar** sobre el proyect
 ## Actualización y rollback
 
 Antes de actualizar, anotar el hash en ejecución. Para volver a una revisión
-anterior, usar la URL raw que incluya el SHA previo aprobado, aplicar **Update**
-y repetir los smoke tests. Este rollback no sustituye backups ni restauración
-productiva.
+anterior, usar la URL raw y `PIGAR_IMAGE_TAG` con el mismo SHA previo aprobado,
+aplicar **Update** y repetir los smoke tests. Este rollback no sustituye backups
+ni restauración productiva.
 
 ## Prohibiciones
 
