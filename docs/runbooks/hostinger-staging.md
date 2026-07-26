@@ -31,14 +31,14 @@ API, worker ni multimedia.
 4. Nombrar el proyecto `pigar-staging`.
 5. Desplegar: esta primera operación inicia exclusivamente el contenedor
    `bootstrap`, sin PIGAR, PostgreSQL, builds ni puertos publicados.
-6. En **Administrar → Update**, cargar las variables de
-   `infra/hostinger/docker-manager.env.example`. Reemplazar únicamente los
-   marcadores de contraseña por un secreto aleatorio URL-safe, generado y
-   cargado directamente en Hostinger; nunca compartirlo. Incluir
-   `COMPOSE_PROFILES=app` y establecer `PIGAR_IMAGE_TAG` con el hash elegido en
-   el paso 1.
-7. Aplicar **Update**: recién entonces Hostinger descarga las imágenes e inicia
-   PIGAR. No debe compilar código en el VPS.
+6. En **Administrar → Editor .yaml**, reemplazar el Compose bootstrap por la
+   configuración final: usar las imágenes GHCR con el SHA elegido, eliminar los
+   perfiles `app`, fijar el FQDN de staging y completar las credenciales
+   sintéticas directamente en el editor. Esos valores quedan sólo en la
+   configuración del proyecto en Hostinger; nunca se copian a Git ni a este
+   runbook. Usar el mismo secreto URL-safe para PostgreSQL y `DATABASE_URL`.
+7. Aplicar **Desplegar**: Hostinger descarga las imágenes e inicia PIGAR. No
+   debe compilar código en el VPS.
 8. Revisar que el servicio `nginx` tenga las etiquetas `traefik.*`, no tenga
    `ports:` y que PostgreSQL/API/worker tampoco expongan puertos.
 9. Usar la vista previa YAML y desplegar solo después de la aprobación explícita

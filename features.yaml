@@ -12,7 +12,7 @@ features:
 
   - id: feat-012
     name: Staging técnico en Hostinger
-    status: implementation
+    status: verification
     priority: must
     depends_on: [feat-001]
     note: Especificación aprobada por el usuario el 2026-07-25. Incremento operativo sin funcionalidades de producto ni producción.

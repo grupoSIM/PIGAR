@@ -1,6 +1,6 @@
 project: PIGAR
 active_feature: feat-012
-phase: implementation
+phase: verification
 updated_at: 2026-07-25T00:00:00-03:00
 
 blockers: []
@@ -54,16 +54,16 @@ approvals:
     approved_by: usuario
     approved_at: 2026-07-25T00:00:00-03:00
   verification:
-    status: pending
-    approved_by: null
-    approved_at: null
+    status: approved
+    approved_by: usuario
+    approved_at: 2026-07-25T00:00:00-03:00
   publication:
     status: not_applicable
     approved_by: null
     approved_at: null
 
 quality:
-  status: pending
+  status: passed
   evidence: specs/features/feat-012/evidence.md
 
 notes:
