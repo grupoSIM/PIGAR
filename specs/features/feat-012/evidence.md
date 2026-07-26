@@ -22,8 +22,8 @@ Estado: staging técnico desplegado en Hostinger con valores sintéticos/no prod
 
 ## Publicación y despliegue
 
-- La autorización de publicación de `feat-001` no autoriza el despliegue de esta feature.
-- Cualquier despliegue en Hostinger requiere aprobación explícita de ejecución, acceso operativo entregado fuera del repositorio y evidencia sanitizada.
+- El usuario aprobó el despliegue manual de staging y el cierre de `feat-012` el 2026-07-26.
+- La calidad 30182775068 y la publicación de imágenes 30182871116 finalizaron correctamente para el commit de evidencia `567a9d8a1b6ad638259ed9d6c8765ec754222f0a`.
 - Este entorno es exclusivamente testing/staging; no constituye producción.
 
 ## Decisiones de staging

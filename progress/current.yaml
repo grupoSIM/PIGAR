@@ -1,7 +1,7 @@
 project: PIGAR
-active_feature: feat-012
-phase: verification
-updated_at: 2026-07-25T00:00:00-03:00
+active_feature: null
+phase: done
+updated_at: 2026-07-26T00:00:00-03:00
 
 blockers: []
 
@@ -58,9 +58,9 @@ approvals:
     approved_by: usuario
     approved_at: 2026-07-25T00:00:00-03:00
   publication:
-    status: not_applicable
-    approved_by: null
-    approved_at: null
+    status: approved
+    approved_by: usuario
+    approved_at: 2026-07-26T00:00:00-03:00
 
 quality:
   status: passed
