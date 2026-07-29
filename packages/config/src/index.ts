@@ -24,7 +24,7 @@ export type Auth0Configuration = {
   issuer: string;
   managementClientId?: string;
   managementClientSecret?: string;
-  organizationId?: string;
+  internalConnection?: string;
 };
 
 export type WorkerConfiguration = {
@@ -42,7 +42,7 @@ export function loadApiConfiguration(environment: EnvironmentVariables): ApiConf
   const auth0AdminClientId = optionalValue(environment.AUTH0_ADMIN_CLIENT_ID);
   const auth0ManagementClientId = optionalValue(environment.AUTH0_MANAGEMENT_CLIENT_ID);
   const auth0ManagementClientSecret = optionalValue(environment.AUTH0_MANAGEMENT_CLIENT_SECRET);
-  const auth0OrganizationId = optionalValue(environment.AUTH0_ORGANIZATION_ID);
+  const auth0InternalConnection = optionalValue(environment.AUTH0_INTERNAL_CONNECTION);
 
   if (!/^[a-zA-Z0-9.-]+$/.test(host)) throw new ConfigurationError("CONFIG_INVALID", "HOST");
   if (runtimeEnvironment === "production") {
@@ -53,7 +53,7 @@ export function loadApiConfiguration(environment: EnvironmentVariables): ApiConf
     requiredValue(auth0AdminClientId, "AUTH0_ADMIN_CLIENT_ID");
     requiredValue(auth0ManagementClientId, "AUTH0_MANAGEMENT_CLIENT_ID");
     requiredValue(auth0ManagementClientSecret, "AUTH0_MANAGEMENT_CLIENT_SECRET");
-    requiredValue(auth0OrganizationId, "AUTH0_ORGANIZATION_ID");
+    requiredValue(auth0InternalConnection, "AUTH0_INTERNAL_CONNECTION");
   }
 
   if ((auth0Issuer && !auth0Audience) || (!auth0Issuer && auth0Audience)) {
@@ -71,7 +71,7 @@ export function loadApiConfiguration(environment: EnvironmentVariables): ApiConf
           auth0AdminClientId,
           auth0ManagementClientId,
           auth0ManagementClientSecret,
-          auth0OrganizationId,
+          auth0InternalConnection,
         )
       : undefined;
 
@@ -90,7 +90,7 @@ function validateAuth0(
   adminClientId: string | undefined,
   managementClientId: string | undefined,
   managementClientSecret: string | undefined,
-  organizationId: string | undefined,
+  internalConnection: string | undefined,
 ): Auth0Configuration {
   if (!/^https:\/\/[^/?#]+(?:\/[^?#]*)?\/$/.test(issuer)) {
     throw new ConfigurationError("CONFIG_INVALID", "AUTH0_ISSUER");
@@ -105,7 +105,7 @@ function validateAuth0(
     ...(adminClientId ? { adminClientId } : {}),
     ...(managementClientId ? { managementClientId } : {}),
     ...(managementClientSecret ? { managementClientSecret } : {}),
-    ...(organizationId ? { organizationId } : {}),
+    ...(internalConnection ? { internalConnection } : {}),
     audience,
     issuer,
   };

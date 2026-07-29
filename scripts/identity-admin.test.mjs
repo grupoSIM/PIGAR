@@ -6,14 +6,14 @@ const dispatcher = { profileId: "dispatcher", role: "DISPATCHER", subject: "synt
 const admin = { profileId: "admin", role: "ADMIN", subject: "synthetic" };
 
 test("[admin-profile-access] DISPATCHER no administra perfiles internos", async () => {
-  const controller = new AdminProfilesController(database(), invitations());
+  const controller = new AdminProfilesController(database(), provisioning());
   await assert.rejects(() => controller.list({ actor: dispatcher }), hasStatus(403));
 });
 
 test("[admin-profile-access] no permite degradar al último ADMIN", async () => {
   const controller = new AdminProfilesController(
     database({ role: "ADMIN", status: "ACTIVE" }),
-    invitations(),
+    provisioning(),
   );
   await assert.rejects(
     () => controller.changeRole({ actor: admin }, "target", { role: "DISPATCHER" }),
@@ -22,22 +22,27 @@ test("[admin-profile-access] no permite degradar al último ADMIN", async () => 
 });
 
 test("[admin-profile-access] no permite auto-desactivación", async () => {
-  const controller = new AdminProfilesController(database(), invitations());
+  const controller = new AdminProfilesController(database(), provisioning());
   await assert.rejects(() => controller.deactivate({ actor: admin }, "admin"), hasStatus(409));
 });
 
-test("[auth-invitation] una clave procesada no vuelve a emitir una invitación", async () => {
-  let invitations = 0;
+test("[auth-provisioning] una clave procesada no vuelve a aprovisionar una cuenta", async () => {
+  let provisions = 0;
   const controller = new AdminProfilesController(database({ claimedState: "PROCESSED" }), {
-    createInvitation: async () => {
-      invitations += 1;
+    provisionInternalAccount: async () => {
+      provisions += 1;
+      return "auth0|synthetic";
     },
   });
-  await controller.invite(
+  await controller.provision(
     { actor: admin },
-    { email: "admin.synthetic@example.test", idempotencyKey: "synthetic-invitation-key-0001" },
+    {
+      email: "admin.synthetic@example.test",
+      idempotencyKey: "synthetic-provision-key-0001",
+      role: "DISPATCHER",
+    },
   );
-  assert.equal(invitations, 0);
+  assert.equal(provisions, 0);
 });
 
 test("[auth-log-sanitization] la auditoría conserva correlación pero no datos sensibles", async () => {
@@ -47,7 +52,7 @@ test("[auth-log-sanitization] la auditoría conserva correlación pero no datos 
     events.push(event);
     return {};
   };
-  const controller = new AdminProfilesController(data, invitations());
+  const controller = new AdminProfilesController(data, provisioning());
   await controller.changeRole(
     { actor: admin },
     "target",
@@ -75,14 +80,18 @@ function database(target = { role: "DISPATCHER", status: "ACTIVE" }) {
       count: async () => 0,
       findMany: async () => [],
       findUniqueOrThrow: async () => ({ id: "target", ...target }),
+      upsert: async ({ create }) => ({ id: "target", status: "ACTIVE", ...create }),
       update: async () => ({ id: "target", ...target }),
     },
     accessAuditEvent: { create: async () => ({}) },
   };
 }
 
-function invitations() {
-  return { createInvitation: async () => {} };
+function provisioning() {
+  return {
+    provisionInternalAccount: async () => "auth0|synthetic",
+    requestPasswordReset: async () => {},
+  };
 }
 
 function hasStatus(status) {

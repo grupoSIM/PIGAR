@@ -1,7 +1,7 @@
 project: PIGAR
 active_feature: feat-002
 phase: implementation
-updated_at: 2026-07-27T00:00:00-03:00
+updated_at: 2026-07-29T00:00:00-03:00
 
 blockers: []
 
@@ -48,11 +48,11 @@ approvals:
   architecture:
     status: approved
     approved_by: usuario
-    approved_at: 2026-07-23T11:27:07-03:00
+    approved_at: 2026-07-29T00:00:00-03:00
   specification:
     status: approved
     approved_by: usuario
-    approved_at: 2026-07-27T00:00:00-03:00
+    approved_at: 2026-07-29T00:00:00-03:00
   verification:
     status: not_requested
   publication:
@@ -104,3 +104,6 @@ notes:
   - MFA TOTP fue validado el 2026-07-27 mediante la Action Post Login; la condición temporal fue restaurada y desplegada exclusivamente para `PIGAR-STAGING-ADMIN`.
   - El usuario aprobó el 2026-07-27 usar Auth0 Organizations para invitaciones administrativas del MVP, limitado al único equipo interno PIGAR.
   - El usuario revisó y aprobó la especificación de feat-002 el 2026-07-27. Se habilita implementación local del MVP; no autoriza commit, push, PR ni despliegue. La aceptación de invitaciones requiere implementar y desplegar HTTPS `/login` en el backoffice y conservará evidencia antes del cierre.
+  - El usuario confirmó el 2026-07-29 la revisión de arquitectura del flujo: cliente por Google u OTP email sin registro visible; cuentas internas aprovisionadas por ADMIN con contraseña y MFA; operarios sin cuenta en el MVP. La especificación de feat-002 vuelve a spec_review y sustituye el flujo anterior de Organizations/invitaciones cuando sea aprobada.
+  - El usuario aprobó la especificación revisada de feat-002 el 2026-07-29. La feature pasa a approved y se habilita implementación local del flujo de clientes Google/OTP email y cuentas internas preaprovisionadas con MFA; no autoriza commit, push, PR ni despliegue.
+  - Implementación local de feat-002 iniciada el 2026-07-29: el selector cliente usa conexiones Auth0 explícitas para Google y OTP email; el aprovisionamiento interno reemplaza Organizations/invitaciones mediante Management API. Sin cambios externos ni autorización de publicación.

@@ -21,12 +21,23 @@ paths:
       responses:
         '200': { description: Listado paginado }
         '403': { description: Sólo ADMIN }
-  /v1/admin/profiles/invitations:
     post:
-      summary: Invita a un perfil interno de forma idempotente
+      summary: Aprovisiona una cuenta interna de forma idempotente
       responses:
-        '202': { description: Invitación solicitada }
+        '202': { description: Aprovisionamiento solicitado }
         '403': { description: Sólo ADMIN }
+  /v1/admin/profiles/{profileId}/password-reset:
+    post:
+      summary: Inicia recuperación para una cuenta interna existente
+      parameters:
+        - name: profileId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '202': { description: Recuperación solicitada }
+        '403': { description: Sólo ADMIN }
+        '404': { description: Perfil interno inexistente }
   /v1/admin/profiles/{profileId}/role:
     patch:
       summary: Cambia un rol interno permitido

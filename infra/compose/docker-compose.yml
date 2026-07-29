@@ -118,13 +118,13 @@ services:
       DATABASE_URL: ${PIGAR_DATABASE_URL:-postgresql://pigar:pigar_dev_local_only@postgres:5432/pigar?schema=public}
       MEDIA_ROOT: /var/lib/pigar/media
       # Valores locales sintéticos: sólo permiten arrancar healthchecks; nunca
-      # representan una cuenta Auth0 ni habilitan una invitación remota.
+      # representan una cuenta Auth0 ni habilitan aprovisionamiento remoto.
       AUTH0_ISSUER: https://auth0.invalid/
       AUTH0_AUDIENCE: https://api.pigar.invalid
       AUTH0_ADMIN_CLIENT_ID: local-admin-client-0001
       AUTH0_MANAGEMENT_CLIENT_ID: local-management-client-0001
       AUTH0_MANAGEMENT_CLIENT_SECRET: local-compose-not-a-secret
-      AUTH0_ORGANIZATION_ID: local-test-organization
+      AUTH0_INTERNAL_CONNECTION: local-internal-connection
     depends_on:
       migrate:
         condition: service_completed_successfully

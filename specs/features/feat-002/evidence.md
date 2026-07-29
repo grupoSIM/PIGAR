@@ -1,6 +1,12 @@
 # Evidencia — feat-002: Identidad, roles y perfiles básicos
 
-Estado: validación externa parcial; no hay implementación de PIGAR.
+Estado: evidencia histórica de implementación y validación externa parcial.
+
+> Nota de revisión 2026-07-29: las filas que mencionan invitaciones, Auth0
+> Organizations o el callback `/login` corresponden al flujo sustituido. Son
+> evidencia histórica, no validan la especificación revisada. Se debe obtener
+> evidencia nueva para el selector cliente Google/OTP y el acceso interno
+> preaprovisionado con contraseña y MFA.
 
 | Fecha | Método | Resultado resumido | Criterio | Estado |
 |---|---|---|---|---|
@@ -31,3 +37,6 @@ Estado: validación externa parcial; no hay implementación de PIGAR.
 Cada resultado posterior registrará fecha, método o comando, salida resumida,
 criterios cubiertos y la confirmación de que no expone credenciales ni datos
 personales.
+
+| 2026-07-29 | `pnpm --filter @pigar/config build`; `pnpm --filter @pigar/api build`; `pnpm test:security --grep auth-provisioning`; `pnpm test:e2e --grep auth-client`; `pnpm test:unit --grep staging-auth-configuration` | Compilación y 15 pruebas focalizadas superadas. El portal sólo inicia conexiones Google/OTP explícitas; el adaptador aprovisiona cuentas internas mediante Management API y la deduplicación no repite la operación procesada. No se usaron credenciales, tokens, emails reales ni proveedores externos. | AC-002-001 / AC-002-002 / REQ-002-004 | parcial: falta validar el acceso interno con MFA y los flujos reales en staging HTTPS. |
+| 2026-07-29 | `pnpm format:write`; `pnpm lint`; `pnpm typecheck`; `pnpm test:unit`; `pnpm test:security`; `pnpm test:integration`; `pnpm test:e2e`; `node scripts/docs-check.mjs`; `git diff --check` | Formato, lint, tipos, 11 unitarias, 21 de seguridad, 11 de integración y 2 E2E superados. Integración/E2E usaron proyectos Docker temporales y se limpiaron al finalizar; Nginx siguió siendo la única superficie publicada. Sin credenciales, datos personales ni conexiones a Auth0. | NFR-002-001 / NFR-002-004 | pass local; la validación manual no productiva de Google, OTP y MFA sigue pendiente. |

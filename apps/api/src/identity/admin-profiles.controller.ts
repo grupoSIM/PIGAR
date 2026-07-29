@@ -5,6 +5,7 @@ import {
   ForbiddenException,
   Get,
   Headers,
+  HttpCode,
   Param,
   Patch,
   Post,
@@ -14,7 +15,7 @@ import {
 import { correlationId } from "@pigar/observability";
 import type { FastifyRequest } from "fastify";
 import { DatabaseService } from "../database.service.js";
-import { Auth0InvitationService } from "./auth0-invitation.service.js";
+import { Auth0ProvisioningService } from "./auth0-provisioning.service.js";
 import { IdentityGuard } from "./identity.guard.js";
 import type { AuthenticatedActor } from "./identity.types.js";
 
@@ -25,7 +26,7 @@ type RequestWithActor = FastifyRequest & { actor: AuthenticatedActor };
 export class AdminProfilesController {
   constructor(
     private readonly database: DatabaseService,
-    private readonly invitations: Auth0InvitationService,
+    private readonly provisioning: Auth0ProvisioningService,
   ) {}
 
   @Get()
@@ -39,47 +40,67 @@ export class AdminProfilesController {
     return { items: profiles };
   }
 
-  @Post("invitations")
-  async invite(
+  @Post()
+  @HttpCode(202)
+  async provision(
     @Req() request: RequestWithActor,
     @Body() body: unknown,
     @Headers("x-request-id") requestId: string | undefined,
   ) {
     adminOnly(request.actor);
-    const invitation = invitationInput(body);
-    const idempotencyKey = `auth0-invitation:${invitation.idempotencyKey}`;
+    const account = provisionInput(body);
+    const idempotencyKey = `auth0-provision:${account.idempotencyKey}`;
     const claimed = await this.database.claimedJob.findUnique({
-      where: { jobType_idempotencyKey: { idempotencyKey, jobType: "AUTH0_INVITATION" } },
+      where: { jobType_idempotencyKey: { idempotencyKey, jobType: "AUTH0_PROVISION" } },
     });
     if (claimed?.state === "PROCESSED") return;
     if (!claimed) {
       try {
         await this.database.claimedJob.create({
-          data: { idempotencyKey, jobType: "AUTH0_INVITATION", state: "PROCESSING" },
+          data: { idempotencyKey, jobType: "AUTH0_PROVISION", state: "PROCESSING" },
         });
       } catch {
         return;
       }
     }
     try {
-      await this.invitations.createInvitation(invitation.email);
+      const subject = await this.provisioning.provisionInternalAccount(account.email);
+      const profile = await this.database.profile.upsert({
+        where: { identitySubject: subject },
+        create: { identitySubject: subject, role: account.role },
+        update: { role: account.role, status: "ACTIVE" },
+      });
       await this.database.claimedJob.update({
-        where: { jobType_idempotencyKey: { idempotencyKey, jobType: "AUTH0_INVITATION" } },
+        where: { jobType_idempotencyKey: { idempotencyKey, jobType: "AUTH0_PROVISION" } },
         data: { state: "PROCESSED" },
       });
-      await this.audit(
-        request.actor.profileId,
-        request.actor.profileId,
-        "admin.invitation.requested",
-        requestId,
-      );
+      await this.audit(request.actor.profileId, profile.id, "admin.account.provisioned", requestId);
     } catch (error) {
       await this.database.claimedJob.update({
-        where: { jobType_idempotencyKey: { idempotencyKey, jobType: "AUTH0_INVITATION" } },
+        where: { jobType_idempotencyKey: { idempotencyKey, jobType: "AUTH0_PROVISION" } },
         data: { state: "FAILED" },
       });
       throw error;
     }
+  }
+
+  @Post(":profileId/password-reset")
+  @HttpCode(202)
+  async passwordReset(
+    @Req() request: RequestWithActor,
+    @Param("profileId") profileId: string,
+    @Headers("x-request-id") requestId: string | undefined,
+  ) {
+    adminOnly(request.actor);
+    const profile = await this.database.profile.findUniqueOrThrow({ where: { id: profileId } });
+    if (profile.role === "CLIENT") throw new ForbiddenException();
+    await this.provisioning.requestPasswordReset(profile.identitySubject);
+    await this.audit(
+      request.actor.profileId,
+      profile.id,
+      "admin.account.password_reset_requested",
+      requestId,
+    );
   }
 
   @Patch(":profileId/role")
@@ -102,6 +123,7 @@ export class AdminProfilesController {
   }
 
   @Post(":profileId/deactivate")
+  @HttpCode(204)
   async deactivate(
     @Req() request: RequestWithActor,
     @Param("profileId") profileId: string,
@@ -152,15 +174,20 @@ function internalRole(body: unknown): "ADMIN" | "DISPATCHER" {
   return role;
 }
 
-function invitationInput(body: unknown): { email: string; idempotencyKey: string } {
+function provisionInput(body: unknown): {
+  email: string;
+  idempotencyKey: string;
+  role: "ADMIN" | "DISPATCHER";
+} {
   if (!body || typeof body !== "object" || Array.isArray(body)) throw new ConflictException();
   const input = body as Record<string, unknown>;
   if (
     typeof input.email !== "string" ||
     !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email) ||
     typeof input.idempotencyKey !== "string" ||
-    !/^[A-Za-z0-9_-]{16,128}$/.test(input.idempotencyKey)
+    !/^[A-Za-z0-9_-]{16,128}$/.test(input.idempotencyKey) ||
+    (input.role !== "ADMIN" && input.role !== "DISPATCHER")
   )
     throw new ConflictException();
-  return { email: input.email, idempotencyKey: input.idempotencyKey };
+  return { email: input.email, idempotencyKey: input.idempotencyKey, role: input.role };
 }

@@ -8,7 +8,10 @@ export default function CustomerHome() {
         solicitudes de servicio.
       </p>
       <p>
-        <a href="/auth/login">Ingresar al portal</a>
+        <a href="/auth/login/google">Continuar con Google</a>
+      </p>
+      <p>
+        <a href="/auth/login/email">Recibir código por email</a>
       </p>
     </ProductShell>
   );

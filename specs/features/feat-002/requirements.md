@@ -2,7 +2,8 @@
 
 - Estado: approved
 - Decisión aplicable: ADR-003 (`accepted`)
-- Puerta pendiente: aprobación humana de esta especificación
+- Puerta de especificación: aprobada por el usuario el 2026-07-29 (enmienda
+  de flujo incluida)
 
 ## Objetivo y alcance
 
@@ -32,14 +33,18 @@ la autorización, incluso si la interfaz oculta acciones.
 
 - When: un visitante inicia sesión en el portal cliente o el backoffice.
 - Where: Auth0 mediante OIDC Authorization Code con PKCE.
-- The system shall: permitir código OTP por email o Google a clientes y sólo
-  invitación a personal interno con MFA obligatorio; cada aplicación usará sus
-  callbacks/logout permitidos y su audience de API configurada.
-- Para aceptar una invitación, el backoffice dispondrá de una ruta HTTPS
-  `/login` registrada como callback exacto, que conserva y entrega a Auth0 los
-  parámetros `invitation` y `organization` del enlace recibido.
+- The system shall: presentar en PIGAR al cliente exclusivamente “Continuar con
+  Google” y “Recibir código por email”, e iniciar desde cada opción la conexión
+  Auth0 exacta. Para clientes no hay registro visible, contraseña, Apple,
+  teléfono, SMS ni WhatsApp; un primer ingreso verificado puede crear su
+  identidad técnicamente en Auth0.
+- El personal interno inicia con una identidad Auth0 de base de datos,
+  preaprovisionada por un ADMIN, usuario/email y contraseña, seguida de MFA
+  TOTP obligatorio. Cada aplicación usará sus callbacks/logout permitidos y su
+  audience de API configurada.
 - Errores y límites: callbacks, audiencia, issuer, firma, algoritmo o token
-  expirado/ausente no autorizan acceso; no hay flujo de contraseña ni técnico.
+  expirado/ausente no autorizan acceso; no hay registro público interno ni
+  acceso técnico/operario.
 
 ### REQ-002-002 — Perfil local idempotente
 
@@ -67,9 +72,10 @@ la autorización, incluso si la interfaz oculta acciones.
 
 - When: un ADMIN administra acceso interno.
 - Where: backoffice y API administrativa.
-- The system shall: crear una invitación a través del adaptador Auth0, asignar
-  inicialmente `DISPATCHER` o `ADMIN`, listar perfiles internos mínimos y
-  permitir el cambio o desactivación explícitos con auditoría.
+- The system shall: aprovisionar o habilitar una cuenta interna a través del
+  adaptador Auth0 Management API, asignar inicialmente `DISPATCHER` o `ADMIN`,
+  listar perfiles internos mínimos y permitir el cambio, recuperación de una
+  cuenta existente o desactivación explícitos con auditoría.
 - Errores y límites: un DISPATCHER no administra accesos; no se permite borrar
   historial, auto-desactivarse ni dejar sin ADMIN activo el sistema; reintentos
   no emiten invitaciones duplicadas para la misma operación idempotente.
@@ -109,17 +115,16 @@ la autorización, incluso si la interfaz oculta acciones.
 
 ## Dependencias y condición de aprobación
 
-- Auth0 no productivo ya tiene configurados los dos clientes, los proveedores
-  de cliente, MFA selectivo para administración y la Organization interna. La
-  aceptación de invitaciones queda pendiente de implementar y desplegar en la
-  ruta HTTPS `/login` del backoffice; es alcance verificable de esta feature,
-  no una capacidad asumida como probada.
+- La configuración de Auth0 no productivo se ajustará después de aprobar esta
+  especificación: cliente con Google y OTP email dirigidos desde una pantalla
+  propia de PIGAR; backoffice con conexión de base de datos y MFA selectivo. El
+  flujo de Organizations/invitaciones se retira de este alcance.
 - La revisión no sensible de plan/cuotas, token/JWKS, issuer, audience y URLs
   exactas se completa y evidencia en TASK-002-001 antes del cierre de la
   feature.
-- El usuario aprobó el 2026-07-27 código OTP por email con Universal Login en
-  reemplazo de magic link y Auth0 Organizations para invitaciones del único
-  equipo interno. Organizations no es fuente de roles de PIGAR.
+- El usuario confirmó el 2026-07-29 Google u OTP por email para clientes sin
+  registro visible, y cuentas internas aprovisionadas por ADMIN con MFA. Los
+  operarios no tienen identidad en este MVP.
 - La configuración resultante se suministrará mediante variables de ambiente,
   sin valores en este repositorio.
 - La implementación sólo podrá comenzar después de la aprobación humana de

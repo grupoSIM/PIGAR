@@ -6,7 +6,7 @@ Las decisiones comienzan como `proposed` y solo pasan a `accepted` con aprobaci�
 |---|---|---|---|
 | [ADR-001](adr/ADR-001.md) | Monorepo y stack web para cliente/backoffice | accepted | feat-001 |
 | [ADR-002](adr/ADR-002.md) | Backend, base de datos y despliegue | accepted | feat-001 |
-| [ADR-003](adr/ADR-003.md) | Identidad, sesiones y matriz de roles | accepted | feat-002 |
+| [ADR-003](adr/ADR-003.md) | Identidad, sesiones y matriz de roles | accepted; especificación revisada aprobada | feat-002 |
 | [ADR-004](adr/ADR-004.md) | Modalidad de Mercado Pago, webhooks y conciliación | accepted | feat-007 |
 | [ADR-005](adr/ADR-005.md) | Domicilio, mapas y ausencia de tracking | accepted | feat-004 |
 | [ADR-006](adr/ADR-006.md) | Multimedia privada en el VPS | accepted | feat-004 |

@@ -19,8 +19,11 @@ test("[staging-auth-configuration] cada superficie recibe sólo su configuració
     "PIGAR_API_AUTH0_AUDIENCE",
     "PIGAR_API_AUTH0_ADMIN_CLIENT_ID",
     "PIGAR_API_AUTH0_MANAGEMENT_CLIENT_SECRET",
+    "PIGAR_API_AUTH0_INTERNAL_CONNECTION",
     "PIGAR_CUSTOMER_AUTH0_CLIENT_ID",
     "PIGAR_CUSTOMER_AUTH0_SESSION_SECRET",
+    "PIGAR_CUSTOMER_AUTH0_GOOGLE_CONNECTION",
+    "PIGAR_CUSTOMER_AUTH0_EMAIL_OTP_CONNECTION",
     "PIGAR_ADMIN_AUTH0_CLIENT_ID",
     "PIGAR_ADMIN_AUTH0_SESSION_SECRET",
   ]) {
@@ -33,7 +36,7 @@ test("[staging-auth-configuration] cada superficie recibe sólo su configuració
     /api:[\s\S]*AUTH0_MANAGEMENT_CLIENT_SECRET: \$\{PIGAR_API_AUTH0_MANAGEMENT_CLIENT_SECRET/,
   );
   assert.match(adminConfig, /NEXT_PUBLIC_BASE_PATH: "\/admin"/);
-  assert.match(nginx, /location = \/login/);
+  assert.doesNotMatch(nginx, /location = \/login/);
   assert.match(nginx, /proxy_buffer_size 16k;/);
   assert.match(nginx, /proxy_buffers 8 16k;/);
   assert.match(
