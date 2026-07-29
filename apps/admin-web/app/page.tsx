@@ -7,6 +7,9 @@ export default function AdminHome() {
         El backoffice está en preparación. La primera entrega operativa comenzará en la bandeja de
         solicitudes y órdenes, sin dashboard de KPIs.
       </p>
+      <p>
+        <a href="/login">Iniciar sesión</a>
+      </p>
     </ProductShell>
   );
 }
