@@ -1,7 +1,11 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
 import { AdminProfilesController } from "../apps/api/dist/identity/admin-profiles.controller.js";
 
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const dispatcher = { profileId: "dispatcher", role: "DISPATCHER", subject: "synthetic" };
 const admin = { profileId: "admin", role: "ADMIN", subject: "synthetic" };
 
@@ -69,6 +73,18 @@ test("[auth-log-sanitization] la auditoría conserva correlación pero no datos 
   );
 });
 
+test("[auth-admin] el callback bajo /admin se entrega a Auth0", async () => {
+  const [callback, proxy, config] = await Promise.all([
+    readWorkspaceFile("apps/admin-web/app/auth/callback/route.ts"),
+    readWorkspaceFile("apps/admin-web/proxy.ts"),
+    readWorkspaceFile("apps/admin-web/next.config.ts"),
+  ]);
+
+  assert.match(callback, /auth0\.middleware\(request\)/);
+  assert.match(proxy, /auth0\.middleware\(request\)/);
+  assert.match(config, /basePath: "\/admin"/);
+});
+
 function database(target = { role: "DISPATCHER", status: "ACTIVE" }) {
   return {
     claimedJob: {
@@ -96,4 +112,8 @@ function provisioning() {
 
 function hasStatus(status) {
   return (error) => typeof error?.getStatus === "function" && error.getStatus() === status;
+}
+
+function readWorkspaceFile(relativePath) {
+  return readFile(path.join(root, relativePath), "utf8");
 }

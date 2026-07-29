@@ -15,6 +15,7 @@ incluyen tokens reales en fixtures, snapshots o logs.
 | TEST-002-005 | seguridad | AC-002-005 | `pnpm test:security --grep admin-profile-access` | pass |
 | TEST-002-006 | seguridad | AC-002-006 | `pnpm test:security --grep inactive-and-worker-access` | pass: perfil inactivo y rol técnico denegados |
 | TEST-002-007 | seguridad | AC-002-007 | `pnpm test:security --grep auth-log-sanitization` | pass: correlación y exclusión de datos sensibles |
+| TEST-002-008 | unitaria de regresión | AC-002-002 | `node --test scripts/identity-admin.test.mjs` | pendiente: callback administrativo bajo `/admin` entregado a Auth0 |
 
 Las verificaciones finales ejecutarán formato, lint, typecheck, build, unit,
 integración, seguridad y E2E conforme a los comandos raíz ya existentes.
