@@ -37,5 +37,6 @@ test("[config-secrets] la configuración productiva falla temprano sin filtrar v
 test("[config-secrets] .env.example declara nombres y valores locales no secretos", async () => {
   const example = await readFile(path.join(root, ".env.example"), "utf8");
   assert.match(example, /^DATABASE_URL=$/m);
-  assert.doesNotMatch(example, /access[_-]?token|client[_-]?secret|password\s*=/i);
+  assert.match(example, /^AUTH0_MANAGEMENT_CLIENT_SECRET=$/m);
+  assert.doesNotMatch(example, /^(?:.*(?:access[_-]?token|client[_-]?secret|password).*)=.+$/im);
 });

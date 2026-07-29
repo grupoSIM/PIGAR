@@ -19,7 +19,7 @@ features:
 
   - id: feat-002
     name: Identidad, roles y perfiles básicos
-    status: proposed
+    status: implementation
     priority: must
     depends_on: [feat-001]
 

@@ -1,7 +1,7 @@
 project: PIGAR
-active_feature: null
-phase: done
-updated_at: 2026-07-26T00:00:00-03:00
+active_feature: feat-002
+phase: implementation
+updated_at: 2026-07-27T00:00:00-03:00
 
 blockers: []
 
@@ -52,19 +52,14 @@ approvals:
   specification:
     status: approved
     approved_by: usuario
-    approved_at: 2026-07-25T00:00:00-03:00
+    approved_at: 2026-07-27T00:00:00-03:00
   verification:
-    status: approved
-    approved_by: usuario
-    approved_at: 2026-07-25T00:00:00-03:00
+    status: not_requested
   publication:
-    status: approved
-    approved_by: usuario
-    approved_at: 2026-07-26T00:00:00-03:00
+    status: not_requested
 
 quality:
-  status: passed
-  evidence: specs/features/feat-012/evidence.md
+  status: not_started
 
 notes:
   - El repositorio contiene por ahora únicamente el documento de requisitos y solución tecnológica.
@@ -101,3 +96,11 @@ notes:
   - CI remoto aprobado el 2026-07-25 en GitHub Actions run 30169241231; feat-001 queda cerrada. Los bloqueantes de producción siguen vigentes y Hostinger no es producción.
   - feat-012 iniciada en discovery por instrucción del usuario: staging técnico manual en Hostinger, sin funcionalidades de producto ni autorización de despliegue todavía.
   - El usuario aprobó la especificación de feat-012 el 2026-07-25; se habilita implementación local de artefactos de staging, no acceso ni despliegue remoto.
+  - feat-002 ingresó en discovery por instrucción del usuario el 2026-07-27. ADR-003 sigue aceptada; la especificación requerirá validar Auth0 con cuenta no productiva y aprobación humana antes de modificar código.
+  - Alcance de discovery de feat-002 confirmado por el usuario el 2026-07-27; se preparan los artefactos de especificación. No existe aprobación de especificación ni autorización de implementación.
+  - El usuario aprobó el 2026-07-27 sustituir magic link por código OTP email con Universal Login. La enmienda a ADR-003 permite MFA selectivo por aplicación mediante Actions; no autoriza implementación.
+  - La validación manual no productiva de `google-oauth2` para `PIGAR-STAGING-CUSTOMER` completó con éxito el 2026-07-27; no se registró el perfil devuelto.
+  - La prueba de conexión de base de datos para `PIGAR-STAGING-ADMIN` fue exitosa el 2026-07-27, pero no constituye evidencia de MFA: Auth0 indica probar Actions Post Login desde Authentication Profile.
+  - MFA TOTP fue validado el 2026-07-27 mediante la Action Post Login; la condición temporal fue restaurada y desplegada exclusivamente para `PIGAR-STAGING-ADMIN`.
+  - El usuario aprobó el 2026-07-27 usar Auth0 Organizations para invitaciones administrativas del MVP, limitado al único equipo interno PIGAR.
+  - El usuario revisó y aprobó la especificación de feat-002 el 2026-07-27. Se habilita implementación local del MVP; no autoriza commit, push, PR ni despliegue. La aceptación de invitaciones requiere implementar y desplegar HTTPS `/login` en el backoffice y conservará evidencia antes del cierre.

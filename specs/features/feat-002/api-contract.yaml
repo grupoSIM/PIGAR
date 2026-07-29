@@ -1,0 +1,51 @@
+openapi: 3.1.0
+info:
+  title: PIGAR Identity API
+  version: 0.2.0
+paths:
+  /v1/me:
+    get:
+      summary: Obtiene el perfil mínimo del actor autenticado
+      responses:
+        '200': { description: Perfil activo }
+        '401': { description: Token inválido o ausente }
+        '403': { description: Perfil inactivo o no autorizado }
+    patch:
+      summary: Actualiza el perfil propio del cliente
+      responses:
+        '200': { description: Perfil actualizado }
+        '403': { description: Actor no permitido }
+  /v1/admin/profiles:
+    get:
+      summary: Lista perfiles internos para ADMIN
+      responses:
+        '200': { description: Listado paginado }
+        '403': { description: Sólo ADMIN }
+  /v1/admin/profiles/invitations:
+    post:
+      summary: Invita a un perfil interno de forma idempotente
+      responses:
+        '202': { description: Invitación solicitada }
+        '403': { description: Sólo ADMIN }
+  /v1/admin/profiles/{profileId}/role:
+    patch:
+      summary: Cambia un rol interno permitido
+      parameters:
+        - name: profileId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { description: Rol actualizado }
+        '409': { description: No se puede eliminar el último ADMIN }
+  /v1/admin/profiles/{profileId}/deactivate:
+    post:
+      summary: Desactiva un perfil interno
+      parameters:
+        - name: profileId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '204': { description: Perfil desactivado }
+        '409': { description: No se puede desactivar el último ADMIN }

@@ -37,12 +37,26 @@ API, worker ni multimedia.
    sintéticas directamente en el editor. Esos valores quedan sólo en la
    configuración del proyecto en Hostinger; nunca se copian a Git ni a este
    runbook. Usar el mismo secreto URL-safe para PostgreSQL y `DATABASE_URL`.
+   Cargar además las variables `PIGAR_*_AUTH0_*` del ejemplo
+   `infra/hostinger/docker-manager.env.example`: API, cliente, backoffice y
+   cliente técnico de invitaciones son credenciales separadas. La audiencia es
+   la misma API de staging para los dos clientes web. No revelar ni registrar
+   los secretos de cliente/sesión en la vista previa, logs o capturas.
 7. Aplicar **Desplegar**: Hostinger descarga las imágenes e inicia PIGAR. No
    debe compilar código en el VPS.
 8. Revisar que el servicio `nginx` tenga las etiquetas `traefik.*`, no tenga
    `ports:` y que PostgreSQL/API/worker tampoco expongan puertos.
 9. Usar la vista previa YAML y desplegar solo después de la aprobación explícita
    de ejecución.
+
+### Proyecto ya existente
+
+Si `pigar-staging` ya figura como `Funcionando`, no crear otro proyecto ni
+usar acciones destructivas. Abrir **Administrar**, revisar el SHA de las
+imágenes y editar únicamente el YAML/entorno del proyecto existente. En
+Docker Manager la aplicación de esas modificaciones ocurre con
+**Desplegar** y reinicia o actualiza los servicios: requiere una autorización
+explícita de despliegue, aun cuando sólo se agreguen variables de entorno.
 
 El SHA de la URL raw y `PIGAR_IMAGE_TAG` deben ser el mismo. Docker Manager usa
 el primero para obtener la configuración y el segundo para descargar las

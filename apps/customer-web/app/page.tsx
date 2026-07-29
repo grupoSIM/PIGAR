@@ -7,6 +7,9 @@ export default function CustomerHome() {
         El portal de clientes de PIGAR está en preparación. Próximamente podrás crear y seguir
         solicitudes de servicio.
       </p>
+      <p>
+        <a href="/auth/login">Ingresar al portal</a>
+      </p>
     </ProductShell>
   );
 }
