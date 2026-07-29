@@ -34,6 +34,8 @@ test("[staging-auth-configuration] cada superficie recibe sólo su configuració
   );
   assert.match(adminConfig, /NEXT_PUBLIC_BASE_PATH: "\/admin"/);
   assert.match(nginx, /location = \/login/);
+  assert.match(nginx, /proxy_buffer_size 16k;/);
+  assert.match(nginx, /proxy_buffers 8 16k;/);
   assert.match(
     await readWorkspaceFile("infra/compose/docker-compose.yml"),
     /AUTH0_ISSUER: https:\/\/auth0\.invalid\//,
