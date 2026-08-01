@@ -1,7 +1,7 @@
 project: PIGAR
 active_feature: feat-002
-phase: implementation
-updated_at: 2026-07-29T00:00:00-03:00
+phase: publication_review
+updated_at: 2026-08-01T00:00:00-03:00
 
 blockers: []
 
@@ -54,12 +54,16 @@ approvals:
     approved_by: usuario
     approved_at: 2026-07-29T00:00:00-03:00
   verification:
-    status: not_requested
+    status: approved
+    approved_by: quality_reviewer
+    approved_at: 2026-08-01T00:00:00-03:00
   publication:
-    status: not_requested
+    status: approved
+    approved_by: usuario
+    approved_at: 2026-08-01T00:00:00-03:00
 
 quality:
-  status: not_started
+  status: local_pass_pending_staging
 
 notes:
   - El repositorio contiene por ahora únicamente el documento de requisitos y solución tecnológica.
@@ -107,3 +111,8 @@ notes:
   - El usuario confirmó el 2026-07-29 la revisión de arquitectura del flujo: cliente por Google u OTP email sin registro visible; cuentas internas aprovisionadas por ADMIN con contraseña y MFA; operarios sin cuenta en el MVP. La especificación de feat-002 vuelve a spec_review y sustituye el flujo anterior de Organizations/invitaciones cuando sea aprobada.
   - El usuario aprobó la especificación revisada de feat-002 el 2026-07-29. La feature pasa a approved y se habilita implementación local del flujo de clientes Google/OTP email y cuentas internas preaprovisionadas con MFA; no autoriza commit, push, PR ni despliegue.
   - Implementación local de feat-002 iniciada el 2026-07-29: el selector cliente usa conexiones Auth0 explícitas para Google y OTP email; el aprovisionamiento interno reemplaza Organizations/invitaciones mediante Management API. Sin cambios externos ni autorización de publicación.
+  - Staging de feat-002 validado manualmente el 2026-07-29: OTP email para cliente y cuenta interna administrativa con contraseña/MFA.
+  - El usuario decidió el 2026-08-01 excluir Google del MVP de feat-002. Google se reconsiderará antes de producción con decisión y validación no productiva separadas; la enmienda no autoriza cambios de código, proveedores, despliegue ni publicación.
+  - TASK-002-002 actualizada el 2026-08-01: se retiraron Google, su configuración versionada de staging y el callback heredado de invitaciones; pruebas unitarias/E2E focalizadas y typecheck local superaron. La validación de la imagen en staging requiere despliegue autorizado.
+  - Implementación de feat-002 completada localmente el 2026-08-01: todas las tareas están verificadas con evidencia. La feature ingresa en verification; formato, lint, typecheck, 11 unitarias, 11 integraciones, 22 seguridad y 2 E2E superaron con Docker Desktop accesible. Los fallos previos provenían del aislamiento de la sesión, no del proyecto. Falta revisión independiente y validar en staging la imagen que retire Google.
+  - Revisión independiente de feat-002 aprobada el 2026-08-01: login/callback administrativo bajo `/admin` y TEST-002-008 verificados. La feature pasa a publication_review; el usuario autorizó commit y push para generar imágenes de staging, sin autorizar despliegue.

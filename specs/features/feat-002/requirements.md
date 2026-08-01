@@ -14,7 +14,7 @@ la autorización, incluso si la interfaz oculta acciones.
 ## Fuera de alcance
 
 - Acceso, cuenta, token o portal para técnicos.
-- SMS/WhatsApp OTP, notificaciones, solicitudes, órdenes, pagos o multimedia.
+- Google, SMS/WhatsApp OTP, notificaciones, solicitudes, órdenes, pagos o multimedia.
 - Producción, cuentas o secretos productivos y despliegue.
 
 ## Actores y permisos
@@ -33,11 +33,10 @@ la autorización, incluso si la interfaz oculta acciones.
 
 - When: un visitante inicia sesión en el portal cliente o el backoffice.
 - Where: Auth0 mediante OIDC Authorization Code con PKCE.
-- The system shall: presentar en PIGAR al cliente exclusivamente “Continuar con
-  Google” y “Recibir código por email”, e iniciar desde cada opción la conexión
-  Auth0 exacta. Para clientes no hay registro visible, contraseña, Apple,
-  teléfono, SMS ni WhatsApp; un primer ingreso verificado puede crear su
-  identidad técnicamente en Auth0.
+- The system shall: presentar en PIGAR al cliente exclusivamente “Recibir código
+  por email” e iniciar la conexión Auth0 de OTP email exacta. Para clientes no
+  hay registro visible, contraseña, Google, Apple, teléfono, SMS ni WhatsApp;
+  un primer ingreso verificado puede crear su identidad técnicamente en Auth0.
 - El personal interno inicia con una identidad Auth0 de base de datos,
   preaprovisionada por un ADMIN, usuario/email y contraseña, seguida de MFA
   TOTP obligatorio. Cada aplicación usará sus callbacks/logout permitidos y su
@@ -115,16 +114,18 @@ la autorización, incluso si la interfaz oculta acciones.
 
 ## Dependencias y condición de aprobación
 
-- La configuración de Auth0 no productivo se ajustará después de aprobar esta
-  especificación: cliente con Google y OTP email dirigidos desde una pantalla
-  propia de PIGAR; backoffice con conexión de base de datos y MFA selectivo. El
-  flujo de Organizations/invitaciones se retira de este alcance.
+- La configuración de Auth0 no productivo se limita en el MVP a OTP email para
+  cliente dirigido desde una pantalla propia de PIGAR, y a backoffice con
+  conexión de base de datos y MFA selectivo. Google queda fuera del MVP y se
+  reconsiderará antes de producción mediante decisión y validación separadas.
+  El flujo de Organizations/invitaciones se retira de este alcance.
 - La revisión no sensible de plan/cuotas, token/JWKS, issuer, audience y URLs
   exactas se completa y evidencia en TASK-002-001 antes del cierre de la
   feature.
-- El usuario confirmó el 2026-07-29 Google u OTP por email para clientes sin
-  registro visible, y cuentas internas aprovisionadas por ADMIN con MFA. Los
-  operarios no tienen identidad en este MVP.
+- El usuario decidió el 2026-08-01 OTP email como único acceso de cliente del
+  MVP; Google se reconsiderará antes de producción. Las cuentas internas son
+  aprovisionadas por ADMIN con MFA y los operarios no tienen identidad en este
+  MVP.
 - La configuración resultante se suministrará mediante variables de ambiente,
   sin valores en este repositorio.
 - La implementación sólo podrá comenzar después de la aprobación humana de

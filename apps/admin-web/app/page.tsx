@@ -8,7 +8,7 @@ export default function AdminHome() {
         solicitudes y órdenes, sin dashboard de KPIs.
       </p>
       <p>
-        <a href="/login">Iniciar sesión</a>
+        <a href="/admin/login">Iniciar sesión</a>
       </p>
     </ProductShell>
   );

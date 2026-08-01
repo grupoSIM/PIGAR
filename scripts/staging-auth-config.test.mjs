@@ -22,7 +22,6 @@ test("[staging-auth-configuration] cada superficie recibe sólo su configuració
     "PIGAR_API_AUTH0_INTERNAL_CONNECTION",
     "PIGAR_CUSTOMER_AUTH0_CLIENT_ID",
     "PIGAR_CUSTOMER_AUTH0_SESSION_SECRET",
-    "PIGAR_CUSTOMER_AUTH0_GOOGLE_CONNECTION",
     "PIGAR_CUSTOMER_AUTH0_EMAIL_OTP_CONNECTION",
     "PIGAR_ADMIN_AUTH0_CLIENT_ID",
     "PIGAR_ADMIN_AUTH0_SESSION_SECRET",
@@ -30,6 +29,7 @@ test("[staging-auth-configuration] cada superficie recibe sólo su configuració
     assert.match(environment, new RegExp(`^${variable}=`, "m"));
   }
   assert.match(compose, /customer-web:[\s\S]*PIGAR_CUSTOMER_AUTH0_CLIENT_ID/);
+  assert.doesNotMatch(compose, /PIGAR_CUSTOMER_AUTH0_GOOGLE_CONNECTION/);
   assert.match(compose, /admin-web:[\s\S]*AUTH0_CLIENT_ID: \$\{PIGAR_ADMIN_AUTH0_CLIENT_ID/);
   assert.match(
     compose,

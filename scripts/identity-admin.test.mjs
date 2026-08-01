@@ -73,16 +73,20 @@ test("[auth-log-sanitization] la auditoría conserva correlación pero no datos 
   );
 });
 
-test("[auth-admin] el callback bajo /admin se entrega a Auth0", async () => {
-  const [callback, proxy, config] = await Promise.all([
+test("[auth-admin] el login y callback bajo /admin se entregan a Auth0", async () => {
+  const [callback, page, proxy, config, nginx] = await Promise.all([
     readWorkspaceFile("apps/admin-web/app/auth/callback/route.ts"),
+    readWorkspaceFile("apps/admin-web/app/page.tsx"),
     readWorkspaceFile("apps/admin-web/proxy.ts"),
     readWorkspaceFile("apps/admin-web/next.config.ts"),
+    readWorkspaceFile("infra/nginx/nginx.conf"),
   ]);
 
   assert.match(callback, /auth0\.middleware\(request\)/);
+  assert.match(page, /href="\/admin\/login"/);
   assert.match(proxy, /auth0\.middleware\(request\)/);
   assert.match(config, /basePath: "\/admin"/);
+  assert.doesNotMatch(nginx, /location = \/login/);
 });
 
 function database(target = { role: "DISPATCHER", status: "ACTIVE" }) {

@@ -3,7 +3,6 @@ import { auth0 } from "../../../../lib/auth0";
 
 const connections = {
   email: process.env.PIGAR_CUSTOMER_AUTH0_EMAIL_OTP_CONNECTION,
-  google: process.env.PIGAR_CUSTOMER_AUTH0_GOOGLE_CONNECTION,
 } as const;
 
 export async function GET(

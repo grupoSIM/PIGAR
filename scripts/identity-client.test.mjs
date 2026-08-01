@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
-test("[auth-client] el portal cliente ofrece sólo Google y OTP email", async () => {
+test("[auth-client] el portal cliente ofrece sólo OTP email", async () => {
   const [auth0, page, route, proxy] = await Promise.all([
     readWorkspaceFile("apps/customer-web/lib/auth0.ts"),
     readWorkspaceFile("apps/customer-web/app/page.tsx"),
@@ -17,10 +17,9 @@ test("[auth-client] el portal cliente ofrece sólo Google y OTP email", async ()
   assert.match(auth0, /Auth0Client/);
   assert.match(auth0, /PIGAR_CUSTOMER_AUTH0_CLIENT_ID/);
   assert.match(auth0, /PIGAR_CUSTOMER_AUTH0_SESSION_SECRET/);
-  assert.match(page, /href="\/auth\/login\/google"/);
   assert.match(page, /href="\/auth\/login\/email"/);
-  assert.doesNotMatch(page, /contraseña|registro|Apple|teléfono|SMS|WhatsApp/i);
-  assert.match(route, /PIGAR_CUSTOMER_AUTH0_GOOGLE_CONNECTION/);
+  assert.doesNotMatch(page, /Google|contraseña|registro|Apple|teléfono|SMS|WhatsApp/i);
+  assert.doesNotMatch(route, /Google|PIGAR_CUSTOMER_AUTH0_GOOGLE_CONNECTION/i);
   assert.match(route, /PIGAR_CUSTOMER_AUTH0_EMAIL_OTP_CONNECTION/);
   assert.match(route, /startInteractiveLogin/);
   assert.match(proxy, /auth0\.middleware/);

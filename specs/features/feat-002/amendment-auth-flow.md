@@ -1,7 +1,7 @@
 # Enmienda propuesta — flujo de autenticación
 
 - Feature: `feat-002`
-- Estado: `approved — especificación aprobada por el usuario el 2026-07-29`
+- Estado: `approved — especificación aprobada por el usuario el 2026-07-29; alcance de Google enmendado por el usuario el 2026-08-01`
 - Tipo: cambio de autenticación/autorización aprobado; habilita implementación local, no cambios externos sin autorización específica.
 - Relación: complementa y, si se aprueba, reemplaza los apartados en conflicto de `requirements.md`, `design.md`, `acceptance.md`, `test-plan.md` y ADR-003.
 
@@ -15,19 +15,17 @@ alternativas aprobadas por cada actor.
 
 ### AUTH-FLOW-002-01 — Portal de clientes
 
-La pantalla propia de PIGAR mostrará exclusivamente dos alternativas:
-
-1. **Continuar con Google** como vía principal.
-2. **Recibir código por email** como alternativa para quien no usa Google.
-
-Cada alternativa iniciará OIDC contra la conexión Auth0 correspondiente, sin
-presentar la pantalla genérica de selección de conexiones. El segundo caso usa
-un código OTP de email, no contraseña ni magic link.
+La pantalla propia de PIGAR mostrará exclusivamente **“Recibir código por
+email”**. La opción inicia la conexión Auth0 de OTP email exacta, sin presentar
+la selección genérica del Universal Login. El flujo usa un código OTP email, no
+contraseña ni magic link.
 
 No habrá en PIGAR una pantalla, enlace ni campos de registro, contraseña,
-Apple, teléfono, SMS o WhatsApp. Después de verificar Google o el código email,
+Google, Apple, teléfono, SMS o WhatsApp. Después de verificar el código email,
 Auth0 puede crear técnicamente la identidad si es la primera vez; para el
-cliente esto es ingreso al portal, no un proceso visible de registro.
+cliente esto es ingreso al portal, no un proceso visible de registro. Google
+queda fuera del MVP y sólo se reconsiderará antes de producción con aprobación
+y validación no productiva separadas.
 
 ### AUTH-FLOW-002-02 — Acceso interno
 
@@ -62,8 +60,8 @@ pruebas que hoy están explícitamente fuera de alcance.
 
 | ID propuesto | Requisito verificable |
 | --- | --- |
-| REQ-002-001A | El portal cliente ofrece sólo Google y OTP por email desde una pantalla propia; cada opción inicia la conexión Auth0 exacta. |
-| REQ-002-001B | El portal cliente no expone registro, contraseña, Apple, teléfono, SMS ni WhatsApp. |
+| REQ-002-001A | El portal cliente ofrece sólo OTP por email desde una pantalla propia e inicia la conexión Auth0 exacta. |
+| REQ-002-001B | El portal cliente no expone registro, contraseña, Google, Apple, teléfono, SMS ni WhatsApp. |
 | REQ-002-001C | El backoffice admite exclusivamente identidades Auth0 de base de datos creadas/habilitadas por ADMIN, con contraseña y MFA TOTP. |
 | REQ-002-004A | Un ADMIN puede aprovisionar, asignar rol, desactivar y recuperar acceso interno mediante el adaptador Auth0, con auditoría e idempotencia. |
 | REQ-002-004B | No existe identidad ni acceso autenticado de operario en este incremento. |
@@ -72,9 +70,8 @@ pruebas que hoy están explícitamente fuera de alcance.
 
 | ID | Criterio |
 | --- | --- |
-| AC-002-001A | Una persona cliente puede entrar con Google y volver a PIGAR con sesión válida. |
-| AC-002-001B | Una persona sin cuenta Google recibe y valida un OTP por email; no se le solicita contraseña ni registro visible. |
-| AC-002-001C | La pantalla de acceso de cliente muestra sólo las dos alternativas definidas. |
+| AC-002-001A | Una persona cliente recibe y valida un OTP por email; no se le solicita contraseña ni registro visible. |
+| AC-002-001B | La pantalla de acceso de cliente muestra sólo OTP email y no muestra Google. |
 | AC-002-002A | Una persona interna preaprovisionada inicia con usuario/email y contraseña, completa MFA TOTP y accede según su rol local. |
 | AC-002-002B | Un visitante no puede crear una cuenta interna ni usar Google/OTP de cliente en el backoffice. |
 | AC-002-002C | Un operario/técnico no puede autenticarse ni acceder a rutas o API protegidas. |
@@ -84,9 +81,10 @@ pruebas que hoy están explícitamente fuera de alcance.
 - Se reemplazará la ruta interna basada en `invitation` y `organization` por un
   flujo de cuentas internas aprovisionadas. La API y su contrato cambiarán de
   “invitación” a “aprovisionamiento” una vez aprobada la enmienda.
-- La selección de Google/OTP se hará desde PIGAR para evitar que el Universal
-  Login genérico exponga alternativas no deseadas. Las credenciales internas
-  seguirán siendo hospedadas por Auth0.
+- El acceso OTP email se inicia desde PIGAR para evitar que el Universal Login
+  genérico exponga alternativas no deseadas. Google queda fuera del MVP y será
+  materia de revisión antes de producción. Las credenciales internas seguirán
+  siendo hospedadas por Auth0.
 - Antes de migrar se conservará una vía de recuperación para el ADMIN inicial,
   se probará el rollback y no se deshabilitará el flujo existente hasta que el
   nuevo esté verificado en staging.

@@ -6,10 +6,12 @@ Dos clientes OIDC separados (portal cliente y backoffice) delegan el inicio de
 sesión en Auth0. La API valida el access token y obtiene el perfil local de
 PostgreSQL. Auth0 autentica; PIGAR autoriza y audita.
 
-La pantalla propia del portal cliente ofrece sólo Google y código OTP por email;
-cada alternativa invoca la conexión Auth0 exacta y evita la selección genérica
-del Universal Login. Un primer ingreso verificado se aprovisiona de forma
-idempotente como CLIENT, sin registro visible para la persona.
+La pantalla propia del portal cliente ofrece sólo código OTP por email e invoca
+la conexión Auth0 exacta, sin selección genérica del Universal Login. Google
+queda fuera del MVP y sólo podrá reconsiderarse antes de producción mediante
+una decisión y validación separadas. Un primer ingreso verificado se
+aprovisiona de forma idempotente como CLIENT, sin registro visible para la
+persona.
 
 El backoffice deriva a Auth0 para usuario/email y contraseña de una identidad
 de base de datos ya aprovisionada por un ADMIN. La Action Post Login exige MFA
@@ -64,8 +66,8 @@ en `api-contract.yaml`.
 
 ## Experiencia por actor
 
-- Cliente: pantalla propia con Google o código OTP email y edición del perfil
-  propio; no ve contraseña ni registro.
+- Cliente: pantalla propia con código OTP email y edición del perfil propio; no
+  ve contraseña, registro ni Google.
 - Administración: cuenta preaprovisionada, contraseña hospedada por Auth0 y
   MFA, con pantalla mínima de personal.
 - Técnico: no recibe una ruta ni un flujo autenticado.
