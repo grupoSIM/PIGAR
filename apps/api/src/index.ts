@@ -3,6 +3,7 @@ import { NestFactory } from "@nestjs/core";
 import { FastifyAdapter, NestFastifyApplication } from "@nestjs/platform-fastify";
 import { loadApiConfiguration } from "@pigar/config";
 import { AppModule } from "./app.module.js";
+import { ProblemDetailsFilter } from "./problem-details.filter.js";
 
 export async function bootstrap(): Promise<NestFastifyApplication> {
   const configuration = loadApiConfiguration(process.env);
@@ -13,6 +14,7 @@ export async function bootstrap(): Promise<NestFastifyApplication> {
   );
 
   app.setGlobalPrefix("api");
+  app.useGlobalFilters(new ProblemDetailsFilter());
   await app.listen({
     host: configuration.host,
     port: configuration.port,
