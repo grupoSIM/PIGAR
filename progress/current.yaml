@@ -126,3 +126,4 @@ notes:
   - QR-003-001 corregido el 2026-08-02: la página pública vuelve a declarar PIGAR. Formato y suite unitaria completa (16/16) superaron; el reintento de integración completa superó 16/16. Se solicita nuevo veredicto independiente; no existe autorización de publicación.
   - Revisión independiente final de feat-003 aprobada el 2026-08-02: QR-003-001 quedó resuelto y formato, 16/16 unitarias y 16/16 integraciones superaron. Se conservan las verificaciones de seguridad focalizada y E2E Compose aprobadas para el cambio previo. La feature pasa a publication_review; la aprobación de publicación sigue pendiente y no autoriza commit, push, PR ni despliegue.
   - El usuario autorizó el 2026-08-02 crear el commit local y hacer push de feat-003; no autorizó PR ni despliegue.
+  - Commit local de feat-003 creado: d16d85462383ed91f266392d37f2977b01647f7e. Se publicará en `codex/feat-003-catalog`; PR y despliegue no autorizados.

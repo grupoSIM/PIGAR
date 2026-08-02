@@ -34,6 +34,14 @@ Estado: revisión independiente `pass` el 2026-08-02. No hay publicación regist
 
 El usuario autorizó el 2026-08-02 crear el commit local y hacer push. No autorizó PR ni despliegue.
 
+- Commit de implementación: `d16d85462383ed91f266392d37f2977b01647f7e`
+  (`feat(catalog): agregar catálogo de servicios y tarifas`).
+- Rama de publicación: `codex/feat-003-catalog`.
+
+- Commit de implementación: `d16d85462383ed91f266392d37f2977b01647f7e`
+  (`feat(catalog): agregar catálogo de servicios y tarifas`).
+- Rama de publicación: `codex/feat-003-catalog`.
+
 ## Revisión independiente — Quality Reviewer (2026-08-02)
 
 - Veredicto: **fail**. La feature permanece en `verification`; no está habilitado el
