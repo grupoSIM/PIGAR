@@ -25,7 +25,7 @@ features:
 
   - id: feat-003
     name: Catálogo de servicios, zonas y tarifas
-    status: publication_review
+    status: done
     priority: must
     depends_on: [feat-001, feat-002]
 

@@ -1,6 +1,6 @@
 project: PIGAR
 active_feature: feat-003
-phase: publication_review
+phase: done
 updated_at: 2026-08-02T00:00:00-03:00
 
 blockers: []
@@ -127,3 +127,4 @@ notes:
   - Revisión independiente final de feat-003 aprobada el 2026-08-02: QR-003-001 quedó resuelto y formato, 16/16 unitarias y 16/16 integraciones superaron. Se conservan las verificaciones de seguridad focalizada y E2E Compose aprobadas para el cambio previo. La feature pasa a publication_review; la aprobación de publicación sigue pendiente y no autoriza commit, push, PR ni despliegue.
   - El usuario autorizó el 2026-08-02 crear el commit local y hacer push de feat-003; no autorizó PR ni despliegue.
   - Commit local de feat-003 creado: d16d85462383ed91f266392d37f2977b01647f7e. Se publicará en `codex/feat-003-catalog`; PR y despliegue no autorizados.
+  - Push de feat-003 completado el 2026-08-02 en origin/codex/feat-003-catalog. No se creó PR ni se desplegó; la feature queda cerrada.
