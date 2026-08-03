@@ -2,13 +2,12 @@
 
 - Estado: `discovery`
 - Inicio: 2026-08-01
-- Dependencias: `feat-001` cerrada; `feat-002` sigue en `implementation`.
+- Dependencias: `feat-001` y `feat-002` cerradas.
 - Decisiones arquitectónicas relacionadas: [ADR-004](adr/ADR-004.md), para el
   precio que consumirá el cobro futuro; [ADR-005](adr/ADR-005.md), para el
   domicilio que consumirá `feat-004`.
-- Límite de coordinación: `progress/current.yaml` continúa con `feat-002` como
-  feature activa. Este discovery no modifica esa feature ni habilita trabajo de
-  implementación.
+- Límite de coordinación: `progress/current.yaml` declara `feat-003` como
+  feature activa en `discovery`. Este trabajo no habilita implementación.
 
 ## Objetivo
 
@@ -86,8 +85,21 @@ una oferta o una solicitud posterior.
 | DEC-003-007 | Momento de fijación de precio | al mostrar la oferta; al enviar solicitud; al crear orden | Debe armonizarse con `feat-004` y `feat-007`; se recomienda fijarlo al confirmar la creación de solicitud. |
 | DEC-003-008 | Consulta antes de autenticarse | sólo CLIENT autenticado; catálogo público limitado | Afecta superficie API, abuso y experiencia de inicio. |
 
-No se seleccionan precios, zonas geográficas, reglas comerciales, proveedor de
-mapas ni permisos de edición hasta recibir estas decisiones.
+No se selecciona proveedor de mapas ni se habilita geocodificación en este
+MVP. Precios, zona, reglas comerciales y permisos quedan documentados abajo.
+
+## Decisiones confirmadas el 2026-08-02
+
+| Decisión | Resolución | Estado |
+|---|---|---|
+| DEC-003-001 | El catálogo inicia con la categoría **Visita Simple**. `ADMIN` podrá administrar categorías y cada una tendrá su tarifa propia. | aprobada para MVP |
+| DEC-003-002 | El MVP tiene una zona única. La creación de zonas adicionales queda prevista para una evolución posterior administrada, sin definir todavía geometría ni proveedor de mapas. | aprobada para MVP |
+| DEC-003-003 | Se prohíben solapamientos. Con una zona única no hay ambigüedad de cobertura en el MVP. | aprobada |
+| DEC-003-004 | La moneda es ARS. Visita Simple cuesta ARS 50.000 como precio final pagable por el cliente, sin impuestos calculados por separado. Cubre visita y arreglos completables en ella conforme a lo informado; el excedente requiere presupuesto posterior. | aprobada para MVP |
+| DEC-003-005 | Sólo tarifa fija por servicio/zona; se difieren horario, urgencia, feriados, distancia y otras variaciones. | aprobada para MVP |
+| DEC-003-006 | Sólo `ADMIN` administra servicios, categorías, zonas y tarifas; `DISPATCHER` sólo consulta. | aprobada para MVP |
+| DEC-003-007 | La oferta se congela al confirmar la creación de la solicitud; cambios posteriores no modifican la instantánea. | aprobada |
+| DEC-003-008 | Se publicará una vista limitada del catálogo antes de autenticarse. Debe exponer únicamente la oferta vigente y no reglas administrativas. | aprobada para MVP |
 
 ## Riesgos y controles para la especificación
 
@@ -137,13 +149,13 @@ Los IDs son estables para la futura especificación; se convertirán en
 | Dependencia | Estado | Condición para esta feature |
 |---|---|---|
 | feat-001 | cerrada | API, PostgreSQL, migraciones, OpenAPI, auditoría y comandos de calidad disponibles. |
-| feat-002 | implementation | Reutilizar perfiles, roles y guard; no iniciar implementación de feat-003 hasta que la dependencia aporte un estado apto para integrar. |
+| feat-002 | cerrada | Reutilizar perfiles, roles y guard disponibles; la dependencia ya no bloquea la especificación. |
 | feat-004 | propuesta, consumidora | Deberá resolver domicilio según ADR-005 y persistir la instantánea de oferta definida aquí al confirmar la solicitud. |
 | feat-007 | propuesta, consumidora | Deberá crear la intención de pago desde el importe instantáneo de solicitud, no desde la tarifa actual del catálogo, conforme a ADR-004. |
 
 ## Propuesta de especificación posterior a las decisiones
 
-Al aprobar las decisiones `DEC-003-001` a `DEC-003-008`, preparar:
+Con las decisiones `DEC-003-001` a `DEC-003-008` resueltas, se prepararon:
 
 1. `specs/features/feat-003/requirements.md` con los REQ/NFR anteriores
    ajustados a las reglas comerciales aprobadas.
@@ -160,15 +172,11 @@ Al aprobar las decisiones `DEC-003-001` a `DEC-003-008`, preparar:
    para unicidad/versionado; seguridad de permisos; y E2E para la consulta de
    cliente y el flujo administrativo permitido.
 
-La especificación se moverá a `spec_review`, no a implementación. Requerirá
-aprobación humana de arquitectura si la decisión de zonas introduce proveedor,
-datos de ubicación adicionales o un cambio material de privacidad, y siempre
-requerirá la aprobación humana de especificación antes de modificar código.
+La especificación se encuentra en `specification`; no habilita implementación.
+Requerirá aprobación humana de especificación antes de modificar código. Una
+evolución de zonas con proveedor, datos de ubicación adicionales o cambio
+material de privacidad requerirá además aprobación de arquitectura.
 
 ## Solicitud de aprobación para continuar
 
-Para transformar este discovery en una especificación revisable, se necesita
-la decisión explícita del usuario sobre `DEC-003-001` a `DEC-003-008`, en
-especial la lista de servicios, las zonas reales de cobertura, la moneda e
-importes/condiciones de la tarifa, las variaciones permitidas y quién puede
-editar el catálogo.
+La próxima puerta es la aprobación humana de los artefactos de especificación.
