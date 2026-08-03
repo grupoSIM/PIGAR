@@ -130,3 +130,4 @@ notes:
   - Push de feat-003 completado el 2026-08-02 en origin/codex/feat-003-catalog. No se creó PR ni se desplegó; la feature queda cerrada.
   - Staging de feat-003 actualizado autorizadamente el 2026-08-02 con la imagen d16d85462383ed91f266392d37f2977b01647f7e. Las rutas públicas, administración, readiness y catálogo respondieron HTTPS 200; la oferta mostró Visita Simple/ARS 50.000/v1. No se desplegó producción.
   - La publicación automática de imágenes de staging queda limitada a `main` tras calidad y a la rama dedicada `staging`; se eliminó el disparador de `codex/feat-002-auth0-staging` y su contrato local fue verificado el 2026-08-02.
+  - La rama `staging` fue publicada el 2026-08-02 desde ebdbc4aada09afe59aa12270449ca3c26d5216f9; la ejecución 30778967918 de publicación de imágenes finalizó correctamente. No se modificó el despliegue de Hostinger ni producción.

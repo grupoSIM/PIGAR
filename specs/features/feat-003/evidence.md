@@ -61,6 +61,25 @@ El usuario autorizó el 2026-08-02 crear el commit local y hacer push. No autori
 - Comandos: `pnpm test:ci-contract`; `pnpm format:check`.
 - Resultado: exitoso; 3/3 pruebas de contrato, incluida la política de origen de
   imágenes, y Prettier sin diferencias.
+
+## Publicación de imágenes desde staging (2026-08-02)
+
+- Commit publicado: `ebdbc4aada09afe59aa12270449ca3c26d5216f9` en
+  `origin/codex/feat-003-catalog` y en la rama dedicada `origin/staging`.
+- Verificación: GitHub Actions `publish-staging-images`, ejecución `30778967918`.
+- Resultado: exitoso; la construcción desde el evento `push` de `staging`
+  finalizó con `success`. No se actualizó ni desplegó ningún contenedor.
+- Comando: `pnpm docs:check`.
+- Resultado: exitoso; los enlaces y la trazabilidad documental pasaron la
+  verificación local.
+
+## Publicación de imágenes desde staging (2026-08-02)
+
+- Commit publicado: `ebdbc4aada09afe59aa12270449ca3c26d5216f9` en
+  `origin/codex/feat-003-catalog` y en la rama dedicada `origin/staging`.
+- Verificación: GitHub Actions `publish-staging-images`, ejecución `30778967918`.
+- Resultado: exitoso; la construcción desde el evento `push` de `staging`
+  finalizó con `success`. No se actualizó ni desplegó ningún contenedor.
 - Push: `origin/codex/feat-003-catalog`, completado el 2026-08-02. No se creó PR ni se desplegó.
 
 - Commit de implementación: `d16d85462383ed91f266392d37f2977b01647f7e`
