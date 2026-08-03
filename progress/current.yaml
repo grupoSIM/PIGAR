@@ -1,7 +1,7 @@
 project: PIGAR
-active_feature: null
-phase: done
-updated_at: 2026-07-26T00:00:00-03:00
+active_feature: feat-002
+phase: publication_review
+updated_at: 2026-08-01T00:00:00-03:00
 
 blockers: []
 
@@ -48,23 +48,22 @@ approvals:
   architecture:
     status: approved
     approved_by: usuario
-    approved_at: 2026-07-23T11:27:07-03:00
+    approved_at: 2026-07-29T00:00:00-03:00
   specification:
     status: approved
     approved_by: usuario
-    approved_at: 2026-07-25T00:00:00-03:00
+    approved_at: 2026-07-29T00:00:00-03:00
   verification:
     status: approved
-    approved_by: usuario
-    approved_at: 2026-07-25T00:00:00-03:00
+    approved_by: quality_reviewer
+    approved_at: 2026-08-01T00:00:00-03:00
   publication:
     status: approved
     approved_by: usuario
-    approved_at: 2026-07-26T00:00:00-03:00
+    approved_at: 2026-08-01T00:00:00-03:00
 
 quality:
-  status: passed
-  evidence: specs/features/feat-012/evidence.md
+  status: local_pass_pending_staging
 
 notes:
   - El repositorio contiene por ahora únicamente el documento de requisitos y solución tecnológica.
@@ -101,3 +100,19 @@ notes:
   - CI remoto aprobado el 2026-07-25 en GitHub Actions run 30169241231; feat-001 queda cerrada. Los bloqueantes de producción siguen vigentes y Hostinger no es producción.
   - feat-012 iniciada en discovery por instrucción del usuario: staging técnico manual en Hostinger, sin funcionalidades de producto ni autorización de despliegue todavía.
   - El usuario aprobó la especificación de feat-012 el 2026-07-25; se habilita implementación local de artefactos de staging, no acceso ni despliegue remoto.
+  - feat-002 ingresó en discovery por instrucción del usuario el 2026-07-27. ADR-003 sigue aceptada; la especificación requerirá validar Auth0 con cuenta no productiva y aprobación humana antes de modificar código.
+  - Alcance de discovery de feat-002 confirmado por el usuario el 2026-07-27; se preparan los artefactos de especificación. No existe aprobación de especificación ni autorización de implementación.
+  - El usuario aprobó el 2026-07-27 sustituir magic link por código OTP email con Universal Login. La enmienda a ADR-003 permite MFA selectivo por aplicación mediante Actions; no autoriza implementación.
+  - La validación manual no productiva de `google-oauth2` para `PIGAR-STAGING-CUSTOMER` completó con éxito el 2026-07-27; no se registró el perfil devuelto.
+  - La prueba de conexión de base de datos para `PIGAR-STAGING-ADMIN` fue exitosa el 2026-07-27, pero no constituye evidencia de MFA: Auth0 indica probar Actions Post Login desde Authentication Profile.
+  - MFA TOTP fue validado el 2026-07-27 mediante la Action Post Login; la condición temporal fue restaurada y desplegada exclusivamente para `PIGAR-STAGING-ADMIN`.
+  - El usuario aprobó el 2026-07-27 usar Auth0 Organizations para invitaciones administrativas del MVP, limitado al único equipo interno PIGAR.
+  - El usuario revisó y aprobó la especificación de feat-002 el 2026-07-27. Se habilita implementación local del MVP; no autoriza commit, push, PR ni despliegue. La aceptación de invitaciones requiere implementar y desplegar HTTPS `/login` en el backoffice y conservará evidencia antes del cierre.
+  - El usuario confirmó el 2026-07-29 la revisión de arquitectura del flujo: cliente por Google u OTP email sin registro visible; cuentas internas aprovisionadas por ADMIN con contraseña y MFA; operarios sin cuenta en el MVP. La especificación de feat-002 vuelve a spec_review y sustituye el flujo anterior de Organizations/invitaciones cuando sea aprobada.
+  - El usuario aprobó la especificación revisada de feat-002 el 2026-07-29. La feature pasa a approved y se habilita implementación local del flujo de clientes Google/OTP email y cuentas internas preaprovisionadas con MFA; no autoriza commit, push, PR ni despliegue.
+  - Implementación local de feat-002 iniciada el 2026-07-29: el selector cliente usa conexiones Auth0 explícitas para Google y OTP email; el aprovisionamiento interno reemplaza Organizations/invitaciones mediante Management API. Sin cambios externos ni autorización de publicación.
+  - Staging de feat-002 validado manualmente el 2026-07-29: OTP email para cliente y cuenta interna administrativa con contraseña/MFA.
+  - El usuario decidió el 2026-08-01 excluir Google del MVP de feat-002. Google se reconsiderará antes de producción con decisión y validación no productiva separadas; la enmienda no autoriza cambios de código, proveedores, despliegue ni publicación.
+  - TASK-002-002 actualizada el 2026-08-01: se retiraron Google, su configuración versionada de staging y el callback heredado de invitaciones; pruebas unitarias/E2E focalizadas y typecheck local superaron. La validación de la imagen en staging requiere despliegue autorizado.
+  - Implementación de feat-002 completada localmente el 2026-08-01: todas las tareas están verificadas con evidencia. La feature ingresa en verification; formato, lint, typecheck, 11 unitarias, 11 integraciones, 22 seguridad y 2 E2E superaron con Docker Desktop accesible. Los fallos previos provenían del aislamiento de la sesión, no del proyecto. Falta revisión independiente y validar en staging la imagen que retire Google.
+  - Revisión independiente de feat-002 aprobada el 2026-08-01: login/callback administrativo bajo `/admin` y TEST-002-008 verificados. La feature pasa a publication_review; el usuario autorizó commit y push para generar imágenes de staging, sin autorizar despliegue.

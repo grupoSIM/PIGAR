@@ -50,7 +50,15 @@ services:
     image: *app-image
     profiles: ["app"]
     command: ["pnpm", "--filter", "@pigar/customer-web", "exec", "next", "start", "-H", "0.0.0.0", "-p", "3000"]
-    environment: *app-environment
+    environment:
+      <<: *app-environment
+      PIGAR_CUSTOMER_AUTH0_APP_BASE_URL: ${PIGAR_CUSTOMER_AUTH0_APP_BASE_URL:-}
+      PIGAR_CUSTOMER_AUTH0_AUDIENCE: ${PIGAR_CUSTOMER_AUTH0_AUDIENCE:-}
+      PIGAR_CUSTOMER_AUTH0_CLIENT_ID: ${PIGAR_CUSTOMER_AUTH0_CLIENT_ID:-}
+      PIGAR_CUSTOMER_AUTH0_CLIENT_SECRET: ${PIGAR_CUSTOMER_AUTH0_CLIENT_SECRET:-}
+      PIGAR_CUSTOMER_AUTH0_DOMAIN: ${PIGAR_CUSTOMER_AUTH0_DOMAIN:-}
+      PIGAR_CUSTOMER_AUTH0_SESSION_SECRET: ${PIGAR_CUSTOMER_AUTH0_SESSION_SECRET:-}
+      PIGAR_CUSTOMER_AUTH0_EMAIL_OTP_CONNECTION: ${PIGAR_CUSTOMER_AUTH0_EMAIL_OTP_CONNECTION:-}
     networks:
       - edge
     healthcheck:
@@ -66,7 +74,14 @@ services:
     image: *app-image
     profiles: ["app"]
     command: ["pnpm", "--filter", "@pigar/admin-web", "exec", "next", "start", "-H", "0.0.0.0", "-p", "3000"]
-    environment: *app-environment
+    environment:
+      <<: *app-environment
+      APP_BASE_URL: ${PIGAR_ADMIN_AUTH0_APP_BASE_URL:-}
+      AUTH0_CLIENT_ID: ${PIGAR_ADMIN_AUTH0_CLIENT_ID:-}
+      AUTH0_CLIENT_SECRET: ${PIGAR_ADMIN_AUTH0_CLIENT_SECRET:-}
+      AUTH0_DOMAIN: ${PIGAR_ADMIN_AUTH0_DOMAIN:-}
+      AUTH0_SECRET: ${PIGAR_ADMIN_AUTH0_SESSION_SECRET:-}
+      AUTH0_AUDIENCE: ${PIGAR_ADMIN_AUTH0_AUDIENCE:-}
     networks:
       - edge
     healthcheck:
@@ -102,6 +117,12 @@ services:
       PORT: 3000
       DATABASE_URL: ${PIGAR_DATABASE_URL:-}
       MEDIA_ROOT: /var/lib/pigar/media
+      AUTH0_ADMIN_CLIENT_ID: ${PIGAR_API_AUTH0_ADMIN_CLIENT_ID:-}
+      AUTH0_AUDIENCE: ${PIGAR_API_AUTH0_AUDIENCE:-}
+      AUTH0_ISSUER: ${PIGAR_API_AUTH0_ISSUER:-}
+      AUTH0_MANAGEMENT_CLIENT_ID: ${PIGAR_API_AUTH0_MANAGEMENT_CLIENT_ID:-}
+      AUTH0_MANAGEMENT_CLIENT_SECRET: ${PIGAR_API_AUTH0_MANAGEMENT_CLIENT_SECRET:-}
+      AUTH0_INTERNAL_CONNECTION: ${PIGAR_API_AUTH0_INTERNAL_CONNECTION:-}
     depends_on:
       migrate:
         condition: service_completed_successfully

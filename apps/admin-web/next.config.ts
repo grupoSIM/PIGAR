@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   basePath: "/admin",
+  env: { NEXT_PUBLIC_BASE_PATH: "/admin" },
 };
 
 export default nextConfig;

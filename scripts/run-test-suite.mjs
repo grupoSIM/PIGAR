@@ -16,6 +16,7 @@ const suites = {
     "scripts/config.test.mjs",
     "scripts/observability.test.mjs",
     "scripts/order-state-machine.test.mjs",
+    "scripts/staging-auth-config.test.mjs",
   ],
   integration: [
     "scripts/api-health.test.mjs",
@@ -23,13 +24,16 @@ const suites = {
     "scripts/media-poc.test.mjs",
     "scripts/payment-poc.test.mjs",
     "scripts/observability.test.mjs",
+    "scripts/identity-profile.test.mjs",
   ],
-  e2e: ["scripts/e2e-technical.test.mjs"],
+  e2e: ["scripts/e2e-technical.test.mjs", "scripts/identity-client.test.mjs"],
   security: [
     "scripts/media-poc.test.mjs",
     "scripts/payment-poc.test.mjs",
     "scripts/observability.test.mjs",
     "scripts/permission-matrix.test.mjs",
+    "scripts/identity-admin.test.mjs",
+    "scripts/identity-token.test.mjs",
     "scripts/e2e-technical.test.mjs",
   ],
 };

@@ -11,10 +11,20 @@ export class ConfigurationError extends Error {
 }
 
 export type ApiConfiguration = {
+  auth0?: Auth0Configuration;
   environment: PigarEnvironment;
   host: string;
   mediaRoot?: string;
   port: number;
+};
+
+export type Auth0Configuration = {
+  adminClientId?: string;
+  audience: string;
+  issuer: string;
+  managementClientId?: string;
+  managementClientSecret?: string;
+  internalConnection?: string;
 };
 
 export type WorkerConfiguration = {
@@ -27,18 +37,77 @@ export function loadApiConfiguration(environment: EnvironmentVariables): ApiConf
   const host = environment.HOST ?? "127.0.0.1";
   const port = readInteger(environment.PORT ?? "3000", "PORT", 1, 65_535);
   const mediaRoot = optionalValue(environment.MEDIA_ROOT);
+  const auth0Issuer = optionalValue(environment.AUTH0_ISSUER);
+  const auth0Audience = optionalValue(environment.AUTH0_AUDIENCE);
+  const auth0AdminClientId = optionalValue(environment.AUTH0_ADMIN_CLIENT_ID);
+  const auth0ManagementClientId = optionalValue(environment.AUTH0_MANAGEMENT_CLIENT_ID);
+  const auth0ManagementClientSecret = optionalValue(environment.AUTH0_MANAGEMENT_CLIENT_SECRET);
+  const auth0InternalConnection = optionalValue(environment.AUTH0_INTERNAL_CONNECTION);
 
   if (!/^[a-zA-Z0-9.-]+$/.test(host)) throw new ConfigurationError("CONFIG_INVALID", "HOST");
   if (runtimeEnvironment === "production") {
     requiredValue(environment.DATABASE_URL, "DATABASE_URL");
     requiredValue(mediaRoot, "MEDIA_ROOT");
+    requiredValue(auth0Issuer, "AUTH0_ISSUER");
+    requiredValue(auth0Audience, "AUTH0_AUDIENCE");
+    requiredValue(auth0AdminClientId, "AUTH0_ADMIN_CLIENT_ID");
+    requiredValue(auth0ManagementClientId, "AUTH0_MANAGEMENT_CLIENT_ID");
+    requiredValue(auth0ManagementClientSecret, "AUTH0_MANAGEMENT_CLIENT_SECRET");
+    requiredValue(auth0InternalConnection, "AUTH0_INTERNAL_CONNECTION");
   }
+
+  if ((auth0Issuer && !auth0Audience) || (!auth0Issuer && auth0Audience)) {
+    throw new ConfigurationError(
+      "CONFIG_REQUIRED",
+      auth0Issuer ? "AUTH0_AUDIENCE" : "AUTH0_ISSUER",
+    );
+  }
+
+  const auth0 =
+    auth0Issuer && auth0Audience
+      ? validateAuth0(
+          auth0Issuer,
+          auth0Audience,
+          auth0AdminClientId,
+          auth0ManagementClientId,
+          auth0ManagementClientSecret,
+          auth0InternalConnection,
+        )
+      : undefined;
 
   return {
     environment: runtimeEnvironment,
     host,
     ...(mediaRoot ? { mediaRoot } : {}),
+    ...(auth0 ? { auth0 } : {}),
     port,
+  };
+}
+
+function validateAuth0(
+  issuer: string,
+  audience: string,
+  adminClientId: string | undefined,
+  managementClientId: string | undefined,
+  managementClientSecret: string | undefined,
+  internalConnection: string | undefined,
+): Auth0Configuration {
+  if (!/^https:\/\/[^/?#]+(?:\/[^?#]*)?\/$/.test(issuer)) {
+    throw new ConfigurationError("CONFIG_INVALID", "AUTH0_ISSUER");
+  }
+  if (!/^https:\/\/[^/?#]+(?:\/[^?#]*)?$/.test(audience)) {
+    throw new ConfigurationError("CONFIG_INVALID", "AUTH0_AUDIENCE");
+  }
+  if (adminClientId && !/^[A-Za-z0-9_-]{8,128}$/.test(adminClientId)) {
+    throw new ConfigurationError("CONFIG_INVALID", "AUTH0_ADMIN_CLIENT_ID");
+  }
+  return {
+    ...(adminClientId ? { adminClientId } : {}),
+    ...(managementClientId ? { managementClientId } : {}),
+    ...(managementClientSecret ? { managementClientSecret } : {}),
+    ...(internalConnection ? { internalConnection } : {}),
+    audience,
+    issuer,
   };
 }
 

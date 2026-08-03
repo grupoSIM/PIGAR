@@ -30,6 +30,17 @@ enum MediaPocState {
   DELETED
 }
 
+enum ProfileRole {
+  CLIENT
+  DISPATCHER
+  ADMIN
+}
+
+enum ProfileStatus {
+  ACTIVE
+  INACTIVE
+}
+
 model OutboxEvent {
   id String @id @default(uuid()) @db.Uuid
   eventType String @db.VarChar(100)
@@ -89,4 +100,30 @@ model MediaPocObject {
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
   @@index([state, expiresAt])
   @@map("media_poc_object")
+}
+
+model Profile {
+  id String @id @default(uuid()) @db.Uuid
+  identitySubject String @unique @db.VarChar(255)
+  role ProfileRole
+  status ProfileStatus @default(ACTIVE)
+  displayName String? @db.VarChar(120)
+  phone String? @db.VarChar(32)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  @@index([role, status])
+  @@map("profile")
+}
+
+model AccessAuditEvent {
+  id String @id @default(uuid()) @db.Uuid
+  eventType String @db.VarChar(100)
+  actorProfileId String? @db.Uuid
+  subjectProfileId String? @db.Uuid
+  outcome String @db.VarChar(30)
+  correlationId String @db.VarChar(128)
+  metadata Json?
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@index([subjectProfileId, createdAt])
+  @@map("access_audit_event")
 }

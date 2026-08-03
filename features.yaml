@@ -19,13 +19,13 @@ features:
 
   - id: feat-002
     name: Identidad, roles y perfiles básicos
-    status: proposed
+    status: publication_review
     priority: must
     depends_on: [feat-001]
 
   - id: feat-003
     name: Catálogo de servicios, zonas y tarifas
-    status: proposed
+    status: discovery
     priority: must
     depends_on: [feat-001, feat-002]
 
