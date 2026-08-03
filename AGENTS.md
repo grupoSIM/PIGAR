@@ -24,3 +24,11 @@ Todo agente que trabaje en este repositorio debe leer, en este orden:
 ## Roles
 
 El Leader coordina los roles definidos en `.harness/roles/`. Un agente puede desempeñar varios roles secuencialmente, pero debe respetar las puertas y no autoaprobar su propio trabajo.
+
+### Independencia mínima
+
+El Leader puede ejecutar discovery, especificación, implementación y
+verificaciones rutinarias; no se requiere un agente distinto por cada tarea.
+La revisión que habilita `publication_review` debe realizarla un Reviewer
+independiente de quien implementó los cambios. Sus hallazgos y veredicto deben
+quedar registrados en los artefactos de la feature.

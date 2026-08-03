@@ -16,8 +16,8 @@
 
 | Criterio | Tareas | Pruebas | Evidencia |
 |---|---|---|---|
-| AC-002-001 | TASK-002-003, TASK-002-006 | TEST-002-001 | `evidence.md` 2026-07-29, OTP email en staging; requiere reconciliación final de tarea y verificación |
-| AC-002-002 | TASK-002-002, TASK-002-006 | TEST-002-002, TEST-002-008 | `evidence.md` 2026-07-29, acceso interno con MFA en staging; 2026-08-01, regresión local sin Google y login/callback administrativo bajo `/admin`; requiere verificación final |
+| AC-002-001 | TASK-002-003, TASK-002-006 | TEST-002-001 | `evidence.md` 2026-08-02: OTP email validado manualmente en la imagen desplegada; no se presentó Google. |
+| AC-002-002 | TASK-002-002, TASK-002-006 | TEST-002-002, TEST-002-008 | `evidence.md` 2026-08-02: acceso administrativo con usuario/contraseña y MFA validado manualmente en la imagen desplegada. |
 | AC-002-003 | TASK-002-004, TASK-002-006 | TEST-002-003 | `evidence.md` 2026-08-01, seguridad 22/22 |
 | AC-002-004 | TASK-002-003, TASK-002-006 | TEST-002-004 | `evidence.md` 2026-08-01, integración 11/11 |
 | AC-002-005 | TASK-002-005, TASK-002-006 | TEST-002-005 | `evidence.md` 2026-08-01, seguridad 22/22 |

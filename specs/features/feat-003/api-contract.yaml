@@ -1,0 +1,42 @@
+openapi: 3.1.0
+info:
+  title: PIGAR Catalog API
+  version: 1.0.0-draft
+paths:
+  /v1/catalog/offers:
+    get:
+      summary: Consulta pública limitada de ofertas vigentes
+      responses:
+        '200': { description: Oferta vigente o catálogo sin oferta aplicable }
+        '404': { description: Categoría o tarifa no disponible }
+  /v1/admin/catalog:
+    get:
+      summary: Consulta operativa del catálogo (ADMIN o DISPATCHER)
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: Catálogo operativo }
+        '403': { description: Rol no autorizado }
+  /v1/admin/catalog/categories:
+    post:
+      summary: Crea una categoría de visita (ADMIN)
+      responses:
+        '201': { description: Categoría creada }
+        '403': { description: Rol no autorizado }
+  /v1/admin/catalog/zones:
+    post:
+      summary: Crea una zona inactiva (ADMIN)
+      security: [{ bearerAuth: [] }]
+      responses:
+        '201': { description: Zona creada }
+        '403': { description: Rol no autorizado }
+  /v1/admin/catalog/rates:
+    post:
+      summary: Crea tarifa ARS decimal versionada (ADMIN)
+      security: [{ bearerAuth: [] }]
+      responses:
+        '201': { description: Tarifa creada como borrador }
+        '403': { description: Rol no autorizado }
+        '409': { description: Importe, moneda o vigencia inválidos }
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }

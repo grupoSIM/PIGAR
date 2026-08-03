@@ -61,6 +61,24 @@ test(
     assert.equal((await waitFor(`${baseUrl}/admin`)).status, 200);
     assert.equal((await waitFor(`${baseUrl}/api/health/ready`)).status, 200);
     assert.equal((await fetch(`${baseUrl}/media/not-public`)).status, 404);
+    const offers = await fetch(`${baseUrl}/api/v1/catalog/offers`);
+    assert.equal(offers.status, 200);
+    assert.deepEqual(await offers.json(), {
+      items: [
+        {
+          category: {
+            description: "Diagnóstico y visita para resolver arreglos informados por el cliente.",
+            id: "00000000-0000-4000-8000-000000000302",
+            name: "Visita Simple",
+            scope:
+              "Incluye la visita, el diagnóstico y arreglos completables conforme a lo informado. Si excede el alcance, la visita se cobra y el resto requiere presupuesto posterior.",
+          },
+          currency: "ARS",
+          price: "50000.00",
+          version: 1,
+        },
+      ],
+    });
 
     await compose(["restart", "postgres", "api"]);
     assert.equal((await waitFor(`${baseUrl}/api/health/ready`)).status, 200);

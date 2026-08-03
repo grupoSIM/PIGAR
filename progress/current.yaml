@@ -1,7 +1,7 @@
 project: PIGAR
-active_feature: feat-002
-phase: publication_review
-updated_at: 2026-08-01T00:00:00-03:00
+active_feature: feat-003
+phase: done
+updated_at: 2026-08-02T00:00:00-03:00
 
 blockers: []
 
@@ -46,24 +46,23 @@ decisions:
 
 approvals:
   architecture:
-    status: approved
-    approved_by: usuario
-    approved_at: 2026-07-29T00:00:00-03:00
+    status: not_required
+    note: La zona única no incorpora proveedor, geocodificación, coordenadas ni datos de domicilio.
   specification:
     status: approved
     approved_by: usuario
-    approved_at: 2026-07-29T00:00:00-03:00
+    approved_at: 2026-08-02T00:00:00-03:00
   verification:
     status: approved
     approved_by: quality_reviewer
-    approved_at: 2026-08-01T00:00:00-03:00
+    approved_at: 2026-08-02T00:00:00-03:00
   publication:
     status: approved
     approved_by: usuario
-    approved_at: 2026-08-01T00:00:00-03:00
+    approved_at: 2026-08-02T00:00:00-03:00
 
 quality:
-  status: local_pass_pending_staging
+  status: pass
 
 notes:
   - El repositorio contiene por ahora únicamente el documento de requisitos y solución tecnológica.
@@ -116,3 +115,19 @@ notes:
   - TASK-002-002 actualizada el 2026-08-01: se retiraron Google, su configuración versionada de staging y el callback heredado de invitaciones; pruebas unitarias/E2E focalizadas y typecheck local superaron. La validación de la imagen en staging requiere despliegue autorizado.
   - Implementación de feat-002 completada localmente el 2026-08-01: todas las tareas están verificadas con evidencia. La feature ingresa en verification; formato, lint, typecheck, 11 unitarias, 11 integraciones, 22 seguridad y 2 E2E superaron con Docker Desktop accesible. Los fallos previos provenían del aislamiento de la sesión, no del proyecto. Falta revisión independiente y validar en staging la imagen que retire Google.
   - Revisión independiente de feat-002 aprobada el 2026-08-01: login/callback administrativo bajo `/admin` y TEST-002-008 verificados. La feature pasa a publication_review; el usuario autorizó commit y push para generar imágenes de staging, sin autorizar despliegue.
+  - Staging de feat-002 actualizado autorizadamente el 2026-08-01 con la imagen del commit `1589fd915717193705b1cea262af52f7aa5b951a`. Las rutas públicas esperadas respondieron HTTP 200 y los puertos 3000/5432 no quedaron expuestos. La feature permanece en publication_review: el smoke test no sustituye la aceptación funcional manual de identidad.
+  - feat-002 cerrada el 2026-08-02: el usuario validó en staging la imagen desplegada con OTP email de cliente y acceso administrativo con usuario/contraseña y MFA; Google no se presentó y queda fuera del MVP. Se conservaron la revisión independiente y la aprobación de publicación ya registradas.
+  - feat-003 retomada en discovery el 2026-08-02 tras el cierre de feat-002. No hay decisiones comerciales, zonas, precios, proveedor de mapas ni permisos de edición aprobados todavía.
+  - Discovery de feat-003 completado el 2026-08-02: una zona única, Visita Simple a ARS 50.000 como precio final, tarifas fijas por categoría, sólo ADMIN edita, vista pública limitada y congelamiento al confirmar solicitud. La especificación ingresa en spec_review y queda pendiente de aprobación humana; no se autoriza implementación.
+  - El usuario aprobó la especificación de feat-003 el 2026-08-02. La feature pasa a approved; se habilita implementación local sólo bajo instrucción posterior. No autoriza commit, push, PR ni despliegue.
+  - Implementación local de feat-003 iniciada el 2026-08-02 por instrucción del usuario. No autoriza commit, push, PR ni despliegue.
+  - Implementación local de feat-003 completada el 2026-08-02: catálogo versionado, migración no destructiva y seed sintético de Visita Simple/ARS 50.000; oferta pública, administración sólo ADMIN, consulta DISPATCHER y auditoría sanitizada. Formato, lint, typecheck, pruebas focalizadas y E2E Compose locales superaron. La feature pasa a verification; falta revisión independiente y no existe autorización de publicación.
+  - Revisión independiente de feat-003 ejecutada el 2026-08-02: fail por QR-003-001, regresión en la prueba unitaria del shell cliente al omitir la marca PIGAR en la página modificada. Formato, lint, typecheck, integración y seguridad focalizadas del catálogo y E2E Compose pasaron; la integración completa excedió el límite local sin resultado. La feature permanece en verification y no se autoriza publicación.
+  - QR-003-001 corregido el 2026-08-02: la página pública vuelve a declarar PIGAR. Formato y suite unitaria completa (16/16) superaron; el reintento de integración completa superó 16/16. Se solicita nuevo veredicto independiente; no existe autorización de publicación.
+  - Revisión independiente final de feat-003 aprobada el 2026-08-02: QR-003-001 quedó resuelto y formato, 16/16 unitarias y 16/16 integraciones superaron. Se conservan las verificaciones de seguridad focalizada y E2E Compose aprobadas para el cambio previo. La feature pasa a publication_review; la aprobación de publicación sigue pendiente y no autoriza commit, push, PR ni despliegue.
+  - El usuario autorizó el 2026-08-02 crear el commit local y hacer push de feat-003; no autorizó PR ni despliegue.
+  - Commit local de feat-003 creado: d16d85462383ed91f266392d37f2977b01647f7e. Se publicará en `codex/feat-003-catalog`; PR y despliegue no autorizados.
+  - Push de feat-003 completado el 2026-08-02 en origin/codex/feat-003-catalog. No se creó PR ni se desplegó; la feature queda cerrada.
+  - Staging de feat-003 actualizado autorizadamente el 2026-08-02 con la imagen d16d85462383ed91f266392d37f2977b01647f7e. Las rutas públicas, administración, readiness y catálogo respondieron HTTPS 200; la oferta mostró Visita Simple/ARS 50.000/v1. No se desplegó producción.
+  - La publicación automática de imágenes de staging queda limitada a `main` tras calidad y a la rama dedicada `staging`; se eliminó el disparador de `codex/feat-002-auth0-staging` y su contrato local fue verificado el 2026-08-02.
+  - La rama `staging` fue publicada el 2026-08-02 desde ebdbc4aada09afe59aa12270449ca3c26d5216f9; la ejecución 30778967918 de publicación de imágenes finalizó correctamente. No se modificó el despliegue de Hostinger ni producción.
