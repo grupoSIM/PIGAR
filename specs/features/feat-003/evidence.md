@@ -38,6 +38,29 @@ El usuario autorizó el 2026-08-02 crear el commit local y hacer push. No autori
   (`feat(catalog): agregar catálogo de servicios y tarifas`).
 - Rama de publicación: `codex/feat-003-catalog`.
 - Push: `origin/codex/feat-003-catalog`, completado el 2026-08-02. No se creó PR ni se desplegó.
+
+## Staging posterior a publicación (2026-08-02)
+
+- Imagen: `d16d85462383ed91f266392d37f2977b01647f7e`, publicada por GitHub Actions
+  `publish-staging-images` 30774101208.
+- Despliegue: actualización manual autorizada del proyecto `pigar-staging` en
+  Docker Manager de Hostinger, preservando los volúmenes existentes.
+- Smoke HTTPS: `GET /`, `GET /admin`, `GET /api/health/ready` y
+  `GET /api/v1/catalog/offers` devolvieron `200`.
+- Resultado: la oferta pública devolvió únicamente Visita Simple, ARS 50.000
+  final y versión 1. No se registraron secretos, datos personales ni valores de
+  configuración de staging.
+
+## Política de publicación de imágenes de staging (2026-08-02)
+
+- Cambio: el workflow `publish-staging-images` deja de construir imágenes desde
+  la rama histórica `codex/feat-002-auth0-staging`. Sólo acepta pushes de la
+  rama dedicada `staging`, ejecuciones manuales iniciadas desde `main` o
+  `staging` y ejecuciones exitosas del workflow de calidad cuyo origen sea
+  `main`.
+- Comandos: `pnpm test:ci-contract`; `pnpm format:check`.
+- Resultado: exitoso; 3/3 pruebas de contrato, incluida la política de origen de
+  imágenes, y Prettier sin diferencias.
 - Push: `origin/codex/feat-003-catalog`, completado el 2026-08-02. No se creó PR ni se desplegó.
 
 - Commit de implementación: `d16d85462383ed91f266392d37f2977b01647f7e`
