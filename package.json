@@ -18,7 +18,7 @@
     "test:shells": "node --test scripts/shells.test.mjs",
     "test:worker": "pnpm --filter @pigar/config build && pnpm --filter @pigar/worker build && node --test scripts/worker.test.mjs",
     "test:payment-poc": "pnpm --filter @pigar/config build && pnpm --filter @pigar/api build && node --test scripts/payment-poc.test.mjs",
-    "test:unit": "pnpm --filter @pigar/config build && pnpm --filter @pigar/observability build && pnpm --filter @pigar/contracts build && node scripts/run-test-suite.mjs unit",
+    "test:unit": "pnpm --filter @pigar/config build && pnpm --filter @pigar/observability build && pnpm --filter @pigar/contracts build && pnpm --filter @pigar/api build && node scripts/run-test-suite.mjs unit",
     "test:integration": "pnpm --filter @pigar/config build && pnpm --filter @pigar/observability build && pnpm --filter @pigar/api build && node scripts/run-test-suite.mjs integration",
     "test:e2e": "node scripts/run-test-suite.mjs e2e",
     "test:security": "pnpm --filter @pigar/config build && pnpm --filter @pigar/observability build && pnpm --filter @pigar/contracts build && pnpm --filter @pigar/api build && node scripts/run-test-suite.mjs security",
