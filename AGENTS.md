@@ -20,6 +20,7 @@ Todo agente que trabaje en este repositorio debe leer, en este orden:
 - No usar credenciales reales en el repositorio ni exponer datos personales, ubicaciones o URLs firmadas en logs.
 - No hacer commit, push, despliegue ni abrir PR sin aprobación explícita de publicación.
 - Preservar cambios preexistentes del usuario y limitar cada incremento al alcance aprobado.
+- Antes de cerrar una feature, verificar que sus commits y artefactos estén integrados en la rama objetivo aprobada. Toda rama remanente debe tener propósito, responsable y fecha de retiro documentados; no cerrar con ramas de feature sueltas.
 
 ## Roles
 
