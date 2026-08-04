@@ -21,6 +21,7 @@
     "test:unit": "pnpm --filter @pigar/config build && pnpm --filter @pigar/observability build && pnpm --filter @pigar/contracts build && pnpm --filter @pigar/api build && node scripts/run-test-suite.mjs unit",
     "test:integration": "pnpm --filter @pigar/config build && pnpm --filter @pigar/observability build && pnpm --filter @pigar/api build && node scripts/run-test-suite.mjs integration",
     "test:e2e": "node scripts/run-test-suite.mjs e2e",
+    "test:e2e:frontends": "pnpm --filter @pigar/customer-web run test:e2e && pnpm --filter @pigar/admin-web run test:e2e",
     "test:security": "pnpm --filter @pigar/config build && pnpm --filter @pigar/observability build && pnpm --filter @pigar/contracts build && pnpm --filter @pigar/api build && node scripts/run-test-suite.mjs security",
     "test:ci-contract": "node --test scripts/ci-contract.test.mjs",
     "docs:check": "node scripts/docs-check.mjs",

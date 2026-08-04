@@ -15,6 +15,7 @@
 - Cada bug corregido agrega una prueba de regresión.
 - Los servicios externos se prueban con contratos/mocks y fallos controlados.
 - Los flujos críticos de estados, permisos, pagos y webhooks requieren integración o E2E.
+- Cualquier modificación al frontend web debe validarse ejecutando la suite E2E (`pnpm test:e2e:frontends`).
 - Una feature no se cierra si el repositorio no ofrece los comandos de calidad exigidos.
 
 ## Git

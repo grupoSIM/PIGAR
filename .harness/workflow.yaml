@@ -64,6 +64,7 @@ quality_commands:
     - unit_tests
     - integration_tests_when_applicable
     - e2e_for_critical_business_flows
+    - frontend_e2e_tests_when_modifying_ui
   missing_command_behavior: block_and_propose_bootstrap
 
 publication:

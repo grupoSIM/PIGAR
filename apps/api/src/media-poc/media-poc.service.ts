@@ -147,6 +147,7 @@ export class MediaPocService {
       };
     } catch (error) {
       output.destroy();
+      await finished(output).catch(() => undefined);
       await rm(temporaryPath, { force: true });
       await rm(finalPath, { force: true });
       throw error;

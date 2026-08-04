@@ -8,6 +8,10 @@ import { Auth0ProvisioningService } from "./identity/auth0-provisioning.service.
 import { MeController } from "./identity/me.controller.js";
 import { AdminCatalogController, PublicCatalogController } from "./catalog/catalog.controller.js";
 import { CatalogService } from "./catalog/catalog.service.js";
+import { AddressNormalizerService } from "./requests/address-normalizer.service.js";
+import { RequestMediaService } from "./requests/request-media.service.js";
+import { RequestsController } from "./requests/requests.controller.js";
+import { RequestsService } from "./requests/requests.service.js";
 
 @Module({
   controllers: [
@@ -16,6 +20,7 @@ import { CatalogService } from "./catalog/catalog.service.js";
     AdminProfilesController,
     PublicCatalogController,
     AdminCatalogController,
+    RequestsController,
   ],
   providers: [
     DatabaseService,
@@ -23,6 +28,9 @@ import { CatalogService } from "./catalog/catalog.service.js";
     IdentityGuard,
     Auth0ProvisioningService,
     CatalogService,
+    AddressNormalizerService,
+    RequestMediaService,
+    RequestsService,
   ],
 })
 export class AppModule {}

@@ -13,3 +13,6 @@ pnpm-debug.log*
 media/
 postgres-data/
 apps/api/src/generated/
+
+playwright-report/
+test-results/

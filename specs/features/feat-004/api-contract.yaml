@@ -1,0 +1,50 @@
+openapi: 3.1.0
+info: { title: PIGAR Requests API, version: 1.0.0-draft }
+paths:
+  /v1/requests:
+    post:
+      summary: Crea solicitud idempotente y congela oferta
+      security: [{ bearerAuth: [] }]
+      parameters: [{ name: Idempotency-Key, in: header, required: true }]
+      responses:
+        { "201": { description: Solicitud creada }, "409": { description: Reintento incompatible } }
+  /v1/requests/{id}/media:
+    post:
+      summary: Adjunta multimedia privada a solicitud propia
+      security: [{ bearerAuth: [] }]
+      responses:
+        {
+          "201": { description: Adjunto aceptado },
+          "413": { description: Límite excedido },
+          "415": { description: MIME inválido },
+        }
+  /v1/requests/{id}:
+    get:
+      summary: Consulta una solicitud propia u operativa autorizada
+      security: [{ bearerAuth: [] }]
+      responses:
+        {
+          "200": { description: Solicitud y domicilio confirmado },
+          "404": { description: No accesible },
+        }
+  /v1/requests/{id}/media/{mediaId}:
+    get:
+      summary: Autoriza la entrega interna de un adjunto privado
+      security: [{ bearerAuth: [] }]
+      responses:
+        {
+          "204": { description: Entrega delegada internamente a Nginx },
+          "404": { description: No accesible },
+        }
+  /v1/admin/requests:
+    get:
+      summary: Bandeja mínima para ADMIN o DISPATCHER
+      security: [{ bearerAuth: [] }]
+      responses:
+        {
+          "200": { description: Solicitudes operativas mínimas },
+          "404": { description: No accesible },
+        }
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }

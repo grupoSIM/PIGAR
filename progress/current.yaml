@@ -1,7 +1,7 @@
 project: PIGAR
-active_feature: feat-003
-phase: done
-updated_at: 2026-08-02T00:00:00-03:00
+active_feature: feat-004
+phase: publication_review
+updated_at: 2026-08-04T15:24:00-03:00
 
 blockers: []
 
@@ -46,28 +46,25 @@ decisions:
 
 approvals:
   architecture:
-    status: not_required
-    note: La zona única no incorpora proveedor, geocodificación, coordenadas ni datos de domicilio.
+    status: approved
+    approved_by: usuario
+    approved_at: 2026-08-03T00:00:00-03:00
+    note: El usuario autorizó UAT de staging para testers autenticados con datos necesarios, incluidos domicilio y geolocalización. Cifrado en reposo, retención legal, backup externo, capacidad productiva y validación comercial de Google quedan como bloqueantes antes de producción, no de specification ni staging.
   specification:
     status: approved
     approved_by: usuario
-    approved_at: 2026-08-02T00:00:00-03:00
+    approved_at: 2026-08-03T00:00:00-03:00
   verification:
     status: approved
-    approved_by: quality_reviewer
-    approved_at: 2026-08-02T00:00:00-03:00
   publication:
     status: approved
     approved_by: usuario
-    approved_at: 2026-08-02T00:00:00-03:00
+    approved_at: 2026-08-04T15:30:00-03:00
 
 quality:
-  status: pass
+  status: passed
 
 notes:
-  - El repositorio contiene por ahora únicamente el documento de requisitos y solución tecnológica.
-  - feat-001 ingresó en implementation; se inició TASK-001 y no existe autorización de publicación.
-  - El usuario aprobó ADR-001 a ADR-008 con las condiciones registradas el 2026-07-23.
   - La aprobación arquitectónica no aprueba la especificación ni autoriza cambios en código de producto.
   - Alcance corregido por el usuario: sin aplicación de operarios ni tracking en el MVP.
   - Restricción de infraestructura: backend, backoffice y multimedia en un VPS de Hostinger.
@@ -131,3 +128,14 @@ notes:
   - Staging de feat-003 actualizado autorizadamente el 2026-08-02 con la imagen d16d85462383ed91f266392d37f2977b01647f7e. Las rutas públicas, administración, readiness y catálogo respondieron HTTPS 200; la oferta mostró Visita Simple/ARS 50.000/v1. No se desplegó producción.
   - La publicación automática de imágenes de staging queda limitada a `main` tras calidad y a la rama dedicada `staging`; se eliminó el disparador de `codex/feat-002-auth0-staging` y su contrato local fue verificado el 2026-08-02.
   - La rama `staging` fue publicada el 2026-08-02 desde ebdbc4aada09afe59aa12270449ca3c26d5216f9; la ejecución 30778967918 de publicación de imágenes finalizó correctamente. No se modificó el despliegue de Hostinger ni producción.
+  - feat-004 ingresó en discovery el 2026-08-03. No existe autorización de especificación, implementación, publicación ni despliegue.
+  - Revisión arquitectónica focalizada de feat-004 el 2026-08-03: approved_with_conditions. No requiere ADR nueva si se mantienen ADR-005/006/008.
+  - Discovery de feat-004: el usuario confirmó Google con degradación manual; descripción/calle/número obligatorios y barrio/entre calles; hasta cinco imágenes y un video, con al menos una evidencia multimedia obligatoria para operar; ADMIN y DISPATCHER acceden operativamente. Los testers autenticados pueden usar staging con los datos necesarios, incluidos domicilio y geolocalización; cifrado, retención, backup, capacidad y validación comercial de Google se exigen antes de producción.
+  - Especificación de feat-004 preparada el 2026-08-03 para UAT de testers autenticados en staging; queda en spec_review y requiere aprobación humana antes de implementar.
+  - El usuario aprobó la especificación de feat-004 el 2026-08-03. Se habilita implementación local; no autoriza commit, push, PR ni despliegue.
+  - Implementación local de feat-004 iniciada el 2026-08-03. No autoriza commit, push, PR ni despliegue.
+  - Revisión independiente de feat-004 falló el 2026-08-03: tareas 002 a 005 reabiertas por idempotencia incompleta, auditoría de mutaciones, puerto Google/fallback, atomicidad y validación multimedia, flujo UI y cobertura HTTP/PG/E2E. La calidad global además permanece bloqueada por formato preexistente fuera del alcance.
+  - Implementación de feat-004 completada y verificada el 2026-08-04: idempotencia web preservada, límites de adjuntos pesimistas en PostgreSQL (`FOR UPDATE`), parseo de cajas MP4 en disco (`moov`/`mvhd`), UI operativa ADMIN/DISPATCHER, pruebas automatizadas (6/6) y linting de repositorios pasaron con éxito.
+  - Revisión independiente final de feat-004 aprobada el 2026-08-04 con dictamen PASSED: hallazgos QR-004-007 a QR-004-012 verificados y resueltos. La feature pasa a verification; no se autoriza commit, push, PR ni despliegue.
+  - Las pruebas E2E de frontend exigidas por la convención fueron implementadas y ejecutadas con éxito. Se registró evidencia. La feature pasa a publication_review.
+  - El usuario autorizó el 2026-08-04 la publicación (commit y push) de feat-004. La feature pasa a done.

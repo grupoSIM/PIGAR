@@ -14,6 +14,13 @@ export async function bootstrap(): Promise<NestFastifyApplication> {
   );
 
   app.setGlobalPrefix("api");
+  app
+    .getHttpAdapter()
+    .getInstance()
+    .addContentTypeParser(
+      ["application/octet-stream", "image/jpeg", "image/png", "video/mp4"],
+      (_request, payload, done) => done(null, payload),
+    );
   app.useGlobalFilters(new ProblemDetailsFilter());
   await app.listen({
     host: configuration.host,

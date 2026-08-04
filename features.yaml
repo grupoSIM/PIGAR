@@ -31,7 +31,7 @@ features:
 
   - id: feat-004
     name: Creación de solicitud con domicilio y multimedia
-    status: proposed
+    status: done
     priority: must
     depends_on: [feat-002, feat-003]
 
