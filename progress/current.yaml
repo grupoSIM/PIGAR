@@ -139,3 +139,4 @@ notes:
   - Revisión independiente final de feat-004 aprobada el 2026-08-04 con dictamen PASSED: hallazgos QR-004-007 a QR-004-012 verificados y resueltos. La feature pasa a verification; no se autoriza commit, push, PR ni despliegue.
   - Las pruebas E2E de frontend exigidas por la convención fueron implementadas y ejecutadas con éxito. Se registró evidencia. La feature pasa a publication_review.
   - El usuario autorizó el 2026-08-04 la publicación (commit y push) de feat-004. La feature pasa a done.
+  - Commit y push completados en la rama `codex/feat-004-request` (commit a8b3c6d). No se creó PR automáticamente. La feature queda cerrada.
