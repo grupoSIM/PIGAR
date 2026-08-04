@@ -140,3 +140,4 @@ notes:
   - Las pruebas E2E de frontend exigidas por la convención fueron implementadas y ejecutadas con éxito. Se registró evidencia. La feature pasa a publication_review.
   - El usuario autorizó el 2026-08-04 la publicación (commit y push) de feat-004. La feature pasa a done.
   - Commit y push completados en la rama `codex/feat-004-request` (commit a8b3c6d). No se creó PR automáticamente. La feature queda cerrada.
+  - La rama `staging` fue actualizada con los cambios de feat-004 y pusheada a origin el 2026-08-04. Las imágenes están siendo construidas por la CI bajo el SHA `703cd420f451adb7e573717a463f3c807c18774f`.
