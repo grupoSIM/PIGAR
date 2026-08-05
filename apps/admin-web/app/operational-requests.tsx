@@ -26,7 +26,7 @@ export function OperationalRequests() {
   const [error, setError] = useState<string>();
 
   useEffect(() => {
-    fetch("/api/requests")
+    fetch("/admin/api/requests")
       .then(async (res) => {
         if (res.status === 401) {
           setError("Iniciá sesión como ADMIN o DISPATCHER para acceder a la bandeja.");
@@ -87,7 +87,7 @@ export function OperationalRequests() {
                       {item.media.map((m) => (
                         <li key={m.id}>
                           <a
-                            href={`/api/requests/${item.id}/media/${m.id}`}
+                            href={`/admin/api/requests/${item.id}/media/${m.id}`}
                             target="_blank"
                             rel="noopener noreferrer"
                           >

@@ -1,7 +1,10 @@
 import { ProductShell } from "@pigar/ui";
 import { OperationalRequests } from "./operational-requests";
+import { auth0 } from "../lib/auth0";
 
-export default function AdminHome() {
+export default async function AdminHome() {
+  const session = await auth0.getSession();
+
   return (
     <ProductShell audience="administración" title="Bandeja operativa de PIGAR">
       <p>
@@ -13,11 +16,19 @@ export default function AdminHome() {
         La oferta inicial es Visita Simple por ARS 50.000 final y queda congelada al crear cada
         solicitud. Esta bandeja no asigna técnicos ni muestra tracking.
       </p>
-      <p>
-        <a href="/admin/login">Iniciar sesión</a>
-      </p>
-      <hr />
-      <OperationalRequests />
+      {!session ? (
+        <p>
+          <a href="/admin/login">Iniciar sesión</a>
+        </p>
+      ) : (
+        <>
+          <p>
+            <a href="/admin/auth/logout">Cerrar sesión</a>
+          </p>
+          <hr />
+          <OperationalRequests />
+        </>
+      )}
     </ProductShell>
   );
 }
