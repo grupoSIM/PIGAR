@@ -20,6 +20,7 @@ Todo agente que trabaje en este repositorio debe leer, en este orden:
 - No usar credenciales reales en el repositorio ni exponer datos personales, ubicaciones o URLs firmadas en logs.
 - No hacer commit, push, despliegue ni abrir PR sin aprobación explícita de publicación.
 - Preservar cambios preexistentes del usuario y limitar cada incremento al alcance aprobado.
+- Siempre que se realice un push que dispare una GitHub Action, el agente debe monitorear activamente la ejecución utilizando el CLI de GitHub (`gh run list`, `gh run view`, etc.) hasta que finalice exitosamente antes de dar por terminada la tarea.
 - Antes de cerrar una feature, verificar que sus commits y artefactos estén integrados en la rama objetivo aprobada. Toda rama remanente debe tener propósito, responsable y fecha de retiro documentados; no cerrar con ramas de feature sueltas.
 
 ## Roles
