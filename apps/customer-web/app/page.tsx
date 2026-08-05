@@ -28,7 +28,7 @@ export default async function CustomerHome() {
       </p>
       <p>El importe se resuelve desde la oferta vigente y no se envía desde tu dispositivo.</p>
       {session ? (
-        <RequestForm googleMapsApiKey={process.env.PIGAR_GOOGLE_BROWSER_KEY} />
+        <RequestForm mapsApiKey={process.env.PIGAR_GOOGLE_BROWSER_KEY} />
       ) : (
         <>
           <p>Para crear una solicitud o adjuntar evidencia, primero necesitás ingresar.</p>
