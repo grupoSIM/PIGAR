@@ -55,7 +55,7 @@ declare global {
   }
 }
 
-export function RequestForm({ mapsApiKey }: { mapsApiKey?: string | undefined }) {
+export function RequestForm({ googleMapsApiKey }: { googleMapsApiKey?: string | undefined }) {
   const autocompleteRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<HTMLDivElement>(null);
   const markerRef = useRef<MarkerInstance | null>(null);
@@ -91,7 +91,7 @@ export function RequestForm({ mapsApiKey }: { mapsApiKey?: string | undefined })
   }, []);
 
   useEffect(() => {
-    if (!mapsApiKey || !autocompleteRef.current || !mapRef.current) {
+    if (!googleMapsApiKey || !autocompleteRef.current || !mapRef.current) {
       setMapStatus("Podés completar el domicilio manualmente.");
       return;
     }
@@ -105,7 +105,7 @@ export function RequestForm({ mapsApiKey }: { mapsApiKey?: string | undefined })
         if (!current) {
           script.id = scriptId;
           script.async = true;
-          script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(mapsApiKey)}&v=weekly`;
+          script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(googleMapsApiKey)}&v=weekly`;
           document.head.appendChild(script);
         }
         await new Promise<void>((resolve, reject) => {
@@ -198,7 +198,7 @@ export function RequestForm({ mapsApiKey }: { mapsApiKey?: string | undefined })
       reverseGeocodeRef.current = null;
       markerRef.current?.setMap(null);
     };
-  }, [mapsApiKey]);
+  }, [googleMapsApiKey]);
 
   function fillAddress(place: SelectedPlace) {
     fillAddressComponents(place.addressComponents ?? [], place.formattedAddress ?? "");
