@@ -18,7 +18,7 @@ test("[auth-client] el portal cliente ofrece sólo OTP email", async () => {
   assert.match(auth0, /PIGAR_CUSTOMER_AUTH0_CLIENT_ID/);
   assert.match(auth0, /PIGAR_CUSTOMER_AUTH0_SESSION_SECRET/);
   assert.match(page, /href="\/auth\/login\/email"/);
-  assert.doesNotMatch(page, /(?<!PIGAR_)Google|contraseña|registro|Apple|teléfono|SMS|WhatsApp/i);
+  assert.doesNotMatch(page, /Google|contraseña|registro|Apple|teléfono|SMS|WhatsApp/i);
   assert.doesNotMatch(route, /Google|PIGAR_CUSTOMER_AUTH0_GOOGLE_CONNECTION/i);
   assert.match(route, /PIGAR_CUSTOMER_AUTH0_EMAIL_OTP_CONNECTION/);
   assert.match(route, /startInteractiveLogin/);
