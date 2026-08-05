@@ -26,7 +26,9 @@ export async function POST(request: NextRequest) {
     });
     return new NextResponse(response.body, {
       status: response.status,
-      headers: { "content-type": response.headers.get("content-type") ?? "application/problem+json" },
+      headers: {
+        "content-type": response.headers.get("content-type") ?? "application/problem+json",
+      },
     });
   } catch {
     return NextResponse.json(
