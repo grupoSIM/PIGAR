@@ -89,6 +89,21 @@ test("[auth-admin] el login y callback bajo /admin se entregan a Auth0", async (
   assert.doesNotMatch(nginx, /location = \/login/);
 });
 
+test("[auth-admin-logout] cierra sesión bajo /admin y vence cookies de ambas rutas", async () => {
+  const [page, proxy, logout] = await Promise.all([
+    readWorkspaceFile("apps/admin-web/app/page.tsx"),
+    readWorkspaceFile("apps/admin-web/proxy.ts"),
+    readWorkspaceFile("apps/admin-web/app/auth/logout/route.ts"),
+  ]);
+
+  assert.match(page, /\/admin\/auth\/logout\?returnTo=/);
+  assert.match(page, /encodeURIComponent\(`\$\{appBaseUrl\}\/admin`\)/);
+  assert.match(proxy, /pathname === "\/admin\/auth\/logout"/);
+  assert.match(logout, /auth0\.middleware\(request\)/);
+  assert.match(logout, /\["\/admin", "\/"\]/);
+  assert.match(logout, /pigar_admin_session_2/);
+});
+
 function database(target = { role: "DISPATCHER", status: "ACTIVE" }) {
   return {
     claimedJob: {

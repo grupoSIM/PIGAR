@@ -90,6 +90,8 @@ test("[request-contract] declara privacidad, carga interna y los límites aproba
   assert.match(media, /MAX_IMAGES = 5/);
   assert.match(media, /10 \* 1024 \* 1024/);
   assert.match(media, /50 \* 1024 \* 1024/);
+  assert.match(media, /SELECT id FROM "service_request" WHERE id = \$\{requestId\} FOR UPDATE/);
+  assert.doesNotMatch(media, /SELECT id FROM "ServiceRequest"/);
   assert.match(migration, /service_request_money_check/);
   assert.match(migration, /request_media_duration_check/);
 });

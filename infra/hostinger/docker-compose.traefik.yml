@@ -10,6 +10,7 @@ x-nginx-image: &nginx-image "ghcr.io/gruposim/pigar-nginx:${PIGAR_IMAGE_TAG:-boo
 
 x-app-environment: &app-environment
   NODE_ENV: production
+  PIGAR_API_BASE_URL: http://api:3000/api
 
 services:
   bootstrap:

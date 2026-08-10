@@ -4,6 +4,12 @@ import { auth0 } from "../lib/auth0";
 
 export default async function AdminHome() {
   const session = await auth0.getSession();
+  const configuredBaseUrl =
+    process.env.PIGAR_ADMIN_AUTH0_APP_BASE_URL ??
+    process.env.APP_BASE_URL ??
+    "http://localhost:3002";
+  const appBaseUrl = configuredBaseUrl.replace(/\/$/, "").replace(/\/admin$/, "");
+  const logoutHref = `/admin/auth/logout?returnTo=${encodeURIComponent(`${appBaseUrl}/admin`)}`;
 
   return (
     <ProductShell audience="administración" title="Bandeja operativa de PIGAR">
@@ -23,7 +29,7 @@ export default async function AdminHome() {
       ) : (
         <>
           <p>
-            <a href="/admin/auth/logout">Cerrar sesión</a>
+            <a href={logoutHref}>Cerrar sesión</a>
           </p>
           <hr />
           <OperationalRequests />

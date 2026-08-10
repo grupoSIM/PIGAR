@@ -22,7 +22,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "pnpm dev --port 3001 --hostname 127.0.0.1",
+    command: "pnpm dev --webpack --port 3001 --hostname 127.0.0.1",
     url: baseURL + "/admin",
     reuseExistingServer: !process.env.CI,
   },

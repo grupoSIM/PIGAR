@@ -9,6 +9,10 @@ export const auth0 = new Auth0Client({
   session: { cookie: { name: "pigar_admin_session" } },
   signInReturnToPath: "/",
   transactionCookie: { prefix: "pigar_admin_txn_" },
+  routes: {
+    callback: "/auth/callback",
+    login: "/login",
+  },
 });
 
 function optionalAudience(audience: string | undefined) {

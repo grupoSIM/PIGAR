@@ -429,4 +429,55 @@ Estado: implementación reabierta tras revisión independiente fallida.
 - Dictamen: **PASSED (APROBADO)**.
 - Verificación: Los hallazgos QR-004-007 a QR-004-012 fueron inspeccionados y verificados. Idempotencia web estable, verificación atómica de límites en PostgreSQL, parseo de cajas MP4 en disco, UI operativa ADMIN/DISPATCHER, alineación de rutas Nginx (`/internal-media/`) y gateway a 50 MB aprobados. Formato, lint, typecheck de portales y suite de pruebas de solicitudes (6/6) superaron.
 
+## Correcciones de calidad posteriores — 2026-08-07
+
+- Se eliminó un import no utilizado en el logout administrativo y se actualizó la aserción de configuración local para aceptar el fallback parametrizable de `AUTH0_ISSUER` en Compose.
+- Comandos ejecutados: `pnpm format:check`; `pnpm lint`; `pnpm test:unit`.
+- Resultado: exitoso; Prettier sin diferencias, ESLint sin errores y 22/22 pruebas unitarias pasaron.
+- `pnpm typecheck` y `pnpm build` también pasaron previamente en esta misma revisión.
+- En la primera ejecución aislada, las suites `test:integration`, `test:security` y la prueba E2E técnica quedaron bloqueadas por falta de acceso al daemon Docker; la E2E de frontend quedó bloqueada por `spawn EPERM` al iniciar Chromium. Se reejecutaron con autorización elevada en la sección siguiente.
+
+## Reejecución con Docker y Chromium autorizados — 2026-08-07
+
+- `pnpm test:integration`: exitoso; 22/22 pruebas pasaron, incluida la idempotencia de perfiles contra PostgreSQL.
+- `pnpm test:security`: exitoso; 33/33 pruebas pasaron, incluida la superficie de red, persistencia/reinicio, permisos, multimedia, pagos y sanitización de logs.
+- `pnpm test:e2e:frontends`: exitoso; cliente 1/1 y administración 1/1 pasaron en Chromium.
+- Las pruebas se ejecutaron con acceso elevado autorizado al daemon Docker y al proceso de Chromium. No se publicaron imágenes, no se desplegó staging ni producción.
+
+## UAT local: corrección de carga multimedia — 2026-08-10
+
+- Hallazgo: la creación de solicitud respondió `201`, pero cada carga de evidencia respondió `500`.
+- Diagnóstico en API: la consulta de bloqueo usaba `"ServiceRequest"`, mientras la migración crea la tabla mapeada `"service_request"`; PostgreSQL informó `relation "ServiceRequest" does not exist`.
+- Corrección: se alineó la consulta SQL con el nombre físico `service_request` y se agregó una regresión en `scripts/requests.test.mjs`.
+- Verificación: `pnpm --filter @pigar/api build` exitoso; `node scripts/requests.test.mjs` exitoso, 6/6.
+- El API local fue reconstruido con la configuración Auth0 no productiva y sin borrar volúmenes. La repetición desde el navegador confirmó la carga de las tres imágenes y dejó la solicitud operable.
+
+## UAT local: bandeja administrativa — 2026-08-10
+
+- Hallazgo inicial: el backoffice autenticado mostraba `Error al cargar la bandeja de solicitudes`; el proxy recibía `403` porque la base local recién inicializada no tenía un perfil interno para la cuenta administrativa no productiva.
+- Corrección de entorno: se activó el perfil local `ADMIN` correspondiente a la sesión Auth0 ya autenticada. No se modificaron permisos de Auth0, no se usaron credenciales reales y no se eliminaron volúmenes.
+- Verificación en navegador: `http://localhost:3002/admin` cargó `Solicitudes registradas (1)`, la solicitud apareció como `Operable` y la bandeja mostró `Adjuntos (3)` con tres imágenes JPEG.
+- Resultado: **PASS** para login administrativo, autorización local, listado de solicitudes y visibilidad de los tres adjuntos multimedia.
+
+## Revalidación local posterior a UAT — 2026-08-10
+
+- Comandos: `pnpm format:check`; `pnpm lint`; `pnpm typecheck`; `pnpm test:unit`; `pnpm build`; `pnpm test:integration`; `pnpm test:security`; `pnpm test:e2e:frontends`; `git diff --check`.
+- Resultado: formato, lint, typecheck, 22/22 unitarias y build completo superaron. Las suites de integración y seguridad completaron correctamente con Docker local autorizado. La E2E de cliente y administración superó 1/1 en cada portal con Chromium.
+- Incidencias de infraestructura resueltas: se liberaron los puertos usados por los servidores manuales de UAT y se regeneraron únicamente las cachés `.next` corruptas de ambos portales antes de repetir la E2E; no se eliminaron datos de aplicación, volúmenes ni contenedores persistentes.
+- `git diff --check` no reportó errores de espacios; los avisos de CRLF son informativos de Git y no alteran el contenido.
+
+## Remediación de revisión independiente posterior a UAT — 2026-08-10
+
+- Hallazgos corregidos: los contenedores `customer-web` y `admin-web` ya no reciben el archivo `.env` completo; Compose declara únicamente las variables necesarias de cada portal. Se eliminó el log crudo de errores de la ruta administrativa autenticada.
+- Regresiones: `scripts/staging-auth-config.test.mjs` verifica el aislamiento de variables de backend/Management y `scripts/identity-admin.test.mjs` verifica que el logout administrativo conserva el retorno `/admin`, usa el middleware Auth0 y vence las cookies para ambas rutas.
+- E2E reproducible: los `webServer` de Playwright usan Webpack en lugar de Turbopack; se limpiaron sólo las cachés `.next` generadas que estaban corruptas. Cliente y administración pasaron 1/1.
+- Revalidación: `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test:unit` (22/22), `pnpm build`, `pnpm test:integration`, `pnpm test:security`, `pnpm test:e2e:frontends` y `docker compose ... config --no-interpolate` finalizaron correctamente.
+
+## Revisión independiente de remediación — 2026-08-10
+
+- Rol: Quality Reviewer independiente de la implementación y de las correcciones posteriores a UAT.
+- Dictamen: **PASSED (APROBADO)**.
+- Verificación: `git diff --check` sin errores y 8/8 regresiones focalizadas superadas. El reviewer confirmó el aislamiento de secretos de backend respecto de los portales web, la ausencia de logs crudos en rutas autenticadas y la cobertura de regresión para logout administrativo/cookies.
+- Estado: técnicamente habilitada para commit y push; no se realizó publicación porque requiere autorización explícita del usuario.
+
 

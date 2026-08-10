@@ -6,6 +6,7 @@ x-app-build: &app-build
 
 x-app-environment: &app-environment
   NODE_ENV: production
+  PIGAR_API_BASE_URL: http://api:3000/api
 
 services:
   nginx:
@@ -48,7 +49,17 @@ services:
         "-p",
         "3000",
       ]
-    environment: *app-environment
+    environment:
+      <<: *app-environment
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE:-}
+      PIGAR_CUSTOMER_AUTH0_DOMAIN: ${PIGAR_CUSTOMER_AUTH0_DOMAIN:-}
+      PIGAR_CUSTOMER_AUTH0_CLIENT_ID: ${PIGAR_CUSTOMER_AUTH0_CLIENT_ID:-}
+      PIGAR_CUSTOMER_AUTH0_CLIENT_SECRET: ${PIGAR_CUSTOMER_AUTH0_CLIENT_SECRET:-}
+      PIGAR_CUSTOMER_AUTH0_APP_BASE_URL: ${PIGAR_CUSTOMER_AUTH0_APP_BASE_URL:-}
+      PIGAR_CUSTOMER_AUTH0_SESSION_SECRET: ${PIGAR_CUSTOMER_AUTH0_SESSION_SECRET:-}
+      PIGAR_CUSTOMER_AUTH0_AUDIENCE: ${PIGAR_CUSTOMER_AUTH0_AUDIENCE:-}
+      PIGAR_CUSTOMER_AUTH0_EMAIL_OTP_CONNECTION: ${PIGAR_CUSTOMER_AUTH0_EMAIL_OTP_CONNECTION:-}
+      PIGAR_GOOGLE_BROWSER_KEY: ${PIGAR_GOOGLE_BROWSER_KEY:-}
     networks:
       - edge
     healthcheck:
@@ -79,7 +90,16 @@ services:
         "-p",
         "3000",
       ]
-    environment: *app-environment
+    environment:
+      <<: *app-environment
+      AUTH0_DOMAIN: ${AUTH0_DOMAIN:-}
+      AUTH0_CLIENT_ID: ${AUTH0_CLIENT_ID:-}
+      AUTH0_CLIENT_SECRET: ${AUTH0_CLIENT_SECRET:-}
+      AUTH0_SECRET: ${AUTH0_SECRET:-}
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE:-}
+      APP_BASE_URL: ${APP_BASE_URL:-http://localhost:3001}
+      PIGAR_ADMIN_AUTH0_APP_BASE_URL: ${PIGAR_ADMIN_AUTH0_APP_BASE_URL:-}
+      PIGAR_ADMIN_AUTH0_SESSION_SECRET: ${PIGAR_ADMIN_AUTH0_SESSION_SECRET:-}
     networks:
       - edge
     healthcheck:
@@ -119,12 +139,12 @@ services:
       MEDIA_ROOT: /var/lib/pigar/media
       # Valores locales sintéticos: sólo permiten arrancar healthchecks; nunca
       # representan una cuenta Auth0 ni habilitan aprovisionamiento remoto.
-      AUTH0_ISSUER: https://auth0.invalid/
-      AUTH0_AUDIENCE: https://api.pigar.invalid
-      AUTH0_ADMIN_CLIENT_ID: local-admin-client-0001
-      AUTH0_MANAGEMENT_CLIENT_ID: local-management-client-0001
-      AUTH0_MANAGEMENT_CLIENT_SECRET: local-compose-not-a-secret
-      AUTH0_INTERNAL_CONNECTION: local-internal-connection
+      AUTH0_ISSUER: ${AUTH0_ISSUER:-https://auth0.invalid/}
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE:-https://api.pigar.invalid}
+      AUTH0_ADMIN_CLIENT_ID: ${AUTH0_ADMIN_CLIENT_ID:-local-admin-client-0001}
+      AUTH0_MANAGEMENT_CLIENT_ID: ${AUTH0_MANAGEMENT_CLIENT_ID:-local-management-client-0001}
+      AUTH0_MANAGEMENT_CLIENT_SECRET: ${AUTH0_MANAGEMENT_CLIENT_SECRET:-local-compose-not-a-secret}
+      AUTH0_INTERNAL_CONNECTION: ${AUTH0_INTERNAL_CONNECTION:-local-internal-connection}
     depends_on:
       migrate:
         condition: service_completed_successfully
