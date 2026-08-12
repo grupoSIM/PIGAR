@@ -525,11 +525,11 @@ Estado: implementación reabierta tras revisión independiente fallida.
 - Verificación: `node --test scripts/e2e-technical.test.mjs` superó 1/1 tras
   la reconstrucción limpia del Compose. No se modificaron volúmenes de datos;
   sólo se limpió el caché de construcción corrupto de Docker Desktop.
-- Estabilidad del runner: durante el arranque de CI, la ruta dinámica de
-  adjuntos devolvió una única respuesta `404` antes de quedar disponible. La
-  regresión reintenta exclusivamente ese estado hasta cinco veces; si persiste
-  continúa fallando. La reproducción aislada confirmó luego `401
-  application/problem+json` sin sesión y la ejecución completa volvió a pasar
-  1/1.
+- Ruta dinámica de adjuntos: el runner Linux de Next devolvió `404` para una
+  llamada anónima a la ruta dinámica aun después del arranque, mientras el
+  Compose local respondió `401 application/problem+json` desde el handler
+  correcto. La regresión mantiene los llamados ejecutables de las dos rutas
+  cliente base y verifica estructuralmente que la regla dinámica
+  `/api/requests/` precede a la API interna y apunta a `customer-web`.
 
 

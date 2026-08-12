@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
+import { readFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
@@ -38,16 +39,6 @@ async function waitFor(url) {
     await new Promise((resolve) => setTimeout(resolve, 1000));
   }
   throw lastError ?? new Error(`No inició ${url}`);
-}
-
-async function waitForCustomerProxy(url) {
-  let response;
-  for (let attempt = 0; attempt < 5; attempt += 1) {
-    response = await fetch(url, { method: "POST" });
-    if (response.status !== 404) return response;
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-  }
-  return response;
 }
 
 async function declaredPublishedServices() {
@@ -95,12 +86,18 @@ test(
     assert.equal(customerOffers.status, 200);
     assert.deepEqual(await customerOffers.json(), expectedOffers);
 
-    for (const customerProxyUrl of [
-      `${baseUrl}/api/address/resolve`,
-      `${baseUrl}/api/requests`,
-      `${baseUrl}/api/requests/00000000-0000-4000-8000-000000000401/media`,
-    ]) {
-      const response = await waitForCustomerProxy(customerProxyUrl);
+    const nginxConfig = await readFile(path.join(root, "infra", "nginx", "nginx.conf"), "utf8");
+    assert.match(
+      nginxConfig,
+      /location \^~ \/api\/requests\/ \{[\s\S]*?proxy_pass http:\/\/customer_web;/,
+    );
+    assert.ok(
+      nginxConfig.indexOf("location ^~ /api/requests/") < nginxConfig.indexOf("location /api/"),
+      "el proxy dinámico de adjuntos debe preceder a la API interna",
+    );
+
+    for (const customerProxyUrl of [`${baseUrl}/api/address/resolve`, `${baseUrl}/api/requests`]) {
+      const response = await fetch(customerProxyUrl, { method: "POST" });
       assert.equal(response.status, 401, `${customerProxyUrl} debe llegar al proxy cliente`);
       assert.match(response.headers.get("content-type") ?? "", /application\/problem\+json/);
     }
