@@ -40,6 +40,16 @@ async function waitFor(url) {
   throw lastError ?? new Error(`No inició ${url}`);
 }
 
+async function waitForCustomerProxy(url) {
+  let response;
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    response = await fetch(url, { method: "POST" });
+    if (response.status !== 404) return response;
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  }
+  return response;
+}
+
 async function declaredPublishedServices() {
   const config = JSON.parse(await compose(["config", "--format", "json"]));
   return Object.entries(config.services)
@@ -90,7 +100,7 @@ test(
       `${baseUrl}/api/requests`,
       `${baseUrl}/api/requests/00000000-0000-4000-8000-000000000401/media`,
     ]) {
-      const response = await fetch(customerProxyUrl, { method: "POST" });
+      const response = await waitForCustomerProxy(customerProxyUrl);
       assert.equal(response.status, 401, `${customerProxyUrl} debe llegar al proxy cliente`);
       assert.match(response.headers.get("content-type") ?? "", /application\/problem\+json/);
     }

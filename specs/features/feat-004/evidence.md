@@ -525,5 +525,11 @@ Estado: implementación reabierta tras revisión independiente fallida.
 - Verificación: `node --test scripts/e2e-technical.test.mjs` superó 1/1 tras
   la reconstrucción limpia del Compose. No se modificaron volúmenes de datos;
   sólo se limpió el caché de construcción corrupto de Docker Desktop.
+- Estabilidad del runner: durante el arranque de CI, la ruta dinámica de
+  adjuntos devolvió una única respuesta `404` antes de quedar disponible. La
+  regresión reintenta exclusivamente ese estado hasta cinco veces; si persiste
+  continúa fallando. La reproducción aislada confirmó luego `401
+  application/problem+json` sin sesión y la ejecución completa volvió a pasar
+  1/1.
 
 
