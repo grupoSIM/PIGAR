@@ -87,14 +87,9 @@ test(
     assert.deepEqual(await customerOffers.json(), expectedOffers);
 
     const nginxConfig = await readFile(path.join(root, "infra", "nginx", "nginx.conf"), "utf8");
-    assert.match(
-      nginxConfig,
-      /location \^~ \/api\/requests\/ \{[\s\S]*?proxy_pass http:\/\/customer_web;/,
-    );
-    assert.ok(
-      nginxConfig.indexOf("location ^~ /api/requests/") < nginxConfig.indexOf("location /api/"),
-      "el proxy dinámico de adjuntos debe preceder a la API interna",
-    );
+    assert.match(nginxConfig, /location \^~ \/api\/v1\/ \{[\s\S]*?proxy_pass http:\/\/api;/);
+    assert.match(nginxConfig, /location \^~ \/api\/health\/ \{[\s\S]*?proxy_pass http:\/\/api;/);
+    assert.match(nginxConfig, /location \^~ \/api\/ \{[\s\S]*?proxy_pass http:\/\/customer_web;/);
 
     for (const customerProxyUrl of [`${baseUrl}/api/address/resolve`, `${baseUrl}/api/requests`]) {
       const response = await fetch(customerProxyUrl, { method: "POST" });

@@ -11,6 +11,8 @@ dist/
 !.env.example
 pnpm-debug.log*
 media/
+!apps/customer-web/app/api/requests/\[id\]/media/
+!apps/customer-web/app/api/requests/\[id\]/media/route.ts
 postgres-data/
 apps/api/src/generated/
 

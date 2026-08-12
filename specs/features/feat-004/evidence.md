@@ -508,9 +508,8 @@ Estado: implementación reabierta tras revisión independiente fallida.
 - Hallazgo de staging: el portal cliente solicitaba `/api/offers`, pero Nginx
   reenviaba todo `/api/` directamente a NestJS. Como NestJS reserva la API
   pública para `/api/v1/...`, la carga de la oferta recibía `404`.
-- Corrección: Nginx enruta exclusivamente `/api/offers`,
-  `/api/address/resolve` y las rutas de creación/carga de solicitudes hacia
-  `customer-web`; mantiene `/api/v1/...` y healthchecks hacia NestJS. La API
+- Corrección inicial: Nginx enruta las rutas existentes del portal hacia
+  `customer-web` y mantiene `/api/v1/...` y healthchecks hacia NestJS. La API
   no se expone fuera de Nginx.
 - Regresión: `scripts/e2e-technical.test.mjs` confirma ambos recorridos:
   `/api/v1/catalog/offers` y el proxy de cliente `/api/offers` retornan el
@@ -525,11 +524,15 @@ Estado: implementación reabierta tras revisión independiente fallida.
 - Verificación: `node --test scripts/e2e-technical.test.mjs` superó 1/1 tras
   la reconstrucción limpia del Compose. No se modificaron volúmenes de datos;
   sólo se limpió el caché de construcción corrupto de Docker Desktop.
-- Ruta dinámica de adjuntos: el runner Linux de Next devolvió `404` para una
-  llamada anónima a la ruta dinámica aun después del arranque, mientras el
-  Compose local respondió `401 application/problem+json` desde el handler
-  correcto. La regresión mantiene los llamados ejecutables de las dos rutas
-  cliente base y verifica estructuralmente que la regla dinámica
-  `/api/requests/` precede a la API interna y apunta a `customer-web`.
+- Generalización posterior: Nginx reserva explícitamente `/api/v1/` y
+  `/api/health/` para NestJS y enruta todo otro `/api/` a `customer-web`.
+  Las futuras rutas del portal no requieren nuevas reglas de infraestructura.
+  La regresión verifica ambos prefijos internos y el catch-all de cliente,
+  además de los recorridos HTTP ya cubiertos.
+- Corrección de entrega de adjuntos en staging: el handler de Next para
+  `/api/requests/[id]/media` existía localmente, pero la regla genérica
+  `media/` de `.gitignore` lo excluía de Git y, por ende, de las imágenes
+  publicadas. Se agregó una excepción explícita y una regresión que lee y
+  valida el handler desde el checkout de CI.
 
 
