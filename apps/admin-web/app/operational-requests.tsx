@@ -29,7 +29,8 @@ export function OperationalRequests() {
     fetch("/admin/api/requests")
       .then(async (res) => {
         if (res.status === 401) {
-          setError("Iniciá sesión como ADMIN o DISPATCHER para acceder a la bandeja.");
+          const problem = (await res.json().catch(() => ({}))) as { code?: string };
+          setError(authenticationMessage(problem.code));
           return;
         }
         if (!res.ok) throw new Error("list-failed");
@@ -109,4 +110,12 @@ export function OperationalRequests() {
       )}
     </div>
   );
+}
+
+function authenticationMessage(code: string | undefined): string {
+  if (code === "AUTH_ACCESS_TOKEN_UNAVAILABLE")
+    return "Tu sesión está activa, pero no se pudo obtener la autorización para la bandeja.";
+  if (code === "AUTH_API_TOKEN_REJECTED")
+    return "La autorización de tu sesión fue rechazada por la bandeja. Volvé a iniciar sesión.";
+  return "Iniciá sesión como ADMIN o DISPATCHER para acceder a la bandeja.";
 }

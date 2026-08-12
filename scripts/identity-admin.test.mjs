@@ -104,6 +104,21 @@ test("[auth-admin-logout] cierra sesión bajo /admin y vence cookies de ambas ru
   assert.match(logout, /pigar_admin_session_2/);
 });
 
+test("[auth-admin-requests] distingue sesión, token y rechazo de API sin exponer datos sensibles", async () => {
+  const [route, component] = await Promise.all([
+    readWorkspaceFile("apps/admin-web/app/api/requests/route.ts"),
+    readWorkspaceFile("apps/admin-web/app/operational-requests.tsx"),
+  ]);
+
+  assert.match(route, /auth0\.getAccessToken\(audience \? \{ audience \} : undefined\)/);
+  assert.match(route, /AUTH_SESSION_MISSING/);
+  assert.match(route, /AUTH_ACCESS_TOKEN_UNAVAILABLE/);
+  assert.match(route, /AUTH_API_TOKEN_REJECTED/);
+  assert.doesNotMatch(route, /console\.error/);
+  assert.match(component, /AUTH_ACCESS_TOKEN_UNAVAILABLE/);
+  assert.match(component, /AUTH_API_TOKEN_REJECTED/);
+});
+
 function database(target = { role: "DISPATCHER", status: "ACTIVE" }) {
   return {
     claimedJob: {

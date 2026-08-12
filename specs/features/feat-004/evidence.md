@@ -480,4 +480,27 @@ Estado: implementación reabierta tras revisión independiente fallida.
 - Verificación: `git diff --check` sin errores y 8/8 regresiones focalizadas superadas. El reviewer confirmó el aislamiento de secretos de backend respecto de los portales web, la ausencia de logs crudos en rutas autenticadas y la cobertura de regresión para logout administrativo/cookies.
 - Estado: técnicamente habilitada para commit y push; no se realizó publicación porque requiere autorización explícita del usuario.
 
+## Hotfix de diagnóstico de autorización administrativa — 2026-08-12
+
+- Hallazgo de staging: después de confirmar sesión Auth0, perfil local `ADMIN`,
+  audiencia, issuer, Client ID administrativo, JWKS accesible y firma RS256, la
+  bandeja recibía `401` sin distinguir si el fallo ocurría al recuperar el token
+  o al validarlo en la API.
+- Corrección: el proxy administrativo solicita explícitamente la audiencia
+  configurada y devuelve únicamente códigos diagnósticos acotados
+  (`AUTH_SESSION_MISSING`, `AUTH_ACCESS_TOKEN_UNAVAILABLE` o
+  `AUTH_API_TOKEN_REJECTED`), sin tokens, cookies ni detalles de proveedor. La
+  interfaz comunica el estado correspondiente sin exponer datos sensibles.
+- Verificación: `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm
+  test:unit` (22/22), `pnpm build`, `pnpm test:integration` (22/22), ejecución
+  de seguridad con Docker recuperado y `pnpm test:e2e:frontends` (cliente 1/1,
+  administración 1/1) finalizaron sin errores de producto. El primer intento
+  de seguridad se interrumpió por falta de espacio de Docker Desktop; tras
+  liberar espacio y reiniciar el motor, el runner terminó y limpió el stack
+  temporal. La revisión independiente aprobó el cambio y sus 8/8 pruebas
+  focalizadas.
+- Pendiente de UAT: desplegar la imagen publicada y verificar el código
+  diagnóstico o la carga correcta de la bandeja en staging, sin copiar tokens
+  ni cookies a evidencia.
+
 
