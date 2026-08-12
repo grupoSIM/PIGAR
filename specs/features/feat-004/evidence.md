@@ -535,4 +535,20 @@ Estado: implementación reabierta tras revisión independiente fallida.
   publicadas. Se agregó una excepción explícita y una regresión que lee y
   valida el handler desde el checkout de CI.
 
+## Cierre de UAT en staging — 2026-08-12
+
+- Configuración final: `customer-web` recibe la clave de navegador de Google y
+  la API recibe la clave de geocodificación, cada una limitada a su superficie
+  correspondiente. No se registran valores de claves en este artefacto.
+- Validación manual aprobada por el usuario: el mapa y buscador de domicilio
+  quedaron inicializados en staging; el cliente creó una solicitud, adjuntó
+  imágenes y la bandeja ADMIN mostró la solicitud como `Operable` con sus
+  adjuntos privados.
+- Artefacto desplegado: imágenes de staging del commit
+  `596151cd75b271835333404272cb48699e709f32`; calidad y publicación de ambas
+  imágenes finalizaron correctamente en GitHub Actions.
+- Resultado: los criterios AC-004-001 a AC-004-005 quedan aceptados para
+  staging. Los bloqueantes de producción (cifrado, retención, backup,
+  capacidad y hardening) permanecen fuera del alcance de esta feature.
+
 

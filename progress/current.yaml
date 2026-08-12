@@ -1,7 +1,7 @@
 project: PIGAR
 active_feature: feat-004
-phase: publication_review
-updated_at: 2026-08-04T15:24:00-03:00
+phase: done
+updated_at: 2026-08-12T14:30:00-03:00
 
 blockers: []
 
@@ -141,3 +141,4 @@ notes:
   - El usuario autorizó el 2026-08-04 la publicación (commit y push) de feat-004. La feature pasa a done.
   - Commit y push completados en la rama `codex/feat-004-request` (commit a8b3c6d). No se creó PR automáticamente. La feature queda cerrada.
   - La rama `staging` fue actualizada con los cambios de feat-004 y pusheada a origin el 2026-08-04. Las imágenes están siendo construidas por la CI bajo el SHA `703cd420f451adb7e573717a463f3c807c18774f`.
+  - feat-004 cerrada el 2026-08-12: la UAT final de staging validó mapa y buscador de domicilio, creación de solicitud, carga de imágenes y visibilidad operativa/auditada de adjuntos desde ADMIN. El hotfix publicado `596151cd75b271835333404272cb48699e709f32` superó calidad e imágenes de staging; los bloqueantes de producción siguen fuera de alcance.
