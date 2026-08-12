@@ -503,4 +503,27 @@ Estado: implementación reabierta tras revisión independiente fallida.
   diagnóstico o la carga correcta de la bandeja en staging, sin copiar tokens
   ni cookies a evidencia.
 
+## Hotfix de rutas proxy del portal cliente — 2026-08-12
+
+- Hallazgo de staging: el portal cliente solicitaba `/api/offers`, pero Nginx
+  reenviaba todo `/api/` directamente a NestJS. Como NestJS reserva la API
+  pública para `/api/v1/...`, la carga de la oferta recibía `404`.
+- Corrección: Nginx enruta exclusivamente `/api/offers`,
+  `/api/address/resolve` y las rutas de creación/carga de solicitudes hacia
+  `customer-web`; mantiene `/api/v1/...` y healthchecks hacia NestJS. La API
+  no se expone fuera de Nginx.
+- Regresión: `scripts/e2e-technical.test.mjs` confirma ambos recorridos:
+  `/api/v1/catalog/offers` y el proxy de cliente `/api/offers` retornan el
+  catálogo público esperado dentro del Compose aislado. También verifica que
+  `POST /api/address/resolve`, `POST /api/requests` y la carga de evidencia
+  alcanzan los handlers del cliente mediante su `401 application/problem+json`
+  sin sesión, en vez del `404` que daba la API antes de la corrección.
+- Infraestructura de prueba: la reconstrucción aislada expuso un fallo de
+  Corepack incluido en Node 24.15 al cargar `pnpm@11.9.0` en Alpine. El
+  Dockerfile instala explícitamente la versión ya fijada en `package.json`,
+  eliminando esa dependencia de Corepack.
+- Verificación: `node --test scripts/e2e-technical.test.mjs` superó 1/1 tras
+  la reconstrucción limpia del Compose. No se modificaron volúmenes de datos;
+  sólo se limpió el caché de construcción corrupto de Docker Desktop.
+
 

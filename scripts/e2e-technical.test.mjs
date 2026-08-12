@@ -63,7 +63,7 @@ test(
     assert.equal((await fetch(`${baseUrl}/media/not-public`)).status, 404);
     const offers = await fetch(`${baseUrl}/api/v1/catalog/offers`);
     assert.equal(offers.status, 200);
-    assert.deepEqual(await offers.json(), {
+    const expectedOffers = {
       items: [
         {
           category: {
@@ -78,7 +78,22 @@ test(
           version: 1,
         },
       ],
-    });
+    };
+    assert.deepEqual(await offers.json(), expectedOffers);
+
+    const customerOffers = await fetch(`${baseUrl}/api/offers`);
+    assert.equal(customerOffers.status, 200);
+    assert.deepEqual(await customerOffers.json(), expectedOffers);
+
+    for (const customerProxyUrl of [
+      `${baseUrl}/api/address/resolve`,
+      `${baseUrl}/api/requests`,
+      `${baseUrl}/api/requests/00000000-0000-4000-8000-000000000401/media`,
+    ]) {
+      const response = await fetch(customerProxyUrl, { method: "POST" });
+      assert.equal(response.status, 401, `${customerProxyUrl} debe llegar al proxy cliente`);
+      assert.match(response.headers.get("content-type") ?? "", /application\/problem\+json/);
+    }
 
     await compose(["restart", "postgres", "api"]);
     assert.equal((await waitFor(`${baseUrl}/api/health/ready`)).status, 200);
