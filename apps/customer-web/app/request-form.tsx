@@ -74,6 +74,10 @@ export function RequestForm({ mapsApiKey }: { mapsApiKey?: string | undefined })
   const [pendingEvidence, setPendingEvidence] = useState<File[]>([]);
   const [evidenceAttached, setEvidenceAttached] = useState(false);
   const [idempotencyKey, setIdempotencyKey] = useState<string>(() => crypto.randomUUID());
+  const [orderStatus, setOrderStatus] = useState<{
+    summary: string;
+    history: Array<{ action: string; toState: string; occurredAt: string }>;
+  }>();
 
   useEffect(() => {
     void fetch("/api/offers")
@@ -352,6 +356,32 @@ export function RequestForm({ mapsApiKey }: { mapsApiKey?: string | undefined })
     }
   }
 
+  async function refreshOrder() {
+    if (!createdRequestId) return;
+    const response = await fetch(`/api/requests/${createdRequestId}/order`);
+    if (response.status === 404)
+      return setOrderStatus({
+        summary: "La solicitud todavía no tiene una orden asignada.",
+        history: [],
+      });
+    if (!response.ok)
+      return setOrderStatus({
+        summary: "No pudimos consultar el estado de la orden.",
+        history: [],
+      });
+    const order = (await response.json()) as {
+      state: string;
+      technician: { fullName: string } | null;
+      history: Array<{ action: string; toState: string; occurredAt: string }>;
+    };
+    setOrderStatus({
+      summary: order.technician
+        ? `${order.state} — técnico asignado: ${order.technician.fullName}`
+        : order.state,
+      history: order.history,
+    });
+  }
+
   return (
     <form className="request-form" action={submit} aria-label="Crear solicitud">
       <div className="request-form__heading">
@@ -473,6 +503,27 @@ export function RequestForm({ mapsApiKey }: { mapsApiKey?: string | undefined })
           >
             Adjuntar evidencia
           </button>
+        </div>
+      )}
+      {createdRequestId && (
+        <div className="request-form__retry">
+          <button type="button" onClick={refreshOrder}>
+            Consultar estado de la orden
+          </button>
+          {orderStatus && (
+            <div role="status">
+              <p>{orderStatus.summary}</p>
+              {orderStatus.history.length > 0 && (
+                <ul>
+                  {orderStatus.history.map((item) => (
+                    <li key={`${item.action}-${item.occurredAt}`}>
+                      {item.toState} — {new Date(item.occurredAt).toLocaleString("es-AR")}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
         </div>
       )}
       {message && (

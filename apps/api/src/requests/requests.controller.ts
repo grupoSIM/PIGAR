@@ -48,6 +48,10 @@ export class RequestsController {
     if (request.actor.role !== "CLIENT" || !key || key.length > 160) throw new ConflictException();
     return this.requests.create(request.actor, key, requestInput(body), correlation);
   }
+  @Get("requests") listOwn(@Req() request: RequestWithActor) {
+    if (request.actor.role !== "CLIENT") throw new NotFoundException();
+    return this.requests.listOwn(request.actor);
+  }
   @Get("requests/:id") get(
     @Req() request: RequestWithActor,
     @Param("id") id: string,
@@ -79,7 +83,7 @@ export class RequestsController {
       throw mediaException(error);
     }
   }
-  @Get("requests/:id/media/:mediaId") @HttpCode(204) async download(
+  @Get("requests/:id/media/:mediaId") @HttpCode(200) async download(
     @Req() request: RequestWithActor,
     @Param("id") id: string,
     @Param("mediaId") mediaId: string,
@@ -87,6 +91,8 @@ export class RequestsController {
     @Res({ passthrough: true }) response: FastifyReply,
   ) {
     const media = await this.requests.media(request.actor, id, mediaId, correlation);
+    response.header("content-type", media.detectedMime);
+    response.header("content-disposition", "inline");
     response.header("x-accel-redirect", this.media.internalPath(media.physicalName));
   }
 }

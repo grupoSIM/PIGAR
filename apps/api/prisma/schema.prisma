@@ -62,6 +62,20 @@ enum RequestMediaKind {
   VIDEO
 }
 
+enum TechnicianStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum WorkOrderState {
+  SOLICITADA
+  TECNICO_ASIGNADO
+  EN_CAMINO
+  EN_ATENCION
+  TRABAJO_FINALIZADO
+  CANCELADA
+}
+
 model OutboxEvent {
   id String @id @default(uuid()) @db.Uuid
   eventType String @db.VarChar(100)
@@ -133,6 +147,8 @@ model Profile {
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
   requests ServiceRequest[]
+  orderTransitions WorkOrderTransition[]
+  assignmentCommands AssignmentIdempotency[]
   @@index([role, status])
   @@map("profile")
 }
@@ -158,9 +174,73 @@ model ServiceRequest {
   client Profile @relation(fields: [clientProfileId], references: [id], onDelete: Restrict)
   address RequestAddress?
   media RequestMedia[]
+  workOrder WorkOrder?
   @@unique([clientProfileId, idempotencyKey])
   @@index([clientProfileId, createdAt])
   @@map("service_request")
+}
+
+model Technician {
+  id String @id @default(uuid()) @db.Uuid
+  fullName String @db.VarChar(160)
+  phone String? @db.VarChar(32)
+  status TechnicianStatus @default(INACTIVE)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  workOrders WorkOrder[]
+  transitions WorkOrderTransition[]
+  @@index([status])
+  @@map("technician")
+}
+
+model WorkOrder {
+  id String @id @default(uuid()) @db.Uuid
+  requestId String @unique @db.Uuid
+  technicianId String? @db.Uuid
+  state WorkOrderState @default(SOLICITADA)
+  version Int @default(0)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  request ServiceRequest @relation(fields: [requestId], references: [id], onDelete: Restrict)
+  technician Technician? @relation(fields: [technicianId], references: [id], onDelete: Restrict)
+  transitions WorkOrderTransition[]
+  assignmentCommands AssignmentIdempotency[]
+  @@index([state, updatedAt])
+  @@map("work_order")
+}
+
+model WorkOrderTransition {
+  id String @id @default(uuid()) @db.Uuid
+  workOrderId String @db.Uuid
+  actorProfileId String @db.Uuid
+  technicianId String? @db.Uuid
+  action String @db.VarChar(60)
+  fromState WorkOrderState
+  toState WorkOrderState
+  reason String? @db.VarChar(500)
+  version Int
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  workOrder WorkOrder @relation(fields: [workOrderId], references: [id], onDelete: Restrict)
+  actor Profile @relation(fields: [actorProfileId], references: [id], onDelete: Restrict)
+  technician Technician? @relation(fields: [technicianId], references: [id], onDelete: Restrict)
+  @@unique([workOrderId, version])
+  @@index([workOrderId, createdAt])
+  @@map("work_order_transition")
+}
+
+model AssignmentIdempotency {
+  id String @id @default(uuid()) @db.Uuid
+  actorProfileId String @db.Uuid
+  idempotencyKey String @db.VarChar(160)
+  requestId String @db.Uuid
+  technicianId String @db.Uuid
+  workOrderId String? @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  actor Profile @relation(fields: [actorProfileId], references: [id], onDelete: Restrict)
+  workOrder WorkOrder? @relation(fields: [workOrderId], references: [id], onDelete: Restrict)
+  @@unique([actorProfileId, idempotencyKey])
+  @@index([requestId])
+  @@map("assignment_idempotency")
 }
 
 model RequestAddress {

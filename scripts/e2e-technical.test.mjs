@@ -58,6 +58,74 @@ test(
     });
 
     await compose(["up", "--build", "--detach", "--wait"]);
+    const operationalSchema = await compose([
+      "exec",
+      "-T",
+      "postgres",
+      "psql",
+      "-U",
+      "pigar",
+      "-d",
+      "pigar",
+      "-Atc",
+      "SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND tablename IN ('technician', 'work_order', 'work_order_transition', 'assignment_idempotency') ORDER BY tablename",
+    ]);
+    assert.deepEqual(operationalSchema.trim().split("\n"), [
+      "assignment_idempotency",
+      "technician",
+      "work_order",
+      "work_order_transition",
+    ]);
+    const appendOnlyTrigger = await compose([
+      "exec",
+      "-T",
+      "postgres",
+      "psql",
+      "-U",
+      "pigar",
+      "-d",
+      "pigar",
+      "-Atc",
+      "SELECT tgname FROM pg_trigger WHERE tgname = 'work_order_transition_append_only'",
+    ]);
+    assert.equal(appendOnlyTrigger.trim(), "work_order_transition_append_only");
+    const fixtureSql = [
+      "INSERT INTO profile (id, \"identitySubject\", role, \"updatedAt\") VALUES ('00000000-0000-4000-8000-000000000401', 'e2e-admin', 'ADMIN', NOW()), ('00000000-0000-4000-8000-000000000402', 'e2e-client', 'CLIENT', NOW())",
+      "INSERT INTO service_request (id, \"clientProfileId\", \"idempotencyKey\", description, completeness, \"categoryId\", \"categoryName\", \"categoryScope\", \"zoneId\", \"zoneName\", currency, amount, \"rateVersion\", \"rateValidFrom\", \"updatedAt\") VALUES ('00000000-0000-4000-8000-000000000403', '00000000-0000-4000-8000-000000000402', 'e2e-order-request', 'synthetic', 'READY_FOR_OPERATION', '00000000-0000-4000-8000-000000000404', 'synthetic', 'synthetic', '00000000-0000-4000-8000-000000000405', 'synthetic', 'ARS', 1, 1, NOW(), NOW())",
+      "INSERT INTO technician (id, \"fullName\", phone, status, \"updatedAt\") VALUES ('00000000-0000-4000-8000-000000000406', 'Synthetic technician', '+541155550000', 'ACTIVE', NOW())",
+    ].join("; ");
+    await compose([
+      "exec",
+      "-T",
+      "postgres",
+      "psql",
+      "-v",
+      "ON_ERROR_STOP=1",
+      "-U",
+      "pigar",
+      "-d",
+      "pigar",
+      "-c",
+      fixtureSql,
+    ]);
+    const concurrentInsert = () =>
+      compose([
+        "exec",
+        "-T",
+        "postgres",
+        "psql",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-U",
+        "pigar",
+        "-d",
+        "pigar",
+        "-c",
+        "INSERT INTO work_order (id, \"requestId\", \"technicianId\", state, version, \"updatedAt\") VALUES (gen_random_uuid(), '00000000-0000-4000-8000-000000000403', '00000000-0000-4000-8000-000000000406', 'TECNICO_ASIGNADO', 1, NOW())",
+      ]);
+    const concurrentResults = await Promise.allSettled([concurrentInsert(), concurrentInsert()]);
+    assert.equal(concurrentResults.filter((result) => result.status === "fulfilled").length, 1);
+    assert.equal(concurrentResults.filter((result) => result.status === "rejected").length, 1);
     assert.equal((await waitFor(`${baseUrl}/`)).status, 200);
     assert.equal((await waitFor(`${baseUrl}/admin`)).status, 200);
     assert.equal((await waitFor(`${baseUrl}/api/health/ready`)).status, 200);

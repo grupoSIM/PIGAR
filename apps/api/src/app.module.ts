@@ -12,6 +12,8 @@ import { AddressNormalizerService } from "./requests/address-normalizer.service.
 import { RequestMediaService } from "./requests/request-media.service.js";
 import { RequestsController } from "./requests/requests.controller.js";
 import { RequestsService } from "./requests/requests.service.js";
+import { OrdersController } from "./orders/orders.controller.js";
+import { OrdersService } from "./orders/orders.service.js";
 
 @Module({
   controllers: [
@@ -21,6 +23,7 @@ import { RequestsService } from "./requests/requests.service.js";
     PublicCatalogController,
     AdminCatalogController,
     RequestsController,
+    OrdersController,
   ],
   providers: [
     DatabaseService,
@@ -31,6 +34,7 @@ import { RequestsService } from "./requests/requests.service.js";
     AddressNormalizerService,
     RequestMediaService,
     RequestsService,
+    OrdersService,
   ],
 })
 export class AppModule {}

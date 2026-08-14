@@ -1,7 +1,7 @@
 project: PIGAR
-active_feature: feat-004
+active_feature: feat-005
 phase: done
-updated_at: 2026-08-12T14:30:00-03:00
+updated_at: 2026-08-14T13:00:00-03:00
 
 blockers: []
 
@@ -53,6 +53,9 @@ approvals:
   specification:
     status: approved
     approved_by: usuario
+    approved_at: 2026-08-14T00:00:00-03:00
+    note: Plan de implementación de feat-005 aprobado por el usuario.
+    approved_by: usuario
     approved_at: 2026-08-03T00:00:00-03:00
   verification:
     status: approved
@@ -65,6 +68,11 @@ quality:
   status: passed
 
 notes:
+  - Staging de feat-005 actualizado y validado manualmente por el usuario el 2026-08-14 con las imágenes del SHA `fbc681617dc3a90b2e7d7b67d8bc6eb1707f36fc`. No se desplegó producción.
+  - feat-005 cerrada por autorización de publicación del usuario el 2026-08-14. Se publica en la rama `codex/feat-005-operational-orders`; su único propósito es la integración aprobada y deberá retirarse tras integrar el commit en la rama objetivo.
+  - Re-verificación y revisión independiente de feat-005 superadas el 2026-08-14 tras los hotfixes locales. La feature vuelve a publication_review; no existe autorización específica de commit, push, PR ni despliegue.
+  - La corrección local posterior a la revisión independiente de feat-005 reabre implementation: el portal CLIENT ahora conserva una salida de sesión visible y ofrece reiniciar el acceso cuando falla la autorización. Debe repetirse la verificación y la revisión independiente antes de publication_review.
+  - feat-005 completó verification el 2026-08-14: formato, lint, typecheck, build, 25 unitarias, pruebas de seguridad/integración con Compose PostgreSQL y E2E funcionales de ambos portales superaron. El Reviewer independiente emitió PASS; la feature ingresa en publication_review. No existe autorización específica de commit, push, PR ni despliegue.
   - La aprobación arquitectónica no aprueba la especificación ni autoriza cambios en código de producto.
   - Alcance corregido por el usuario: sin aplicación de operarios ni tracking en el MVP.
   - Restricción de infraestructura: backend, backoffice y multimedia en un VPS de Hostinger.
@@ -142,3 +150,6 @@ notes:
   - Commit y push completados en la rama `codex/feat-004-request` (commit a8b3c6d). No se creó PR automáticamente. La feature queda cerrada.
   - La rama `staging` fue actualizada con los cambios de feat-004 y pusheada a origin el 2026-08-04. Las imágenes están siendo construidas por la CI bajo el SHA `703cd420f451adb7e573717a463f3c807c18774f`.
   - feat-004 cerrada el 2026-08-12: la UAT final de staging validó mapa y buscador de domicilio, creación de solicitud, carga de imágenes y visibilidad operativa/auditada de adjuntos desde ADMIN. El hotfix publicado `596151cd75b271835333404272cb48699e709f32` superó calidad e imágenes de staging; los bloqueantes de producción siguen fuera de alcance.
+  - feat-005 ingresó en discovery el 2026-08-12 por instrucción del usuario. No existe autorización de especificación, implementación, publicación ni despliegue; las decisiones de producto sobre creación de orden, registro de técnicos, cancelaciones y alcance de hitos operativos quedan pendientes.
+  - Discovery de feat-005 actualizado el 2026-08-12: la asignación inicial crea la orden; el registro interno de técnicos incluye nombre completo, teléfono y estado activo/inactivo; ADMIN administra técnicos y ADMIN/DISPATCHER operan asignación, reasignación, hitos y cancelación previa a atención con motivo. El cliente ve nombre completo, estado e historial seguro, sin contacto ni ubicación. La revisión arquitectónica focalizada de datos personales queda pendiente antes de especificación.
+  - Revisión arquitectónica focalizada de feat-005 aprobada por el usuario el 2026-08-12 con condiciones: teléfono obligatorio para técnico activo/asignable, visible sólo a ADMIN/DISPATCHER; el cliente ve nombre completo, estado e historial seguro, y ante cancelación sólo el estado `CANCELADA`, sin motivo. No requiere ADR nueva. La feature pasa a specification; no existe aprobación de especificación, implementación, publicación ni despliegue.
