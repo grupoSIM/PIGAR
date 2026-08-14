@@ -1,7 +1,9 @@
 name: publish-staging-images
 
 on:
-  push:
+  workflow_run:
+    workflows: [quality]
+    types: [completed]
     branches:
       - staging
 
@@ -10,17 +12,23 @@ permissions:
   packages: write
 
 concurrency:
-  group: publish-staging-images-${{ github.sha }}
+  group: publish-staging-images-${{ github.event.workflow_run.head_sha }}
   cancel-in-progress: false
 
 jobs:
   publish:
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'staging'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
-      IMAGE_TAG: ${{ github.sha }}
+      IMAGE_TAG: ${{ github.event.workflow_run.head_sha }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.IMAGE_TAG }}
 
       - uses: docker/login-action@v4
         with:
