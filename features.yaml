@@ -37,7 +37,7 @@ features:
 
   - id: feat-005
     name: Motor de estados, asignación manual y trazabilidad
-    status: proposed
+    status: done
     priority: must
     depends_on: [feat-004]
 

@@ -1,11 +1,21 @@
 import { ProductShell } from "@pigar/ui";
 import { auth0 } from "../lib/auth0";
 import { RequestForm } from "./request-form";
+import { CustomerRequests } from "./customer-requests";
 
 export const dynamic = "force-dynamic";
 
 export default async function CustomerHome() {
-  const session = await auth0.getSession();
+  const session =
+    process.env.PIGAR_E2E_TEST_AUTH === "1" && process.env.NODE_ENV !== "production"
+      ? { user: {} }
+      : await auth0.getSession();
+  const configuredBaseUrl =
+    process.env.PIGAR_CUSTOMER_AUTH0_APP_BASE_URL ??
+    process.env.APP_BASE_URL ??
+    "http://localhost:3000";
+  const appBaseUrl = configuredBaseUrl.replace(/\/$/, "");
+  const logoutHref = `/auth/logout?returnTo=${encodeURIComponent(`${appBaseUrl}/`)}`;
 
   return (
     <ProductShell audience="clientes" title="Nueva solicitud de PIGAR">
@@ -28,7 +38,13 @@ export default async function CustomerHome() {
       </p>
       <p>El importe se resuelve desde la oferta vigente y no se envía desde tu dispositivo.</p>
       {session ? (
-        <RequestForm mapsApiKey={process.env["PIGAR_G" + "OOGLE_BROWSER_KEY"]} />
+        <>
+          <p>
+            <a href={logoutHref}>Cerrar sesión</a>
+          </p>
+          <CustomerRequests />
+          <RequestForm mapsApiKey={process.env["PIGAR_G" + "OOGLE_BROWSER_KEY"]} />
+        </>
       ) : (
         <>
           <p>Para crear una solicitud o adjuntar evidencia, primero necesitás ingresar.</p>

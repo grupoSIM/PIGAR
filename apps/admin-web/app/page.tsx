@@ -3,7 +3,16 @@ import { OperationalRequests } from "./operational-requests";
 import { auth0 } from "../lib/auth0";
 
 export default async function AdminHome() {
-  const session = await auth0.getSession();
+  const session =
+    process.env.PIGAR_E2E_TEST_AUTH === "1" && process.env.NODE_ENV !== "production"
+      ? { user: {} }
+      : await auth0.getSession();
+  const configuredBaseUrl =
+    process.env.PIGAR_ADMIN_AUTH0_APP_BASE_URL ??
+    process.env.APP_BASE_URL ??
+    "http://localhost:3002";
+  const appBaseUrl = configuredBaseUrl.replace(/\/$/, "").replace(/\/admin$/, "");
+  const logoutHref = `/admin/auth/logout?returnTo=${encodeURIComponent(`${appBaseUrl}/admin`)}`;
 
   return (
     <ProductShell audience="administración" title="Bandeja operativa de PIGAR">
@@ -23,10 +32,12 @@ export default async function AdminHome() {
       ) : (
         <>
           <p>
-            <a href="/admin/auth/logout">Cerrar sesión</a>
+            <a href={logoutHref}>Cerrar sesión</a>
           </p>
           <hr />
-          <OperationalRequests />
+          <OperationalRequests
+            mediaDeliveryOrigin={process.env.PIGAR_MEDIA_DELIVERY_ORIGIN ?? ""}
+          />
         </>
       )}
     </ProductShell>

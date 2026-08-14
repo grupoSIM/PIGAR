@@ -27,3 +27,9 @@ automático. Una reversión exige una migración compensatoria revisada (por
 ejemplo, para retirar una columna sin perder datos) o restaurar un backup
 verificado. Antes de cualquier cambio destructivo se debe exportar y probar la
 restauración; el procedimiento completo de backup queda en TASK-015.
+
+La migración `20260814090000_operational_orders` es aditiva: crea técnicos,
+órdenes, reservas idempotentes e historial append-only. El forward-fix ante un
+defecto es otra migración aditiva; no se eliminan órdenes, transiciones ni
+técnicos históricos. Una restauración exige un backup verificado y aprobación
+de producción.

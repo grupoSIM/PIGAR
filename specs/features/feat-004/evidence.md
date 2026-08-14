@@ -429,4 +429,126 @@ Estado: implementación reabierta tras revisión independiente fallida.
 - Dictamen: **PASSED (APROBADO)**.
 - Verificación: Los hallazgos QR-004-007 a QR-004-012 fueron inspeccionados y verificados. Idempotencia web estable, verificación atómica de límites en PostgreSQL, parseo de cajas MP4 en disco, UI operativa ADMIN/DISPATCHER, alineación de rutas Nginx (`/internal-media/`) y gateway a 50 MB aprobados. Formato, lint, typecheck de portales y suite de pruebas de solicitudes (6/6) superaron.
 
+## Correcciones de calidad posteriores — 2026-08-07
+
+- Se eliminó un import no utilizado en el logout administrativo y se actualizó la aserción de configuración local para aceptar el fallback parametrizable de `AUTH0_ISSUER` en Compose.
+- Comandos ejecutados: `pnpm format:check`; `pnpm lint`; `pnpm test:unit`.
+- Resultado: exitoso; Prettier sin diferencias, ESLint sin errores y 22/22 pruebas unitarias pasaron.
+- `pnpm typecheck` y `pnpm build` también pasaron previamente en esta misma revisión.
+- En la primera ejecución aislada, las suites `test:integration`, `test:security` y la prueba E2E técnica quedaron bloqueadas por falta de acceso al daemon Docker; la E2E de frontend quedó bloqueada por `spawn EPERM` al iniciar Chromium. Se reejecutaron con autorización elevada en la sección siguiente.
+
+## Reejecución con Docker y Chromium autorizados — 2026-08-07
+
+- `pnpm test:integration`: exitoso; 22/22 pruebas pasaron, incluida la idempotencia de perfiles contra PostgreSQL.
+- `pnpm test:security`: exitoso; 33/33 pruebas pasaron, incluida la superficie de red, persistencia/reinicio, permisos, multimedia, pagos y sanitización de logs.
+- `pnpm test:e2e:frontends`: exitoso; cliente 1/1 y administración 1/1 pasaron en Chromium.
+- Las pruebas se ejecutaron con acceso elevado autorizado al daemon Docker y al proceso de Chromium. No se publicaron imágenes, no se desplegó staging ni producción.
+
+## UAT local: corrección de carga multimedia — 2026-08-10
+
+- Hallazgo: la creación de solicitud respondió `201`, pero cada carga de evidencia respondió `500`.
+- Diagnóstico en API: la consulta de bloqueo usaba `"ServiceRequest"`, mientras la migración crea la tabla mapeada `"service_request"`; PostgreSQL informó `relation "ServiceRequest" does not exist`.
+- Corrección: se alineó la consulta SQL con el nombre físico `service_request` y se agregó una regresión en `scripts/requests.test.mjs`.
+- Verificación: `pnpm --filter @pigar/api build` exitoso; `node scripts/requests.test.mjs` exitoso, 6/6.
+- El API local fue reconstruido con la configuración Auth0 no productiva y sin borrar volúmenes. La repetición desde el navegador confirmó la carga de las tres imágenes y dejó la solicitud operable.
+
+## UAT local: bandeja administrativa — 2026-08-10
+
+- Hallazgo inicial: el backoffice autenticado mostraba `Error al cargar la bandeja de solicitudes`; el proxy recibía `403` porque la base local recién inicializada no tenía un perfil interno para la cuenta administrativa no productiva.
+- Corrección de entorno: se activó el perfil local `ADMIN` correspondiente a la sesión Auth0 ya autenticada. No se modificaron permisos de Auth0, no se usaron credenciales reales y no se eliminaron volúmenes.
+- Verificación en navegador: `http://localhost:3002/admin` cargó `Solicitudes registradas (1)`, la solicitud apareció como `Operable` y la bandeja mostró `Adjuntos (3)` con tres imágenes JPEG.
+- Resultado: **PASS** para login administrativo, autorización local, listado de solicitudes y visibilidad de los tres adjuntos multimedia.
+
+## Revalidación local posterior a UAT — 2026-08-10
+
+- Comandos: `pnpm format:check`; `pnpm lint`; `pnpm typecheck`; `pnpm test:unit`; `pnpm build`; `pnpm test:integration`; `pnpm test:security`; `pnpm test:e2e:frontends`; `git diff --check`.
+- Resultado: formato, lint, typecheck, 22/22 unitarias y build completo superaron. Las suites de integración y seguridad completaron correctamente con Docker local autorizado. La E2E de cliente y administración superó 1/1 en cada portal con Chromium.
+- Incidencias de infraestructura resueltas: se liberaron los puertos usados por los servidores manuales de UAT y se regeneraron únicamente las cachés `.next` corruptas de ambos portales antes de repetir la E2E; no se eliminaron datos de aplicación, volúmenes ni contenedores persistentes.
+- `git diff --check` no reportó errores de espacios; los avisos de CRLF son informativos de Git y no alteran el contenido.
+
+## Remediación de revisión independiente posterior a UAT — 2026-08-10
+
+- Hallazgos corregidos: los contenedores `customer-web` y `admin-web` ya no reciben el archivo `.env` completo; Compose declara únicamente las variables necesarias de cada portal. Se eliminó el log crudo de errores de la ruta administrativa autenticada.
+- Regresiones: `scripts/staging-auth-config.test.mjs` verifica el aislamiento de variables de backend/Management y `scripts/identity-admin.test.mjs` verifica que el logout administrativo conserva el retorno `/admin`, usa el middleware Auth0 y vence las cookies para ambas rutas.
+- E2E reproducible: los `webServer` de Playwright usan Webpack en lugar de Turbopack; se limpiaron sólo las cachés `.next` generadas que estaban corruptas. Cliente y administración pasaron 1/1.
+- Revalidación: `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test:unit` (22/22), `pnpm build`, `pnpm test:integration`, `pnpm test:security`, `pnpm test:e2e:frontends` y `docker compose ... config --no-interpolate` finalizaron correctamente.
+
+## Revisión independiente de remediación — 2026-08-10
+
+- Rol: Quality Reviewer independiente de la implementación y de las correcciones posteriores a UAT.
+- Dictamen: **PASSED (APROBADO)**.
+- Verificación: `git diff --check` sin errores y 8/8 regresiones focalizadas superadas. El reviewer confirmó el aislamiento de secretos de backend respecto de los portales web, la ausencia de logs crudos en rutas autenticadas y la cobertura de regresión para logout administrativo/cookies.
+- Estado: técnicamente habilitada para commit y push; no se realizó publicación porque requiere autorización explícita del usuario.
+
+## Hotfix de diagnóstico de autorización administrativa — 2026-08-12
+
+- Hallazgo de staging: después de confirmar sesión Auth0, perfil local `ADMIN`,
+  audiencia, issuer, Client ID administrativo, JWKS accesible y firma RS256, la
+  bandeja recibía `401` sin distinguir si el fallo ocurría al recuperar el token
+  o al validarlo en la API.
+- Corrección: el proxy administrativo solicita explícitamente la audiencia
+  configurada y devuelve únicamente códigos diagnósticos acotados
+  (`AUTH_SESSION_MISSING`, `AUTH_ACCESS_TOKEN_UNAVAILABLE` o
+  `AUTH_API_TOKEN_REJECTED`), sin tokens, cookies ni detalles de proveedor. La
+  interfaz comunica el estado correspondiente sin exponer datos sensibles.
+- Verificación: `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm
+  test:unit` (22/22), `pnpm build`, `pnpm test:integration` (22/22), ejecución
+  de seguridad con Docker recuperado y `pnpm test:e2e:frontends` (cliente 1/1,
+  administración 1/1) finalizaron sin errores de producto. El primer intento
+  de seguridad se interrumpió por falta de espacio de Docker Desktop; tras
+  liberar espacio y reiniciar el motor, el runner terminó y limpió el stack
+  temporal. La revisión independiente aprobó el cambio y sus 8/8 pruebas
+  focalizadas.
+- Pendiente de UAT: desplegar la imagen publicada y verificar el código
+  diagnóstico o la carga correcta de la bandeja en staging, sin copiar tokens
+  ni cookies a evidencia.
+
+## Hotfix de rutas proxy del portal cliente — 2026-08-12
+
+- Hallazgo de staging: el portal cliente solicitaba `/api/offers`, pero Nginx
+  reenviaba todo `/api/` directamente a NestJS. Como NestJS reserva la API
+  pública para `/api/v1/...`, la carga de la oferta recibía `404`.
+- Corrección inicial: Nginx enruta las rutas existentes del portal hacia
+  `customer-web` y mantiene `/api/v1/...` y healthchecks hacia NestJS. La API
+  no se expone fuera de Nginx.
+- Regresión: `scripts/e2e-technical.test.mjs` confirma ambos recorridos:
+  `/api/v1/catalog/offers` y el proxy de cliente `/api/offers` retornan el
+  catálogo público esperado dentro del Compose aislado. También verifica que
+  `POST /api/address/resolve`, `POST /api/requests` y la carga de evidencia
+  alcanzan los handlers del cliente mediante su `401 application/problem+json`
+  sin sesión, en vez del `404` que daba la API antes de la corrección.
+- Infraestructura de prueba: la reconstrucción aislada expuso un fallo de
+  Corepack incluido en Node 24.15 al cargar `pnpm@11.9.0` en Alpine. El
+  Dockerfile instala explícitamente la versión ya fijada en `package.json`,
+  eliminando esa dependencia de Corepack.
+- Verificación: `node --test scripts/e2e-technical.test.mjs` superó 1/1 tras
+  la reconstrucción limpia del Compose. No se modificaron volúmenes de datos;
+  sólo se limpió el caché de construcción corrupto de Docker Desktop.
+- Generalización posterior: Nginx reserva explícitamente `/api/v1/` y
+  `/api/health/` para NestJS y enruta todo otro `/api/` a `customer-web`.
+  Las futuras rutas del portal no requieren nuevas reglas de infraestructura.
+  La regresión verifica ambos prefijos internos y el catch-all de cliente,
+  además de los recorridos HTTP ya cubiertos.
+- Corrección de entrega de adjuntos en staging: el handler de Next para
+  `/api/requests/[id]/media` existía localmente, pero la regla genérica
+  `media/` de `.gitignore` lo excluía de Git y, por ende, de las imágenes
+  publicadas. Se agregó una excepción explícita y una regresión que lee y
+  valida el handler desde el checkout de CI.
+
+## Cierre de UAT en staging — 2026-08-12
+
+- Configuración final: `customer-web` recibe la clave de navegador de Google y
+  la API recibe la clave de geocodificación, cada una limitada a su superficie
+  correspondiente. No se registran valores de claves en este artefacto.
+- Validación manual aprobada por el usuario: el mapa y buscador de domicilio
+  quedaron inicializados en staging; el cliente creó una solicitud, adjuntó
+  imágenes y la bandeja ADMIN mostró la solicitud como `Operable` con sus
+  adjuntos privados.
+- Artefacto desplegado: imágenes de staging del commit
+  `596151cd75b271835333404272cb48699e709f32`; calidad y publicación de ambas
+  imágenes finalizaron correctamente en GitHub Actions.
+- Resultado: los criterios AC-004-001 a AC-004-005 quedan aceptados para
+  staging. Los bloqueantes de producción (cifrado, retención, backup,
+  capacidad y hardening) permanecen fuera del alcance de esta feature.
+
 

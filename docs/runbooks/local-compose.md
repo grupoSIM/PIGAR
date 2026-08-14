@@ -1,5 +1,9 @@
 # Entorno Compose local
 
+> Para pruebas manuales autenticadas, usar siempre
+> [local-auth0.md](local-auth0.md): cliente `localhost:3000` y administración
+> `localhost:3002`. Este Compose en `8088` es sólo integrado/smoke.
+
 Este entorno crea dos redes: `edge` para Nginx y sus upstreams, y `backend`
 interna para API, worker y PostgreSQL. Solo Nginx publica un puerto del host.
 PostgreSQL y el volumen multimedia no tienen puertos ni rutas públicas.

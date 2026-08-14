@@ -1,7 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
 // Usamos el puerto 3000 por defecto para el dev server de customer-web
-const PORT = 3000;
+const PORT = Number(process.env.PIGAR_E2E_PORT ?? 3000);
 const baseURL = `http://127.0.0.1:${PORT}`;
 
 export default defineConfig({
@@ -22,8 +22,9 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "pnpm dev --port 3000 --hostname 127.0.0.1",
+    command: `pnpm dev --webpack --port ${PORT} --hostname 127.0.0.1`,
     url: baseURL,
     reuseExistingServer: !process.env.CI,
+    env: { PIGAR_E2E_TEST_AUTH: "1" },
   },
 });

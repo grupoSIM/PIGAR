@@ -106,7 +106,7 @@ export class RequestMediaService {
           await (tx.$queryRaw as (
             query: TemplateStringsArray,
             ...values: unknown[]
-          ) => Promise<unknown>)`SELECT id FROM "ServiceRequest" WHERE id = ${requestId} FOR UPDATE`;
+          ) => Promise<unknown>)`SELECT id FROM "service_request" WHERE id = ${requestId} FOR UPDATE`;
         }
         const mediaRepository = (tx.requestMedia ?? this.database.requestMedia) as {
           findMany: (options: { where: { requestId: string } }) => Promise<Array<{ kind: string }>>;
