@@ -61,6 +61,13 @@ alterar este alcance ya aprobado.
 
 - Aprobación: usuario, 2026-08-14; autorizó integrar en `staging` y publicar imágenes de staging.
 - Revisión independiente: PASS, 2026-08-14. Sin hallazgos bloqueantes; habilita `publication_review`.
+- Integración: `staging`, commit de integración `802bcb4`; calidad remota
+  [31842824934](https://github.com/grupoSIM/PIGAR/actions/runs/31842824934)
+  superó formato, lint, tipos, unitarias, integración, seguridad, E2E, contrato
+  CI y documentación.
+- Imágenes: [ejecución 31842824901](https://github.com/grupoSIM/PIGAR/actions/runs/31842824901)
+  publicó `ghcr.io/gruposim/pigar-app:3124496800d6c0e94640751c77e1086a67ac6577`
+  y `ghcr.io/gruposim/pigar-nginx:3124496800d6c0e94640751c77e1086a67ac6577`.
 - Commit: pendiente.
 - Rama: pendiente.
 - PR/despliegue: pendiente.
