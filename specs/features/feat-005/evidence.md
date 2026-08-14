@@ -123,3 +123,10 @@ sesión` en `apps/customer-web/e2e/home.spec.ts`; verifica ambos enlaces y el
 - Rama publicada: `codex/feat-005-operational-orders`. Propósito: integración
   de feat-005; responsable: Codex; retiro: después de integrar el commit en la
   rama objetivo aprobada.
+
+## Validación de staging — 2026-08-14
+
+- El usuario actualizó Hostinger staging con las imágenes identificadas por
+  `fbc681617dc3a90b2e7d7b67d8bc6eb1707f36fc` y realizó las pruebas de staging.
+- Resultado informado por el usuario: validación completada. No se desplegó
+  producción.

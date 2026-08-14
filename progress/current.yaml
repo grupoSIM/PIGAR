@@ -68,6 +68,7 @@ quality:
   status: passed
 
 notes:
+  - Staging de feat-005 actualizado y validado manualmente por el usuario el 2026-08-14 con las imágenes del SHA `fbc681617dc3a90b2e7d7b67d8bc6eb1707f36fc`. No se desplegó producción.
   - feat-005 cerrada por autorización de publicación del usuario el 2026-08-14. Se publica en la rama `codex/feat-005-operational-orders`; su único propósito es la integración aprobada y deberá retirarse tras integrar el commit en la rama objetivo.
   - Re-verificación y revisión independiente de feat-005 superadas el 2026-08-14 tras los hotfixes locales. La feature vuelve a publication_review; no existe autorización específica de commit, push, PR ni despliegue.
   - La corrección local posterior a la revisión independiente de feat-005 reabre implementation: el portal CLIENT ahora conserva una salida de sesión visible y ofrece reiniciar el acceso cuando falla la autorización. Debe repetirse la verificación y la revisión independiente antes de publication_review.
