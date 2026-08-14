@@ -74,6 +74,27 @@ test("[request-list-operational] ADMIN y DISPATCHER pueden listar solicitudes op
   await assert.rejects(() => service.listOperational(client), hasStatus(404));
 });
 
+test("[request-list-own] CLIENT sólo recibe sus solicitudes y una proyección mínima de orden", async () => {
+  const store = requestStore();
+  const service = new RequestsService(store, new AddressNormalizerService());
+  const own = await service.create(client, "request-key-own-1", {
+    offerId: store.rate.categoryId,
+    description: "Propia",
+    address: { street: "Calle", number: "100" },
+  });
+  await service.create(otherClient, "request-key-own-2", {
+    offerId: store.rate.categoryId,
+    description: "Ajena",
+    address: { street: "Otra", number: "200" },
+  });
+  const list = await service.listOwn(client);
+  assert.equal(list.items.length, 1);
+  assert.equal(list.items[0].id, own.id);
+  assert.equal("address" in list.items[0], false);
+  assert.equal("description" in list.items[0], false);
+  await assert.rejects(() => service.listOwn(dispatcher), hasStatus(404));
+});
+
 test("[request-contract] declara privacidad, carga interna y los límites aprobados", async () => {
   const [contract, controller, media, migration] = await Promise.all([
     readFile(path.join(root, "specs/features/feat-004/api-contract.yaml"), "utf8"),
@@ -87,6 +108,8 @@ test("[request-contract] declara privacidad, carga interna y los límites aproba
   assert.match(contract, /\/v1\/requests/);
   assert.match(contract, /Idempotency-Key/);
   assert.match(controller, /x-accel-redirect/);
+  assert.match(controller, /response\.header\("content-type", media\.detectedMime\)/);
+  assert.match(controller, /@HttpCode\(200\) async download/);
   assert.match(media, /MAX_IMAGES = 5/);
   assert.match(media, /10 \* 1024 \* 1024/);
   assert.match(media, /50 \* 1024 \* 1024/);
@@ -193,7 +216,10 @@ function requestStore() {
         requests.push(item);
         return item;
       },
-      findMany: async () => requests,
+      findMany: async ({ where } = {}) =>
+        where?.clientProfileId
+          ? requests.filter((item) => item.clientProfileId === where.clientProfileId)
+          : requests,
       update: async () => ({}),
     },
     serviceRate: { findFirst: async () => rate },

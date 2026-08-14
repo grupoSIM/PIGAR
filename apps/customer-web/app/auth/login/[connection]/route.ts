@@ -4,6 +4,7 @@ import { auth0 } from "../../../../lib/auth0";
 const connections = {
   email: process.env.PIGAR_CUSTOMER_AUTH0_EMAIL_OTP_CONNECTION,
 } as const;
+const audience = process.env.PIGAR_CUSTOMER_AUTH0_AUDIENCE || process.env.AUTH0_AUDIENCE;
 
 export async function GET(
   _request: NextRequest,
@@ -16,5 +17,10 @@ export async function GET(
       { code: "AUTH_UNAVAILABLE", title: "Acceso no disponible" },
       { status: 503 },
     );
-  return auth0.startInteractiveLogin({ authorizationParameters: { connection: auth0Connection } });
+  return auth0.startInteractiveLogin({
+    authorizationParameters: {
+      connection: auth0Connection,
+      ...(audience ? { audience } : {}),
+    },
+  });
 }

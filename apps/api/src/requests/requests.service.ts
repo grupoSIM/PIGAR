@@ -110,6 +110,45 @@ export class RequestsService {
     return this.view(item);
   }
 
+  async listOwn(actor: AuthenticatedActor) {
+    if (actor.role !== "CLIENT") throw new NotFoundException();
+    const items = await this.database.serviceRequest.findMany({
+      where: { clientProfileId: actor.profileId },
+      include: {
+        workOrder: {
+          include: { technician: true, transitions: { orderBy: { version: "asc" } } },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    return {
+      items: items.map((item) => ({
+        id: item.id,
+        createdAt: item.createdAt.toISOString(),
+        completeness: item.completeness,
+        offer: {
+          category: item.categoryName,
+          currency: item.currency,
+          price: item.amount.toFixed(2),
+        },
+        order: item.workOrder
+          ? {
+              state: item.workOrder.state,
+              updatedAt: item.workOrder.updatedAt.toISOString(),
+              technician: item.workOrder.technician
+                ? { fullName: item.workOrder.technician.fullName }
+                : null,
+              history: item.workOrder.transitions.map((transition) => ({
+                action: transition.action,
+                toState: transition.toState,
+                occurredAt: transition.createdAt.toISOString(),
+              })),
+            }
+          : null,
+      })),
+    };
+  }
+
   async media(actor: AuthenticatedActor, requestId: string, mediaId: string, correlation?: string) {
     const item = await this.database.requestMedia.findFirst({
       where: { id: mediaId, requestId },

@@ -1,0 +1,21 @@
+openapi: 3.1.0
+info: { title: PIGAR Operational Orders API, version: 1.0.0-draft }
+paths:
+  /v1/requests:
+    get: { summary: Lista las solicitudes y órdenes seguras del CLIENT autenticado, security: [{ bearerAuth: [] }], responses: { '200': { description: Solicitudes propias sin domicilio, teléfono ni motivos }, '401': { description: Autenticación requerida } } }
+  /v1/admin/technicians:
+    get: { summary: Lista técnicos para operación, security: [{ bearerAuth: [] }], responses: { '200': { description: ADMIN o DISPATCHER } } }
+    post: { summary: Crea técnico interno, security: [{ bearerAuth: [] }], responses: { '201': { description: Técnico creado }, '403': { description: Rol no autorizado } } }
+  /v1/admin/technicians/{id}:
+    patch: { summary: Edita o desactiva técnico, security: [{ bearerAuth: [] }], responses: { '200': { description: Técnico actualizado }, '409': { description: No se puede activar sin teléfono válido } } }
+  /v1/admin/requests/{requestId}/assignment:
+    post: { summary: Crea orden y primera asignación, security: [{ bearerAuth: [] }], parameters: [{ name: Idempotency-Key, in: header, required: true }], responses: { '201': { description: Orden asignada }, '409': { description: Solicitud no operable, orden existente o reintento incompatible } } }
+  /v1/admin/orders:
+    get: { summary: Bandeja operativa, security: [{ bearerAuth: [] }], responses: { '200': { description: ADMIN o DISPATCHER } } }
+  /v1/admin/orders/{id}/transitions:
+    post: { summary: Aplica hito validado, security: [{ bearerAuth: [] }], responses: { '200': { description: Orden actualizada }, '409': { description: Versión o transición inválida } } }
+  /v1/requests/{requestId}/order:
+    get: { summary: Proyección segura de orden, security: [{ bearerAuth: [] }], responses: { '200': { description: Propietario u operación autorizada }, '404': { description: No accesible } } }
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }

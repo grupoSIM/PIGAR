@@ -1,0 +1,17 @@
+# Override exclusivo para pruebas manuales con Auth0 en loopback.
+# Se combina con docker-compose.yml; no se usa en staging ni producción.
+services:
+  customer-web:
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      PIGAR_CUSTOMER_AUTH0_APP_BASE_URL: http://localhost:3000
+
+  admin-web:
+    ports:
+      - "127.0.0.1:3002:3000"
+    environment:
+      APP_BASE_URL: http://localhost:3002
+      # Las descargas privadas pasan por Nginx para resolver X-Accel-Redirect.
+      # No se usa para callbacks de Auth0, que continúan en el puerto 3002.
+      PIGAR_MEDIA_DELIVERY_ORIGIN: http://localhost:8088

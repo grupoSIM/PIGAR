@@ -7,12 +7,24 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 test("[staging-auth-configuration] cada superficie recibe sólo su configuración Auth0", async () => {
-  const [adminConfig, compose, environment, nginx, localCompose] = await Promise.all([
+  const [
+    adminConfig,
+    adminAuth,
+    customerAuth,
+    compose,
+    environment,
+    nginx,
+    localCompose,
+    localAuthCompose,
+  ] = await Promise.all([
     readWorkspaceFile("apps/admin-web/next.config.ts"),
+    readWorkspaceFile("apps/admin-web/lib/auth0.ts"),
+    readWorkspaceFile("apps/customer-web/lib/auth0.ts"),
     readWorkspaceFile("infra/hostinger/docker-compose.traefik.yml"),
     readWorkspaceFile("infra/hostinger/staging.env.example"),
     readWorkspaceFile("infra/nginx/nginx.conf"),
     readWorkspaceFile("infra/compose/docker-compose.yml"),
+    readWorkspaceFile("infra/compose/docker-compose.auth0-local.yml"),
   ]);
 
   for (const variable of [
@@ -45,6 +57,12 @@ test("[staging-auth-configuration] cada superficie recibe sólo su configuració
   assert.doesNotMatch(localCompose, /admin-web:[\s\S]*env_file:/);
   assert.match(localCompose, /customer-web:[\s\S]*PIGAR_CUSTOMER_AUTH0_CLIENT_SECRET/);
   assert.match(localCompose, /admin-web:[\s\S]*AUTH0_CLIENT_SECRET/);
+  assert.match(adminAuth, /PIGAR_ADMIN_AUTH0_SESSION_SECRET \|\|/);
+  assert.match(adminAuth, /AUTH0_SECRET \|\|/);
+  assert.match(customerAuth, /PIGAR_CUSTOMER_AUTH0_SESSION_SECRET \|\|/);
+  assert.match(customerAuth, /PIGAR_CUSTOMER_AUTH0_AUDIENCE \|\| process\.env\.AUTH0_AUDIENCE/);
+  assert.match(localAuthCompose, /127\.0\.0\.1:3000:3000/);
+  assert.match(localAuthCompose, /127\.0\.0\.1:3002:3000/);
   assert.doesNotMatch(
     localCompose.match(/customer-web:[\s\S]*?admin-web:/)?.[0] ?? "",
     /AUTH0_MANAGEMENT_CLIENT_SECRET|PIGAR_GOOGLE_GEOCODING_KEY/,
