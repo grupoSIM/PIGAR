@@ -41,16 +41,14 @@ test("[ci-contract] el workflow ejecuta instalación reproducible y todas las ca
   assert.doesNotMatch(workflow, /deploy|ssh|secret/i);
 });
 
-test("[ci-contract] las imágenes de staging sólo se publican desde main o staging", async () => {
+test("[ci-contract] las imágenes de staging sólo se publican por push a staging", async () => {
   const workflow = await readFile(
     path.join(root, ".github", "workflows", "publish-staging-images.yml"),
     "utf8",
   );
 
   assert.match(workflow, /push:\n\s+branches:\n\s+- staging/);
-  assert.match(workflow, /github\.event\.workflow_run\.head_branch == 'main'/);
-  assert.match(workflow, /github\.ref_name == 'main'/);
-  assert.match(workflow, /github\.ref_name == 'staging'/);
+  assert.doesNotMatch(workflow, /workflow_run|workflow_dispatch|github\.ref_name == 'main'/);
   assert.doesNotMatch(workflow, /codex\/feat-002-auth0-staging/);
 });
 

@@ -2,8 +2,7 @@ name: quality
 
 on:
   push:
-    branches: [main]
-  pull_request:
+    branches: [main, staging]
 
 permissions:
   contents: read
