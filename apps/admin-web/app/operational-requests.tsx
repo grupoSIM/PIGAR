@@ -166,7 +166,7 @@ export function OperationalRequests({
         </label>
         <button type="submit">Agregar técnico</button>
       </form>
-      <section aria-label="Técnicos internos">
+      <section id="technicians" aria-label="Técnicos internos">
         <h3>Técnicos internos</h3>
         {technicians.length === 0 ? (
           <p>No hay técnicos registrados.</p>
@@ -189,7 +189,7 @@ export function OperationalRequests({
       {items.length === 0 ? (
         <p>No hay solicitudes registradas en la bandeja.</p>
       ) : (
-        <ul className="admin-requests__list">
+        <ul id="requests" className="admin-requests__list">
           {items.map((item) => (
             <li key={item.id} className="admin-requests__card">
               <header className="admin-requests__card-header">
@@ -333,7 +333,11 @@ export function OperationalRequests({
           ))}
         </ul>
       )}
-      {actionMessage && <p role="status">{actionMessage}</p>}
+      {actionMessage && (
+        <p className="admin-requests__notice" role="status">
+          {actionMessage}
+        </p>
+      )}
     </div>
   );
 }

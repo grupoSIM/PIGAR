@@ -4,6 +4,10 @@ test("página principal carga y muestra PIGAR", async ({ page }) => {
   await page.goto("/");
   await expect(page).toHaveTitle(/PIGAR/i);
   await expect(page.getByRole("heading", { name: /PIGAR/i })).toBeVisible();
+  await expect(page.locator(".product-shell--customer")).toBeVisible();
+  await expect(page.locator(".customer-hero")).toBeVisible();
+  await expect(page.locator(".request-form")).toBeVisible();
+  await expect(page.locator(".request-form > button")).toHaveCSS("min-height", "48px");
 });
 
 test("CLIENT consulta estado e historial seguro de su orden", async ({ page }) => {

@@ -19,39 +19,39 @@ export default async function CustomerHome() {
 
   return (
     <ProductShell audience="clientes" title="Nueva solicitud de PIGAR">
-      <p>
-        <strong>Visita Simple — ARS 50.000 final</strong>
-      </p>
-      <p>
-        Incluye la visita, el diagnóstico y los arreglos que puedan completarse según lo informado.
-        Si el trabajo excede ese alcance, la visita se cobra y el resto requiere un presupuesto
-        posterior.
-      </p>
-      <p>
-        Para confirmar una solicitud, ingresá la descripción del problema, calle y número. Podés
-        sumar barrio y entrecalles; si el autocompletado no está disponible, el domicilio se
-        conserva tal como lo confirmes manualmente.
-      </p>
-      <p>
-        La solicitud queda lista para operar al adjuntar al menos una foto o un video MP4. Se
-        aceptan hasta cinco imágenes de 10 MB y un video de hasta 30 segundos o 50 MB.
-      </p>
-      <p>El importe se resuelve desde la oferta vigente y no se envía desde tu dispositivo.</p>
+      <section className="customer-hero" aria-label="Información de la visita">
+        <div>
+          <p className="customer-hero__badge">Visita Simple</p>
+          <p className="customer-hero__price">ARS 50.000 final</p>
+          <p>
+            Incluye la visita, el diagnóstico y los arreglos que puedan completarse según lo
+            informado. Si el trabajo excede ese alcance, te presentaremos un presupuesto.
+          </p>
+        </div>
+        <ul className="customer-hero__facts" aria-label="Qué necesitás para solicitar la visita">
+          <li>Contanos el problema</li>
+          <li>Confirmá el domicilio</li>
+          <li>Sumá una foto o video</li>
+        </ul>
+      </section>
       {session ? (
         <>
-          <p>
+          <p className="session-action">
             <a href={logoutHref}>Cerrar sesión</a>
           </p>
           <CustomerRequests />
           <RequestForm mapsApiKey={process.env["PIGAR_G" + "OOGLE_BROWSER_KEY"]} />
         </>
       ) : (
-        <>
-          <p>Para crear una solicitud o adjuntar evidencia, primero necesitás ingresar.</p>
+        <section className="auth-card" aria-label="Acceso al portal">
+          <h2>¿Ya tenés una solicitud?</h2>
           <p>
-            <a href="/auth/login/email">Ingresar con código por email</a>
+            Ingresá con el código que te enviamos por email para crear o seguir tus solicitudes.
           </p>
-        </>
+          <a className="button button--primary" href="/auth/login/email">
+            Ingresar con código por email
+          </a>
+        </section>
       )}
     </ProductShell>
   );

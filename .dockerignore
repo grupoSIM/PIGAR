@@ -4,6 +4,7 @@
 .pnpm-store
 .turbo
 node_modules
+**/node_modules
 apps/*/dist
 apps/*/.next
 apps/api/src/generated

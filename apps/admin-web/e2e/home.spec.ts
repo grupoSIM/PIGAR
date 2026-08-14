@@ -4,6 +4,14 @@ test("página principal de admin carga y muestra PIGAR", async ({ page }) => {
   await page.goto("/admin");
   await expect(page).toHaveTitle(/PIGAR/i);
   await expect(page.getByRole("heading", { name: /Bandeja operativa/i })).toBeVisible();
+  await expect(page.locator(".product-shell--admin")).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Navegación administrativa" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Bandeja operativa" })).toBeVisible();
+  await page.setViewportSize({ width: 768, height: 1024 });
+  await expect(page.getByRole("navigation", { name: "Navegación administrativa" })).toBeHidden();
+  await page.getByRole("button", { name: "Abrir navegación" }).click();
+  await expect(page.getByRole("link", { name: "Técnicos" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Solicitudes" })).toBeVisible();
 });
 
 test("ADMIN asigna y actualiza un hito de una orden", async ({ page }) => {

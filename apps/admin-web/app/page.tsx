@@ -16,25 +16,30 @@ export default async function AdminHome() {
 
   return (
     <ProductShell audience="administración" title="Bandeja operativa de PIGAR">
-      <p>
-        ADMIN y DISPATCHER pueden consultar las solicitudes, su domicilio confirmado y los adjuntos
-        privados sólo por necesidad operativa. Cada consulta queda auditada sin incluir dirección,
-        coordenadas ni nombres de archivos.
-      </p>
-      <p>
-        La oferta inicial es Visita Simple por ARS 50.000 final y queda congelada al crear cada
-        solicitud. Esta bandeja no asigna técnicos ni muestra tracking.
-      </p>
-      {!session ? (
+      <section className="admin-intro">
         <p>
-          <a href="/admin/login">Iniciar sesión</a>
+          ADMIN y DISPATCHER pueden consultar las solicitudes, su domicilio confirmado y los
+          adjuntos privados sólo por necesidad operativa. Cada consulta queda auditada sin incluir
+          dirección, coordenadas ni nombres de archivos.
         </p>
+        <p>
+          La oferta inicial es Visita Simple por ARS 50.000 final y queda congelada al crear cada
+          solicitud. Desde esta bandeja podés asignar técnicos e informar hitos; no incluye tracking.
+        </p>
+      </section>
+      {!session ? (
+        <section className="auth-card" aria-label="Acceso administrativo">
+          <h2>Acceso interno</h2>
+          <p>Ingresá con tu cuenta administrativa y el segundo factor configurado.</p>
+          <a className="button button--primary" href="/admin/login">
+            Iniciar sesión
+          </a>
+        </section>
       ) : (
         <>
-          <p>
+          <p className="session-action">
             <a href={logoutHref}>Cerrar sesión</a>
           </p>
-          <hr />
           <OperationalRequests
             mediaDeliveryOrigin={process.env.PIGAR_MEDIA_DELIVERY_ORIGIN ?? ""}
           />
