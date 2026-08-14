@@ -52,14 +52,23 @@ export function CustomerRequests() {
         </button>
       </div>
       {message && (
-        <p role="status">
+        <p className="customer-requests__message" role="status">
           {message}{" "}
           {message.includes("autorizar") && (
             <a href="/auth/logout?returnTo=/">Ingresar nuevamente</a>
           )}
         </p>
       )}
-      {!loading && !message && items.length === 0 && <p>Aún no registraste solicitudes.</p>}
+      {loading && (
+        <p className="customer-requests__state" role="status">
+          Cargando tus solicitudes…
+        </p>
+      )}
+      {!loading && !message && items.length === 0 && (
+        <p className="customer-requests__state">
+          Aún no registraste solicitudes. Cuando crees una, vas a verla acá.
+        </p>
+      )}
       <ul className="customer-requests__list">
         {items.map((item) => (
           <li key={item.id}>

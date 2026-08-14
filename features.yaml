@@ -41,6 +41,13 @@ features:
     priority: must
     depends_on: [feat-004]
 
+  - id: feat-013
+    name: Sistema visual y experiencia operativa inicial
+    status: publication_review
+    priority: should
+    depends_on: [feat-002, feat-004, feat-005]
+    note: Adopta como referencia los paquetes Stitch ya validados; normaliza componentes y pantallas existentes sin modificar reglas de negocio ni incluir pantallas de pagos, presupuestos, operarios, KPIs o notificaciones.
+
   - id: feat-006
     name: Flujo móvil del operario para viaje, arribo y diagnóstico
     status: proposed

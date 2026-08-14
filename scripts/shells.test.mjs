@@ -26,6 +26,13 @@ test("los shells declaran idioma, región principal y foco visible", async () =>
   assert.match(ui, /<main/);
   assert.match(ui, /aria-labelledby="page-title"/);
   assert.match(ui, /<h1 id="page-title">/);
+  assert.match(customerCss, /@font-face/);
+  assert.match(adminCss, /@font-face/);
+  assert.match(customerCss, /min-height: 48px/);
+  assert.match(ui, /product-shell__sidebar/);
+  assert.match(ui, /Abrir navegación/);
+  assert.match(ui, /aria-controls="admin-navigation"/);
+  assert.match(adminCss, /product-shell__nav--open/);
 });
 
 test("cada shell comunica PIGAR y preserva el alcance del MVP", async () => {

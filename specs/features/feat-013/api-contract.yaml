@@ -1,0 +1,8 @@
+openapi: 3.1.0
+info:
+  title: PIGAR Visual System
+  version: 1.0.0-draft
+  description: >-
+    feat-013 no agrega ni modifica endpoints. Conserva los contratos de
+    feat-002, feat-004 y feat-005; sólo cambia la presentación autorizada.
+paths: {}

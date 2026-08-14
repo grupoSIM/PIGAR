@@ -1,7 +1,7 @@
 project: PIGAR
-active_feature: feat-005
-phase: done
-updated_at: 2026-08-14T13:00:00-03:00
+active_feature: feat-013
+phase: publication_review
+updated_at: 2026-08-14T19:15:00-03:00
 
 blockers: []
 
@@ -53,21 +53,28 @@ approvals:
   specification:
     status: approved
     approved_by: usuario
-    approved_at: 2026-08-14T00:00:00-03:00
-    note: Plan de implementación de feat-005 aprobado por el usuario.
-    approved_by: usuario
-    approved_at: 2026-08-03T00:00:00-03:00
+    approved_at: 2026-08-14T17:15:00-03:00
+    note: El usuario aprobó la especificación de feat-013 y autorizó completar la implementación local; publicación y despliegue siguen requiriendo autorización separada.
   verification:
     status: approved
   publication:
     status: approved
     approved_by: usuario
-    approved_at: 2026-08-04T15:30:00-03:00
+    approved_at: 2026-08-14T19:00:00-03:00
+    note: El usuario aprobó la UAT inicial de feat-013 y autorizó integrar en staging, hacer push y generar imágenes exclusivamente desde staging.
 
 quality:
   status: passed
 
 notes:
+  - Revisión independiente final de feat-013 aprobada el 2026-08-14: tareas, cinco criterios, UAT inicial, seguridad 39/39, E2E y política CI verificadas. La feature entra en `publication_review`; el usuario autorizó commit, integración en `staging` y push para generar imágenes de staging.
+  - El usuario aprobó la implementación inicial de feat-013 el 2026-08-14: la siguiente iteración visual deberá separar las secciones conforme a Stitch. Autorizó integrar en `staging`, publicar el cambio y limitar calidad remota a `main`/`staging`, con imágenes sólo desde `staging`.
+  - `pnpm test:security` de feat-013 superó 39/39 el 2026-08-14 después de reconstruir los enlaces `node_modules` desde el lockfile y limpiar dos entornos Compose temporales huérfanos que ocupaban el puerto aislado 18088. Persiste únicamente la UAT humana visual/accesible antes de publication_review.
+  - La revisión independiente de feat-013 no habilitó publication_review el 2026-08-14: falta ejecutar `pnpm test:security` en un entorno reproducible sin acceso privilegiado al daemon Docker y registrar UAT humana visual/accesible en staging. La UI y el drawer tablet fueron corregidos y sus E2E superaron.
+  - Implementación local de feat-013 completada el 2026-08-14: shell visual CLIENT/ADMIN, fuentes locales con licencia OFL, estados accesibles y pruebas E2E de ambos portales verificadas. Las imágenes se reconstruyeron sin caché y el entorno local quedó saludable en los puertos canónicos 3000, 3002 y 8088. Falta revisión independiente y autorización de publicación; no se realizó commit, push ni despliegue.
+  - El usuario aprobó la especificación de feat-013 el 2026-08-14 y solicitó completar la feature y dejar el entorno local disponible para pruebas manuales. Se habilita implementación local, no commit, push ni despliegue.
+  - Alcance y decisiones de discovery de feat-013 confirmados por el usuario el 2026-08-14. La especificación se preparó para revisión; no existe todavía aprobación para implementar, publicar ni desplegar.
+  - feat-013 iniciada en discovery por instrucción del usuario el 2026-08-14. Su objetivo es adoptar el sistema visual de los paquetes Stitch ya revisados en los flujos existentes de CLIENT y ADMIN, sin alterar reglas de negocio, datos, permisos, proveedores ni despliegues. Requiere especificación y aprobación humana antes de modificar código.
   - Staging de feat-005 actualizado y validado manualmente por el usuario el 2026-08-14 con las imágenes del SHA `fbc681617dc3a90b2e7d7b67d8bc6eb1707f36fc`. No se desplegó producción.
   - feat-005 cerrada por autorización de publicación del usuario el 2026-08-14. Se publica en la rama `codex/feat-005-operational-orders`; su único propósito es la integración aprobada y deberá retirarse tras integrar el commit en la rama objetivo.
   - Re-verificación y revisión independiente de feat-005 superadas el 2026-08-14 tras los hotfixes locales. La feature vuelve a publication_review; no existe autorización específica de commit, push, PR ni despliegue.
