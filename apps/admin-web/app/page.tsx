@@ -24,7 +24,8 @@ export default async function AdminHome() {
         </p>
         <p>
           La oferta inicial es Visita Simple por ARS 50.000 final y queda congelada al crear cada
-          solicitud. Desde esta bandeja podés asignar técnicos e informar hitos; no incluye tracking.
+          solicitud. Desde esta bandeja podés asignar técnicos e informar hitos; no incluye
+          tracking.
         </p>
       </section>
       {!session ? (

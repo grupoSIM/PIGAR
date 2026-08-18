@@ -43,10 +43,18 @@ export function ProductShell({ audience, title, children }: ProductShellProps) {
             >
               Bandeja operativa
             </a>
-            <a className="product-shell__nav-link" href="#technicians" onClick={() => setIsNavigationOpen(false)}>
+            <a
+              className="product-shell__nav-link"
+              href="#technicians"
+              onClick={() => setIsNavigationOpen(false)}
+            >
               Técnicos
             </a>
-            <a className="product-shell__nav-link" href="#requests" onClick={() => setIsNavigationOpen(false)}>
+            <a
+              className="product-shell__nav-link"
+              href="#requests"
+              onClick={() => setIsNavigationOpen(false)}
+            >
               Solicitudes
             </a>
           </nav>

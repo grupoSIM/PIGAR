@@ -1,6 +1,6 @@
 # Requisitos — feat-013: Sistema visual y experiencia operativa inicial
 
-- Estado: `publication_review`.
+- Estado: `done`.
 - Dependencias: feat-002, feat-004 y feat-005 cerradas e integradas en `main`.
 - Referencia visual: `docs/design-review-stitch.md` y los ZIP de `stitch/`.
 

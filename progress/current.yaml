@@ -1,7 +1,7 @@
 project: PIGAR
 active_feature: feat-013
-phase: publication_review
-updated_at: 2026-08-14T19:15:00-03:00
+phase: done
+updated_at: 2026-08-14T19:45:00-03:00
 
 blockers: []
 
@@ -67,6 +67,7 @@ quality:
   status: passed
 
 notes:
+  - feat-013 se integró y publicó en `staging` el 2026-08-14. La calidad remota 31842824934 superó todas las categorías y las imágenes de staging se publicaron en la ejecución 31842824901. La siguiente iteración separará las secciones de pantalla conforme a Stitch.
   - Revisión independiente final de feat-013 aprobada el 2026-08-14: tareas, cinco criterios, UAT inicial, seguridad 39/39, E2E y política CI verificadas. La feature entra en `publication_review`; el usuario autorizó commit, integración en `staging` y push para generar imágenes de staging.
   - El usuario aprobó la implementación inicial de feat-013 el 2026-08-14: la siguiente iteración visual deberá separar las secciones conforme a Stitch. Autorizó integrar en `staging`, publicar el cambio y limitar calidad remota a `main`/`staging`, con imágenes sólo desde `staging`.
   - `pnpm test:security` de feat-013 superó 39/39 el 2026-08-14 después de reconstruir los enlaces `node_modules` desde el lockfile y limpiar dos entornos Compose temporales huérfanos que ocupaban el puerto aislado 18088. Persiste únicamente la UAT humana visual/accesible antes de publication_review.
