@@ -9,6 +9,7 @@ type CustomerRequest = {
   offer: { category: string; currency: string; price: string };
   order: {
     state: string;
+    version: number;
     updatedAt: string;
     technician: { fullName: string } | null;
     history: Array<{ action: string; toState: string; occurredAt: string }>;
@@ -19,6 +20,42 @@ export function CustomerRequests() {
   const [items, setItems] = useState<CustomerRequest[]>([]);
   const [message, setMessage] = useState<string>();
   const [loading, setLoading] = useState(true);
+
+  async function pay(item: CustomerRequest) {
+    if (!item.order) return;
+    setMessage("Estamos preparando el checkout seguro…");
+    const response = await fetch(`/api/requests/${item.id}/payment-attempts`, {
+      method: "POST",
+      headers: { "content-type": "application/json", "idempotency-key": crypto.randomUUID() },
+      body: JSON.stringify({ expectedOrderVersion: item.order.version }),
+    });
+    if (!response.ok)
+      return setMessage(
+        "No pudimos iniciar el pago. Verificaremos el estado antes de permitir otro intento.",
+      );
+    const payload = (await response.json()) as { checkoutUrl?: string };
+    if (!payload.checkoutUrl?.startsWith("https://"))
+      return setMessage("Estamos verificando el pago. No se generó un enlace seguro disponible.");
+    window.location.assign(payload.checkoutUrl);
+  }
+  async function conform(item: CustomerRequest) {
+    if (!item.order) return;
+    const response = await fetch(`/api/requests/${item.id}/conformity`, {
+      method: "POST",
+      headers: { "content-type": "application/json", "idempotency-key": crypto.randomUUID() },
+      body: JSON.stringify({
+        expectedOrderVersion: item.order.version,
+        textVersion: "v1",
+        accepted: true,
+      }),
+    });
+    if (!response.ok)
+      return setMessage(
+        "Todavía no podemos registrar tu conformidad. Actualizá el estado del pago.",
+      );
+    setMessage("Tu conformidad fue registrada.");
+    await load();
+  }
 
   async function load() {
     setLoading(true);
@@ -86,6 +123,16 @@ export function CustomerRequests() {
                   </li>
                 ))}
               </ul>
+            )}
+            {item.order?.state === "PENDIENTE_PAGO" && (
+              <button type="button" onClick={() => void pay(item)}>
+                Pagar
+              </button>
+            )}
+            {item.order?.state === "PENDIENTE_CONFORMIDAD" && (
+              <button type="button" onClick={() => void conform(item)}>
+                Confirmar conformidad
+              </button>
             )}
           </li>
         ))}

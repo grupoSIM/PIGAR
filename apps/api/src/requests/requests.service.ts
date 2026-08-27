@@ -134,6 +134,7 @@ export class RequestsService {
         order: item.workOrder
           ? {
               state: item.workOrder.state,
+              version: item.workOrder.version,
               updatedAt: item.workOrder.updatedAt.toISOString(),
               technician: item.workOrder.technician
                 ? { fullName: item.workOrder.technician.fullName }

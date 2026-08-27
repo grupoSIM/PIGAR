@@ -1,0 +1,297 @@
+openapi: 3.1.0
+info:
+  title: PIGAR Resolution, Billing and Conformity API
+  version: 1.0.0-draft
+  description: >-
+    Contrato propuesto de feat-007. El retorno del navegador no confirma pagos y
+    no existe endpoint humano para aprobarlos.
+servers:
+  - url: /api
+paths:
+  /v1/admin/orders/{orderId}/resolution:
+    post:
+      summary: Registra resolución y crea idempotentemente el cargo congelado
+      operationId: createResolutionAndCharge
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: "#/components/parameters/OrderId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateResolutionRequest" }
+      responses:
+        "201":
+          description: Resolución/cargo creados y orden PENDIENTE_PAGO
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BillingView" }
+        "200": { description: Reintento idempotente idéntico }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
+
+  /v1/admin/orders/{orderId}/billing:
+    get:
+      summary: Proyección operativa mínima de resolución, cargo y conciliación
+      operationId: getAdminBilling
+      security: [{ bearerAuth: [] }]
+      parameters: [{ $ref: "#/components/parameters/OrderId" }]
+      responses:
+        "200":
+          description: Vista ADMIN/DISPATCHER sin secretos ni payload proveedor
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BillingView" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /v1/requests/{requestId}/billing:
+    get:
+      summary: Proyección segura del cargo propio
+      operationId: getOwnBilling
+      security: [{ bearerAuth: [] }]
+      parameters: [{ $ref: "#/components/parameters/RequestId" }]
+      responses:
+        "200":
+          description: Vista del CLIENT propietario
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BillingView" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /v1/requests/{requestId}/payment-attempts:
+    post:
+      summary: Crea o reutiliza el único intento activo del CLIENT propietario
+      operationId: startOwnPaymentAttempt
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: "#/components/parameters/RequestId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [expectedOrderVersion]
+              properties:
+                expectedOrderVersion: { type: integer, minimum: 1 }
+      responses:
+        "200":
+          description: Intento activo reutilizado
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CheckoutStart" }
+        "201":
+          description: Intento y preferencia creados
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CheckoutStart" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "503": { $ref: "#/components/responses/ProviderUnavailable" }
+
+  /v1/requests/{requestId}/conformity:
+    post:
+      summary: Registra conformidad explícita del CLIENT propietario
+      operationId: confirmOwnConformity
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: "#/components/parameters/RequestId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [expectedOrderVersion, textVersion, accepted]
+              properties:
+                expectedOrderVersion: { type: integer, minimum: 1 }
+                textVersion: { type: string, pattern: "^v[1-9][0-9]*$" }
+                accepted: { const: true }
+      responses:
+        "200": { description: Reintento idempotente; orden ya cerrada por la misma evidencia }
+        "201":
+          description: Evidencia creada y orden CERRADA
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ConformityView" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
+
+  /v1/webhooks/mercado-pago:
+    post:
+      summary: Recibe Webhooks payment firmados de Mercado Pago
+      operationId: receiveMercadoPagoWebhook
+      security: []
+      parameters:
+        - name: x-signature
+          in: header
+          required: true
+          schema: { type: string, maxLength: 512 }
+        - name: x-request-id
+          in: header
+          required: true
+          schema: { type: string, minLength: 1, maxLength: 200 }
+        - name: data.id
+          in: query
+          required: true
+          schema: { type: string, pattern: "^[A-Za-z0-9_-]{1,100}$" }
+        - name: type
+          in: query
+          required: true
+          schema: { const: payment }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/MercadoPagoWebhookEnvelope" }
+      responses:
+        "200": { description: Recibo persistido o duplicado reconocido }
+        "202": { description: Recibo persistido y encolado }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { description: Firma ausente, inválida o expirada }
+        "413": { description: Cuerpo excede el límite }
+        "429": { $ref: "#/components/responses/TooManyRequests" }
+        "503": { description: No pudo persistirse el recibo; el proveedor puede reintentar }
+
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
+  parameters:
+    OrderId:
+      name: orderId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    RequestId:
+      name: requestId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema: { type: string, minLength: 16, maxLength: 128 }
+  schemas:
+    CreateResolutionRequest:
+      type: object
+      additionalProperties: false
+      required: [outcome, summary, expectedOrderVersion]
+      properties:
+        outcome: { enum: [RESUELTO_EN_VISITA, REQUIERE_PRESUPUESTO] }
+        summary: { type: string, minLength: 1, maxLength: 500 }
+        expectedOrderVersion: { type: integer, minimum: 1 }
+    Money:
+      type: object
+      additionalProperties: false
+      required: [currency, amount]
+      properties:
+        currency: { const: ARS }
+        amount: { type: string, pattern: '^[0-9]+\.[0-9]{2}$' }
+    BillingView:
+      type: object
+      additionalProperties: false
+      required: [requestId, orderState, orderVersion, resolution, charge, payment]
+      properties:
+        requestId: { type: string, format: uuid }
+        orderState: { enum: [PENDIENTE_PAGO, PENDIENTE_CONFORMIDAD, CERRADA] }
+        orderVersion: { type: integer, minimum: 1 }
+        resolution:
+          type: object
+          additionalProperties: false
+          required: [outcome, summary, createdAt]
+          properties:
+            outcome: { enum: [RESUELTO_EN_VISITA, REQUIERE_PRESUPUESTO] }
+            summary: { type: string }
+            createdAt: { type: string, format: date-time }
+        charge:
+          type: object
+          additionalProperties: false
+          required: [categoryName, offerVersion, money]
+          properties:
+            categoryName: { type: string }
+            offerVersion: { type: integer, minimum: 1 }
+            money: { $ref: "#/components/schemas/Money" }
+        payment:
+          type: object
+          additionalProperties: false
+          required: [status, canStartOrResume]
+          properties:
+            status: { enum: [PENDIENTE, APROBADO, RECHAZADO, CANCELADO] }
+            canStartOrResume: { type: boolean }
+            lastCheckedAt: { type: [string, "null"], format: date-time }
+            reconciliationAlert: { type: boolean, default: false }
+        conformity: { oneOf: [{ $ref: "#/components/schemas/ConformityView" }, { type: "null" }] }
+    CheckoutStart:
+      type: object
+      additionalProperties: false
+      required: [attemptId, status, checkoutUrl, reused]
+      properties:
+        attemptId: { type: string, format: uuid }
+        status: { enum: [CREATED, PENDING] }
+        checkoutUrl: { type: string, format: uri, pattern: "^https://" }
+        reused: { type: boolean }
+    ConformityView:
+      type: object
+      additionalProperties: false
+      required: [textVersion, acceptedAt, orderState]
+      properties:
+        textVersion: { type: string }
+        acceptedAt: { type: string, format: date-time }
+        orderState: { const: CERRADA }
+    MercadoPagoWebhookEnvelope:
+      type: object
+      additionalProperties: true
+      required: [action, api_version, data, date_created, id, live_mode, type]
+      properties:
+        action: { type: string, maxLength: 100 }
+        api_version: { type: string, maxLength: 20 }
+        data:
+          type: object
+          required: [id]
+          properties: { id: { type: string, maxLength: 100 } }
+        date_created: { type: string, format: date-time }
+        id: { oneOf: [{ type: string }, { type: integer }] }
+        live_mode: { type: boolean }
+        type: { const: payment }
+    Problem:
+      type: object
+      required: [type, title, status]
+      properties:
+        type: { type: string, format: uri-reference }
+        title: { type: string }
+        status: { type: integer }
+        code: { type: string }
+        requestId: { type: string }
+  responses:
+    BadRequest:
+      {
+        description: Entrada inválida,
+        content: { application/problem+json: { schema: { $ref: "#/components/schemas/Problem" } } },
+      }
+    Unauthorized: { description: Autenticación requerida o inválida }
+    Forbidden: { description: Rol sin permiso }
+    NotFound: { description: Recurso inexistente o no accesible }
+    Conflict:
+      {
+        description: Estado,
+        versión,
+        unicidad o idempotencia en conflicto,
+        content: { application/problem+json: { schema: { $ref: "#/components/schemas/Problem" } } },
+      }
+    TooManyRequests: { description: Límite excedido; puede incluir Retry-After }
+    ProviderUnavailable: { description: Resultado proveedor incierto; no se creó otro intento }

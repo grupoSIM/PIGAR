@@ -33,3 +33,10 @@ La migración `20260814090000_operational_orders` es aditiva: crea técnicos,
 defecto es otra migración aditiva; no se eliminan órdenes, transiciones ni
 técnicos históricos. Una restauración exige un backup verificado y aprobación
 de producción.
+
+Las migraciones de feat-007 son igualmente forward-only. La primera incorpora
+resolución, cargo, intentos, conformidad y transiciones de pago; la migración
+`20260827100000_feat_007_payment_attempt_hardening` agrega la protección parcial
+de PostgreSQL que impide más de un intento activo por cargo. Un rollback de
+aplicación debe seguir tolerando tablas y estados nuevos; una corrección se hace
+con otra migración aditiva, sin borrar evidencia comercial.

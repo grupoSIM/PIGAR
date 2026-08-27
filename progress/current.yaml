@@ -1,9 +1,10 @@
 project: PIGAR
-active_feature: feat-013
-phase: done
-updated_at: 2026-08-14T19:45:00-03:00
+active_feature: feat-007
+phase: implementation
+updated_at: 2026-08-27T00:00:00-03:00
 
-blockers: []
+blockers:
+  - TEST-007-014 y AC-007-016 deben completarse en staging no productivo antes de cerrar la verificación de feat-007. Una persona autorizada debe configurar la URL HTTPS de Webhooks y los secretos sólo en el mecanismo seguro del ambiente; luego deben verificarse preferencia, retorno no autoritativo, firma vigente, consulta autoritativa, aprobado, pendiente, rechazado, duplicado/fuera de orden y conciliación.
 
 architecture_conditions:
   before_specification_approval:
@@ -46,27 +47,28 @@ decisions:
 
 approvals:
   architecture:
-    status: approved
+    status: approved_with_conditions
     approved_by: usuario
-    approved_at: 2026-08-03T00:00:00-03:00
-    note: El usuario autorizó UAT de staging para testers autenticados con datos necesarios, incluidos domicilio y geolocalización. Cifrado en reposo, retención legal, backup externo, capacidad productiva y validación comercial de Google quedan como bloqueantes antes de producción, no de specification ni staging.
+    approved_at: 2026-08-17T00:00:00-03:00
+    note: El usuario aprobó DEC-007-001 a DEC-007-008 y la revisión focalizada de dinero, proveedor y conformidad. Se habilita specification, no implementación ni credenciales/cobros reales.
   specification:
     status: approved
     approved_by: usuario
-    approved_at: 2026-08-14T17:15:00-03:00
-    note: El usuario aprobó la especificación de feat-013 y autorizó completar la implementación local; publicación y despliegue siguen requiriendo autorización separada.
+    approved_at: 2026-08-27T00:00:00-03:00
+    note: El usuario aprobó explícitamente la especificación y autorizó implementar sólo feat-007 en ambiente no productivo. TEST-007-014/AC-007-016 se mantienen bloqueados hasta contar con endpoint HTTPS compatible y ejecutar la validación real; no se autorizan producción, secretos en Git, cobros reales, commit, push, PR ni despliegue.
   verification:
-    status: approved
+    status: pending
   publication:
-    status: approved
-    approved_by: usuario
-    approved_at: 2026-08-14T19:00:00-03:00
-    note: El usuario aprobó la UAT inicial de feat-013 y autorizó integrar en staging, hacer push y generar imágenes exclusivamente desde staging.
+    status: pending
 
 quality:
-  status: passed
+  status: not_run
 
 notes:
+  - El usuario aprobó explícitamente la especificación de feat-007 el 2026-08-27 y autorizó implementar sólo el alcance no productivo. Las cuentas de prueba vendedor/comprador ya existen; TEST-007-014 y AC-007-016 permanecen bloqueados hasta implementar un endpoint HTTPS compatible, configurar secretos sólo fuera del repositorio y observar los escenarios oficiales. No se autorizan producción, cobros reales, commit, push, PR ni despliegue.
+  - Especificación de feat-007 preparada el 2026-08-17 con requisitos, diseño, contrato HTTP, aceptación, tareas, plan de pruebas y evidencia inicial. La feature pasa a spec_review; TEST-007-014 y AC-007-016 quedan pendientes de acceso humano a una aplicación/cuentas no productivas de Mercado Pago. No se autoriza implementación, credenciales, cobros, commit, push, PR ni despliegue.
+  - El usuario aprobó el 2026-08-17 las ocho decisiones de discovery y la revisión arquitectónica condicionada de feat-007. La feature pasa a specification; debe validar Mercado Pago con cuentas no productivas y luego detenerse en spec_review. No se autoriza implementación, credenciales reales, cobros, commit, push ni despliegue.
+  - feat-007 iniciada en discovery por instrucción del usuario el 2026-08-17. Se propone completar el camino de Visita Simple desde TRABAJO_FINALIZADO hasta pago confirmado y conformidad, usando la oferta congelada y Mercado Pago Checkout Pro. La revisión arquitectónica focalizada y ocho decisiones quedan pendientes; no se autoriza código, credenciales, cobros, publicación ni despliegue.
   - feat-013 se integró y publicó en `staging` el 2026-08-14. La calidad remota 31842824934 superó todas las categorías y las imágenes de staging se publicaron en la ejecución 31842824901. La siguiente iteración separará las secciones de pantalla conforme a Stitch.
   - Revisión independiente final de feat-013 aprobada el 2026-08-14: tareas, cinco criterios, UAT inicial, seguridad 39/39, E2E y política CI verificadas. La feature entra en `publication_review`; el usuario autorizó commit, integración en `staging` y push para generar imágenes de staging.
   - El usuario aprobó la implementación inicial de feat-013 el 2026-08-14: la siguiente iteración visual deberá separar las secciones conforme a Stitch. Autorizó integrar en `staging`, publicar el cambio y limitar calidad remota a `main`/`staging`, con imágenes sólo desde `staging`.

@@ -99,6 +99,26 @@ export function OperationalRequests({
     setActionMessage("Hito operativo actualizado.");
   }
 
+  async function resolve(order: Order) {
+    const summary = window.prompt("Resumen visible para el cliente (sin datos sensibles)");
+    if (!summary?.trim()) return;
+    const response = await fetch(`/admin/api/operations/orders/${order.id}/resolution`, {
+      method: "POST",
+      headers: { "content-type": "application/json", "idempotency-key": crypto.randomUUID() },
+      body: JSON.stringify({
+        outcome: "RESUELTO_EN_VISITA",
+        summary: summary.trim(),
+        expectedOrderVersion: order.version,
+      }),
+    });
+    if (!response.ok) return setActionMessage("No se pudo registrar la resolución y el cargo.");
+    const updated = (await response.json()) as Order;
+    setOrders((current) =>
+      current.map((item) => (item.id === updated.id ? { ...item, ...updated } : item)),
+    );
+    setActionMessage("Resolución registrada. El cliente puede iniciar el pago.");
+  }
+
   async function createTechnician(formData: FormData) {
     const response = await fetch("/admin/api/operations/technicians", {
       method: "POST",
@@ -284,6 +304,11 @@ export function OperationalRequests({
                       {order.state === "EN_ATENCION" && (
                         <button type="button" onClick={() => void transition(order, "FINISH_WORK")}>
                           Finalizar trabajo
+                        </button>
+                      )}
+                      {order.state === "TRABAJO_FINALIZADO" && (
+                        <button type="button" onClick={() => void resolve(order)}>
+                          Registrar resolución y cargo
                         </button>
                       )}
                       {order.state === "TECNICO_ASIGNADO" && (

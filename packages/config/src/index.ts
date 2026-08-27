@@ -16,6 +16,15 @@ export type ApiConfiguration = {
   host: string;
   mediaRoot?: string;
   port: number;
+  mercadoPago?: MercadoPagoConfiguration;
+};
+
+export type MercadoPagoConfiguration = {
+  accessToken: string;
+  webhookSecret: string;
+  returnBaseUrl: string;
+  checkoutHosts: string[];
+  requestTimeoutMs: number;
 };
 
 export type Auth0Configuration = {
@@ -43,6 +52,18 @@ export function loadApiConfiguration(environment: EnvironmentVariables): ApiConf
   const auth0ManagementClientId = optionalValue(environment.AUTH0_MANAGEMENT_CLIENT_ID);
   const auth0ManagementClientSecret = optionalValue(environment.AUTH0_MANAGEMENT_CLIENT_SECRET);
   const auth0InternalConnection = optionalValue(environment.AUTH0_INTERNAL_CONNECTION);
+  const mercadoPagoAccessToken = optionalValue(environment.MERCADO_PAGO_ACCESS_TOKEN);
+  const mercadoPagoWebhookSecret = optionalValue(environment.MERCADO_PAGO_WEBHOOK_SECRET);
+  const mercadoPagoReturnBaseUrl = optionalValue(environment.PIGAR_PAYMENT_RETURN_BASE_URL);
+  const mercadoPagoCheckoutHosts = readHosts(
+    environment.MERCADO_PAGO_CHECKOUT_HOSTS ?? "www.mercadopago.com.ar,www.mercadopago.com",
+  );
+  const mercadoPagoRequestTimeoutMs = readInteger(
+    environment.MERCADO_PAGO_REQUEST_TIMEOUT_MS ?? "10000",
+    "MERCADO_PAGO_REQUEST_TIMEOUT_MS",
+    1,
+    10_000,
+  );
 
   if (!/^[a-zA-Z0-9.-]+$/.test(host)) throw new ConfigurationError("CONFIG_INVALID", "HOST");
   if (runtimeEnvironment === "production") {
@@ -62,6 +83,19 @@ export function loadApiConfiguration(environment: EnvironmentVariables): ApiConf
       auth0Issuer ? "AUTH0_AUDIENCE" : "AUTH0_ISSUER",
     );
   }
+  if (
+    (mercadoPagoAccessToken && (!mercadoPagoWebhookSecret || !mercadoPagoReturnBaseUrl)) ||
+    (!mercadoPagoAccessToken && (mercadoPagoWebhookSecret || mercadoPagoReturnBaseUrl))
+  ) {
+    throw new ConfigurationError(
+      "CONFIG_REQUIRED",
+      mercadoPagoAccessToken
+        ? !mercadoPagoWebhookSecret
+          ? "MERCADO_PAGO_WEBHOOK_SECRET"
+          : "PIGAR_PAYMENT_RETURN_BASE_URL"
+        : "MERCADO_PAGO_ACCESS_TOKEN",
+    );
+  }
 
   const auth0 =
     auth0Issuer && auth0Audience
@@ -74,14 +108,40 @@ export function loadApiConfiguration(environment: EnvironmentVariables): ApiConf
           auth0InternalConnection,
         )
       : undefined;
+  if (
+    mercadoPagoReturnBaseUrl &&
+    !/^https:\/\/[^/?#]+(?:\/[^?#]*)?$/.test(mercadoPagoReturnBaseUrl)
+  )
+    throw new ConfigurationError("CONFIG_INVALID", "PIGAR_PAYMENT_RETURN_BASE_URL");
+  const mercadoPago =
+    mercadoPagoAccessToken && mercadoPagoWebhookSecret && mercadoPagoReturnBaseUrl
+      ? {
+          accessToken: mercadoPagoAccessToken,
+          webhookSecret: mercadoPagoWebhookSecret,
+          returnBaseUrl: mercadoPagoReturnBaseUrl.replace(/\/$/, ""),
+          checkoutHosts: mercadoPagoCheckoutHosts,
+          requestTimeoutMs: mercadoPagoRequestTimeoutMs,
+        }
+      : undefined;
 
   return {
     environment: runtimeEnvironment,
     host,
     ...(mediaRoot ? { mediaRoot } : {}),
     ...(auth0 ? { auth0 } : {}),
+    ...(mercadoPago ? { mercadoPago } : {}),
     port,
   };
+}
+
+function readHosts(value: string): string[] {
+  const hosts = value
+    .split(",")
+    .map((host) => host.trim().toLowerCase())
+    .filter(Boolean);
+  if (!hosts.length || hosts.some((host) => !/^[a-z0-9.-]+$/.test(host)))
+    throw new ConfigurationError("CONFIG_INVALID", "MERCADO_PAGO_CHECKOUT_HOSTS");
+  return [...new Set(hosts)];
 }
 
 function validateAuth0(

@@ -1,7 +1,8 @@
 import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 
-const [suite, ...arguments_] = process.argv.slice(2);
+const [suite, ...providedArguments] = process.argv.slice(2);
+const arguments_ = providedArguments[0] === "--" ? providedArguments.slice(1) : providedArguments;
 const grepIndex = arguments_.indexOf("--grep");
 const grep = grepIndex === -1 ? undefined : arguments_[grepIndex + 1];
 
@@ -20,6 +21,7 @@ const suites = {
     "scripts/catalog.test.mjs",
     "scripts/requests.test.mjs",
     "scripts/orders.test.mjs",
+    "scripts/billing.test.mjs",
   ],
   integration: [
     "scripts/api-health.test.mjs",
@@ -31,12 +33,14 @@ const suites = {
     "scripts/catalog.test.mjs",
     "scripts/requests.test.mjs",
     "scripts/orders.test.mjs",
+    "scripts/billing.test.mjs",
   ],
   e2e: [
     "scripts/e2e-technical.test.mjs",
     "scripts/identity-client.test.mjs",
     "scripts/requests.test.mjs",
     "scripts/orders.test.mjs",
+    "scripts/billing.test.mjs",
   ],
   security: [
     "scripts/media-poc.test.mjs",
@@ -49,6 +53,7 @@ const suites = {
     "scripts/e2e-technical.test.mjs",
     "scripts/requests.test.mjs",
     "scripts/orders.test.mjs",
+    "scripts/billing.test.mjs",
   ],
 };
 

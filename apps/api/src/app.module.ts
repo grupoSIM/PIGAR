@@ -14,6 +14,11 @@ import { RequestsController } from "./requests/requests.controller.js";
 import { RequestsService } from "./requests/requests.service.js";
 import { OrdersController } from "./orders/orders.controller.js";
 import { OrdersService } from "./orders/orders.service.js";
+import { BillingService, PAYMENT_PROVIDER } from "./billing/billing.service.js";
+import { MercadoPagoProvider } from "./billing/mercado-pago.provider.js";
+import { BillingController } from "./billing/billing.controller.js";
+import { MercadoPagoWebhookController } from "./billing/mercado-pago-webhook.controller.js";
+import { PaymentReconciliationRunner } from "./billing/payment-reconciliation.runner.js";
 
 @Module({
   controllers: [
@@ -24,6 +29,8 @@ import { OrdersService } from "./orders/orders.service.js";
     AdminCatalogController,
     RequestsController,
     OrdersController,
+    BillingController,
+    MercadoPagoWebhookController,
   ],
   providers: [
     DatabaseService,
@@ -35,6 +42,10 @@ import { OrdersService } from "./orders/orders.service.js";
     RequestMediaService,
     RequestsService,
     OrdersService,
+    BillingService,
+    MercadoPagoProvider,
+    PaymentReconciliationRunner,
+    { provide: PAYMENT_PROVIDER, useExisting: MercadoPagoProvider },
   ],
 })
 export class AppModule {}

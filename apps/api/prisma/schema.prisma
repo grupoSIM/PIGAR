@@ -73,7 +73,24 @@ enum WorkOrderState {
   EN_CAMINO
   EN_ATENCION
   TRABAJO_FINALIZADO
+  PENDIENTE_PAGO
+  PENDIENTE_CONFORMIDAD
+  CERRADA
   CANCELADA
+}
+
+enum PaymentAttemptState {
+  CREATED
+  UNKNOWN
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum ChargeResolutionOutcome {
+  RESUELTO_EN_VISITA
+  REQUIERE_PRESUPUESTO
 }
 
 model OutboxEvent {
@@ -149,6 +166,8 @@ model Profile {
   requests ServiceRequest[]
   orderTransitions WorkOrderTransition[]
   assignmentCommands AssignmentIdempotency[]
+  resolutionCommands ResolutionCommand[]
+  conformities Conformity[]
   @@index([role, status])
   @@map("profile")
 }
@@ -205,14 +224,82 @@ model WorkOrder {
   technician Technician? @relation(fields: [technicianId], references: [id], onDelete: Restrict)
   transitions WorkOrderTransition[]
   assignmentCommands AssignmentIdempotency[]
+  resolution Resolution?
+  charge Charge?
   @@index([state, updatedAt])
   @@map("work_order")
+}
+
+model Resolution {
+  id String @id @default(uuid()) @db.Uuid
+  workOrderId String @unique @db.Uuid
+  outcome ChargeResolutionOutcome
+  summary String @db.VarChar(500)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  workOrder WorkOrder @relation(fields: [workOrderId], references: [id], onDelete: Restrict)
+  command ResolutionCommand?
+  @@map("resolution")
+}
+
+model ResolutionCommand {
+  id String @id @default(uuid()) @db.Uuid
+  actorProfileId String @db.Uuid
+  idempotencyKey String @db.VarChar(160)
+  workOrderId String @db.Uuid
+  payloadHash String @db.Char(64)
+  resolutionId String? @unique @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  actor Profile @relation(fields: [actorProfileId], references: [id], onDelete: Restrict)
+  resolution Resolution? @relation(fields: [resolutionId], references: [id], onDelete: Restrict)
+  @@unique([actorProfileId, idempotencyKey])
+  @@map("resolution_command")
+}
+
+model Charge {
+  id String @id @default(uuid()) @db.Uuid
+  workOrderId String @unique @db.Uuid
+  categoryName String @db.VarChar(120)
+  offerVersion Int
+  currency String @db.Char(3)
+  amount Decimal @db.Decimal(12,2)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  workOrder WorkOrder @relation(fields: [workOrderId], references: [id], onDelete: Restrict)
+  attempts PaymentAttempt[]
+  conformity Conformity?
+  @@map("charge")
+}
+
+model PaymentAttempt {
+  id String @id @default(uuid()) @db.Uuid
+  chargeId String @db.Uuid
+  externalReference String @unique @db.VarChar(100)
+  checkoutUrl String? @db.VarChar(2048)
+  providerPaymentIdHash String? @db.Char(64)
+  state PaymentAttemptState @default(CREATED)
+  sequence Int
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  checkedAt DateTime? @db.Timestamptz(3)
+  charge Charge @relation(fields: [chargeId], references: [id], onDelete: Restrict)
+  @@unique([chargeId, sequence])
+  @@index([state, checkedAt])
+  @@map("payment_attempt")
+}
+
+model Conformity {
+  id String @id @default(uuid()) @db.Uuid
+  chargeId String @unique @db.Uuid
+  clientProfileId String @db.Uuid
+  textVersion String @db.VarChar(60)
+  acceptedAt DateTime @default(now()) @db.Timestamptz(3)
+  charge Charge @relation(fields: [chargeId], references: [id], onDelete: Restrict)
+  client Profile @relation(fields: [clientProfileId], references: [id], onDelete: Restrict)
+  @@map("conformity")
 }
 
 model WorkOrderTransition {
   id String @id @default(uuid()) @db.Uuid
   workOrderId String @db.Uuid
-  actorProfileId String @db.Uuid
+  actorProfileId String? @db.Uuid
   technicianId String? @db.Uuid
   action String @db.VarChar(60)
   fromState WorkOrderState
@@ -221,7 +308,7 @@ model WorkOrderTransition {
   version Int
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   workOrder WorkOrder @relation(fields: [workOrderId], references: [id], onDelete: Restrict)
-  actor Profile @relation(fields: [actorProfileId], references: [id], onDelete: Restrict)
+  actor Profile? @relation(fields: [actorProfileId], references: [id], onDelete: Restrict)
   technician Technician? @relation(fields: [technicianId], references: [id], onDelete: Restrict)
   @@unique([workOrderId, version])
   @@index([workOrderId, createdAt])
