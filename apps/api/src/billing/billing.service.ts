@@ -11,6 +11,7 @@ import { OrderTransitionAction } from "@pigar/contracts";
 import { correlationId } from "@pigar/observability";
 import { DatabaseService } from "../database.service.js";
 import type { AuthenticatedActor } from "../identity/identity.types.js";
+import { PaymentProviderFailure } from "./payment-provider.error.js";
 
 export type ResolutionInput = {
   outcome: "RESUELTO_EN_VISITA" | "REQUIERE_PRESUPUESTO";
@@ -241,7 +242,11 @@ export class BillingService {
         data: { checkoutUrl: preference.checkoutUrl },
       });
       return { ...this.checkoutView(attempt, !!active), checkoutUrl: preference.checkoutUrl };
-    } catch {
+    } catch (error) {
+      if (error instanceof PaymentProviderFailure && error.certainty === "not_created") {
+        await db.paymentAttempt.update({ where: { id: attempt.id }, data: { state: "CANCELLED" } });
+        throw new ServiceUnavailableException(error.safeCode);
+      }
       await db.paymentAttempt.update({ where: { id: attempt.id }, data: { state: "UNKNOWN" } });
       throw new ServiceUnavailableException("PREFERENCE_CREATION_UNCERTAIN");
     }

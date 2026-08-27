@@ -6,6 +6,7 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { BillingService } from "../apps/api/dist/billing/billing.service.js";
 import { validWebhookSignature } from "../apps/api/dist/billing/mercado-pago-webhook.controller.js";
+import { PaymentProviderFailure } from "../apps/api/dist/billing/payment-provider.error.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 async function source(file) {
@@ -182,6 +183,34 @@ test("[feat-007] una creación ambigua queda recuperable y no duplica preferenci
   await assert.rejects(service.startCheckout(actor, "request-1", 4));
   assert.equal(calls, 1);
   assert.equal(store.paymentAttempt.state(), "UNKNOWN");
+});
+
+test("[feat-007] un rechazo confirmado no bloquea un nuevo intento", async () => {
+  const store = checkoutStore();
+  let calls = 0;
+  const service = new BillingService(store, {
+    async createPreference() {
+      calls += 1;
+      if (calls === 1)
+        throw new PaymentProviderFailure("not_created", "PAYMENT_PROVIDER_REJECTED");
+      return { checkoutUrl: "https://sandbox.mercadopago.example/checkout" };
+    },
+    async getPayment() {
+      throw new Error("not used");
+    },
+    async searchPayments() {
+      return [];
+    },
+    async findPreference() {
+      return undefined;
+    },
+  });
+  const actor = { profileId: "client-1", role: "CLIENT", subject: "synthetic" };
+  await assert.rejects(service.startCheckout(actor, "request-1", 4));
+  assert.equal(store.paymentAttempt.state(), "CANCELLED");
+  const retry = await service.startCheckout(actor, "request-1", 4);
+  assert.equal(retry.reused, false);
+  assert.equal(calls, 2);
 });
 
 function checkoutStore() {

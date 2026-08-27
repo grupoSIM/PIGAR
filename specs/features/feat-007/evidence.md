@@ -68,11 +68,33 @@ las ediciones de feat-007 se limitaron a estado, bloqueo y nota.
 
 ## Verificación manual justificada
 
-TEST-007-014 permanece pendiente. No hubo acceso a una aplicación PIGAR de
-Mercado Pago, cuentas de prueba, Access Token ni secreto Webhook. La acción
-humana exacta y los datos que no deben registrarse están definidos en
-`test-plan.md`. Los resultados previos de la PoC con mock no sustituyen esta
-validación y no se inventan resultados de Sandbox.
+### Ejecución parcial en staging no productivo — 2026-08-27
+
+La aplicación, las cuentas de prueba y el endpoint HTTPS fueron configurados por
+el operador sin exponer credenciales. El inicio de Checkout Pro se intentó una
+vez contra staging; Mercado Pago no registró una preferencia asociada. Por lo
+tanto no hubo pago ni Webhook `payment` que validar, y TEST-007-014 continúa
+pendiente.
+
+| Fecha      | Ambiente             | Identificador PIGAR | Escenario                                              | HTTP/estado normalizado         | Resultado | Observación técnica                                                               |
+| ---------- | -------------------- | ------------------- | ------------------------------------------------------ | ------------------------------- | --------- | --------------------------------------------------------------------------------- |
+| 2026-08-27 | staging no productivo | req-…               | Creación de preferencia Checkout Pro                   | 503 / PREFERENCE_CREATION_UNCERTAIN | fail      | No se creó preferencia en Mercado Pago; no se reintentó para evitar duplicados. |
+
+Controles documentales y de implementación ejecutados localmente el
+2026-08-27:
+
+| Comando | Salida resumida |
+| ------- | --------------- |
+| `pnpm --filter api build` | correcto; Prisma Client generado y TypeScript compilado. |
+| `pnpm test:unit -- --grep feat-007` | correcto; 17 pruebas, 0 fallos. Incluye rechazo determinístico sin bloquear un nuevo intento. |
+| `pnpm lint` | correcto; ESLint sin errores. |
+
+TEST-007-014 permanece pendiente. Aunque el operador habilitó la aplicación,
+cuentas de prueba, endpoint HTTPS y configuración segura, la primera creación
+de preferencia falló antes de crear un recurso remoto. La acción humana y los
+datos que no deben registrarse están definidos en `test-plan.md`. Los
+resultados previos de la PoC con mock no sustituyen esta validación y no se
+inventan resultados de Sandbox.
 
 ### Evaluación de disponibilidad — 2026-08-27
 
@@ -104,16 +126,14 @@ el pago. La guía de compras de prueba publica los valores de prueba para
 aprobado, pendiente y rechazo, que sólo debe ingresar el operador en la UI
 oficial, nunca en esta evidencia.
 
-Acción humana necesaria antes de reanudar: una persona autorizada debe, desde
-Mercado Pago Developers, habilitar una aplicación y las cuentas no productivas
-del mismo país, configurar personalmente la URL HTTPS de staging para
-`payment`, y cargar Access Token y secreto Webhook sólo en el mecanismo seguro
-del ambiente. Además, debe existir un endpoint de staging compatible con el
-contrato de feat-007 y autorización separada para cualquier despliegue. No
-compartir credenciales, cookies, códigos, claves, URLs firmadas ni datos de
-cuenta en el chat o repositorio. Con esos prerrequisitos, el operador puede
-realizar en el navegador las compras de prueba y la validación podrá registrar
-sólo los resultados sanitizados permitidos.
+Acción humana necesaria antes de reanudar: tras desplegar el diagnóstico seguro
+correspondiente, una persona autorizada debe revisar personalmente que
+`MERCADO_PAGO_ACCESS_TOKEN` contiene sólo el Access Token de **prueba** de la
+aplicación (no la Public Key, ni el nombre de variable, ni comillas), y repetir
+un único inicio de Checkout desde staging. No compartir credenciales, cookies,
+códigos, claves, URLs firmadas ni datos de cuenta en el chat o repositorio.
+Según el resultado, el operador puede realizar en el navegador las compras de
+prueba y la validación registrará sólo los resultados sanitizados permitidos.
 
 Los resultados de `pnpm test:payment-poc` siguen siendo exclusivamente de mock
 contractual y no se presentan como evidencia de Mercado Pago.

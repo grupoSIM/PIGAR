@@ -1,6 +1,7 @@
 import { Injectable, ServiceUnavailableException } from "@nestjs/common";
 import { loadApiConfiguration } from "@pigar/config";
 import type { PaymentProvider, ProviderPayment } from "./billing.service.js";
+import { PaymentProviderFailure } from "./payment-provider.error.js";
 
 @Injectable()
 export class MercadoPagoProvider implements PaymentProvider {
@@ -18,7 +19,8 @@ export class MercadoPagoProvider implements PaymentProvider {
     amount: string;
     currency: "ARS";
   }) {
-    if (!this.returnBaseUrl) throw new ServiceUnavailableException("PAYMENT_PROVIDER_UNAVAILABLE");
+    if (!this.returnBaseUrl)
+      throw new PaymentProviderFailure("not_created", "PAYMENT_PROVIDER_UNAVAILABLE");
     const body = await this.request("/checkout/preferences", {
       method: "POST",
       body: JSON.stringify({
@@ -72,7 +74,8 @@ export class MercadoPagoProvider implements PaymentProvider {
     return { checkoutUrl: this.checkoutUrl(point) };
   }
   private async request(path: string, init?: RequestInit): Promise<unknown> {
-    if (!this.token) throw new ServiceUnavailableException("PAYMENT_PROVIDER_UNAVAILABLE");
+    if (!this.token)
+      throw new PaymentProviderFailure("not_created", "PAYMENT_PROVIDER_UNAVAILABLE");
     const response = await fetch(`${this.baseUrl}${path}`, {
       ...init,
       signal: AbortSignal.timeout(this.requestTimeoutMs),
@@ -82,7 +85,14 @@ export class MercadoPagoProvider implements PaymentProvider {
         ...(init?.headers ?? {}),
       },
     });
-    if (!response.ok) throw new ServiceUnavailableException("PAYMENT_PROVIDER_UNAVAILABLE");
+    if (!response.ok) {
+      const certainNotCreated =
+        response.status >= 400 && response.status < 500 && response.status !== 408 && response.status !== 429;
+      throw new PaymentProviderFailure(
+        certainNotCreated ? "not_created" : "unknown",
+        certainNotCreated ? "PAYMENT_PROVIDER_REJECTED" : "PAYMENT_PROVIDER_UNAVAILABLE",
+      );
+    }
     return response.json();
   }
   private checkoutUrl(value: unknown): string {
