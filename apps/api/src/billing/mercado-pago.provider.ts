@@ -87,7 +87,10 @@ export class MercadoPagoProvider implements PaymentProvider {
     });
     if (!response.ok) {
       const certainNotCreated =
-        response.status >= 400 && response.status < 500 && response.status !== 408 && response.status !== 429;
+        response.status >= 400 &&
+        response.status < 500 &&
+        response.status !== 408 &&
+        response.status !== 429;
       throw new PaymentProviderFailure(
         certainNotCreated ? "not_created" : "unknown",
         certainNotCreated ? "PAYMENT_PROVIDER_REJECTED" : "PAYMENT_PROVIDER_UNAVAILABLE",

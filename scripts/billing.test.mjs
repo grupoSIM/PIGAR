@@ -191,8 +191,7 @@ test("[feat-007] un rechazo confirmado no bloquea un nuevo intento", async () =>
   const service = new BillingService(store, {
     async createPreference() {
       calls += 1;
-      if (calls === 1)
-        throw new PaymentProviderFailure("not_created", "PAYMENT_PROVIDER_REJECTED");
+      if (calls === 1) throw new PaymentProviderFailure("not_created", "PAYMENT_PROVIDER_REJECTED");
       return { checkoutUrl: "https://sandbox.mercadopago.example/checkout" };
     },
     async getPayment() {

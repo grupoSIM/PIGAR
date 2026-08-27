@@ -76,18 +76,18 @@ vez contra staging; Mercado Pago no registró una preferencia asociada. Por lo
 tanto no hubo pago ni Webhook `payment` que validar, y TEST-007-014 continúa
 pendiente.
 
-| Fecha      | Ambiente             | Identificador PIGAR | Escenario                                              | HTTP/estado normalizado         | Resultado | Observación técnica                                                               |
-| ---------- | -------------------- | ------------------- | ------------------------------------------------------ | ------------------------------- | --------- | --------------------------------------------------------------------------------- |
-| 2026-08-27 | staging no productivo | req-…               | Creación de preferencia Checkout Pro                   | 503 / PREFERENCE_CREATION_UNCERTAIN | fail      | No se creó preferencia en Mercado Pago; no se reintentó para evitar duplicados. |
+| Fecha      | Ambiente              | Identificador PIGAR | Escenario                            | HTTP/estado normalizado             | Resultado | Observación técnica                                                             |
+| ---------- | --------------------- | ------------------- | ------------------------------------ | ----------------------------------- | --------- | ------------------------------------------------------------------------------- |
+| 2026-08-27 | staging no productivo | req-…               | Creación de preferencia Checkout Pro | 503 / PREFERENCE_CREATION_UNCERTAIN | fail      | No se creó preferencia en Mercado Pago; no se reintentó para evitar duplicados. |
 
 Controles documentales y de implementación ejecutados localmente el
 2026-08-27:
 
-| Comando | Salida resumida |
-| ------- | --------------- |
-| `pnpm --filter api build` | correcto; Prisma Client generado y TypeScript compilado. |
+| Comando                             | Salida resumida                                                                               |
+| ----------------------------------- | --------------------------------------------------------------------------------------------- |
+| `pnpm --filter api build`           | correcto; Prisma Client generado y TypeScript compilado.                                      |
 | `pnpm test:unit -- --grep feat-007` | correcto; 17 pruebas, 0 fallos. Incluye rechazo determinístico sin bloquear un nuevo intento. |
-| `pnpm lint` | correcto; ESLint sin errores. |
+| `pnpm lint`                         | correcto; ESLint sin errores.                                                                 |
 
 TEST-007-014 permanece pendiente. Aunque el operador habilitó la aplicación,
 cuentas de prueba, endpoint HTTPS y configuración segura, la primera creación
