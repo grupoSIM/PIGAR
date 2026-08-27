@@ -56,7 +56,8 @@ export function loadApiConfiguration(environment: EnvironmentVariables): ApiConf
   const mercadoPagoWebhookSecret = optionalValue(environment.MERCADO_PAGO_WEBHOOK_SECRET);
   const mercadoPagoReturnBaseUrl = optionalValue(environment.PIGAR_PAYMENT_RETURN_BASE_URL);
   const mercadoPagoCheckoutHosts = readHosts(
-    environment.MERCADO_PAGO_CHECKOUT_HOSTS ?? "www.mercadopago.com.ar,www.mercadopago.com",
+    environment.MERCADO_PAGO_CHECKOUT_HOSTS ??
+      "www.mercadopago.com.ar,www.mercadopago.com,sandbox.mercadopago.com",
   );
   const mercadoPagoRequestTimeoutMs = readInteger(
     environment.MERCADO_PAGO_REQUEST_TIMEOUT_MS ?? "10000",
