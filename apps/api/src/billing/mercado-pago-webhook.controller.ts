@@ -9,11 +9,17 @@ import {
 } from "@nestjs/common";
 import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 import { loadApiConfiguration } from "@pigar/config";
+import { createLogger } from "@pigar/observability";
 import { DatabaseService } from "../database.service.js";
 import { BillingService } from "./billing.service.js";
 
 @Controller("v1/webhooks/mercado-pago")
 export class MercadoPagoWebhookController {
+  private readonly logger = createLogger({
+    environment: process.env.NODE_ENV ?? "development",
+    service: "api-mercado-pago-webhook",
+  });
+
   constructor(
     private readonly billing: BillingService,
     private readonly database: DatabaseService,
@@ -26,6 +32,10 @@ export class MercadoPagoWebhookController {
     @Body() body: unknown,
   ) {
     const secret = loadApiConfiguration(process.env).mercadoPago?.webhookSecret;
+    const signatureFailure =
+      secret && signature && requestId && dataId
+        ? webhookSignatureFailure(signature, requestId, dataId, secret)
+        : undefined;
     if (
       !secret ||
       !signature ||
@@ -33,9 +43,14 @@ export class MercadoPagoWebhookController {
       !dataId ||
       type !== "payment" ||
       !isPayment(body, dataId) ||
-      !validWebhookSignature(signature, requestId, dataId, secret)
-    )
+      signatureFailure
+    ) {
+      this.logger.warn("payment.webhook.rejected", undefined, {
+        code: !secret ? "WEBHOOK_CONFIG_MISSING" : (signatureFailure ?? "WEBHOOK_SCHEMA_INVALID"),
+        duration_ms: 0,
+      });
       throw new UnauthorizedException();
+    }
     // Mercado Pago asigna un id al disparo. Se conserva sólo su hash para
     // deduplicar reintentos sin persistir identificadores del proveedor.
     const eventHash = createHash("sha256").update(String(body.id)).digest("hex");
@@ -121,4 +136,27 @@ export function validWebhookSignature(
   const actual = Buffer.from(v1, "hex");
   const wanted = Buffer.from(expected, "hex");
   return actual.length === wanted.length && timingSafeEqual(actual, wanted);
+}
+
+export function webhookSignatureFailure(
+  signature: string,
+  requestId: string,
+  dataId: string,
+  secret: string,
+  nowMs = Date.now(),
+): "WEBHOOK_TIMESTAMP_INVALID" | "WEBHOOK_SIGNATURE_INVALID" | undefined {
+  const ts = signature.match(/(?:^|,)\s*ts=(\d+)/)?.[1];
+  const v1 = signature.match(/(?:^|,)\s*v1=([a-f0-9]+)/i)?.[1];
+  if (!ts || !v1) return "WEBHOOK_SIGNATURE_INVALID";
+  const timestamp = Number(ts);
+  const timestampMs = ts.length >= 13 ? timestamp : timestamp * 1_000;
+  if (!Number.isSafeInteger(timestamp) || Math.abs(nowMs - timestampMs) > 5 * 60_000)
+    return "WEBHOOK_TIMESTAMP_INVALID";
+  const manifest = `id:${dataId};request-id:${requestId};ts:${ts};`;
+  const expected = createHmac("sha256", secret).update(manifest).digest("hex");
+  const actual = Buffer.from(v1, "hex");
+  const wanted = Buffer.from(expected, "hex");
+  return actual.length === wanted.length && timingSafeEqual(actual, wanted)
+    ? undefined
+    : "WEBHOOK_SIGNATURE_INVALID";
 }

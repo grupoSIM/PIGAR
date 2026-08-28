@@ -5,7 +5,10 @@ import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { BillingService } from "../apps/api/dist/billing/billing.service.js";
-import { validWebhookSignature } from "../apps/api/dist/billing/mercado-pago-webhook.controller.js";
+import {
+  validWebhookSignature,
+  webhookSignatureFailure,
+} from "../apps/api/dist/billing/mercado-pago-webhook.controller.js";
 import { PaymentProviderFailure } from "../apps/api/dist/billing/payment-provider.error.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -94,6 +97,10 @@ test("[feat-007] valida firma HMAC, componentes requeridos y ventana anti-replay
       1_700_000_010_000,
     ),
     true,
+  );
+  assert.equal(
+    webhookSignatureFailure(`ts=${ts},v1=00`, requestId, dataId, secret, 1_700_000_010_000),
+    "WEBHOOK_SIGNATURE_INVALID",
   );
 });
 
