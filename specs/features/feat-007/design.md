@@ -99,7 +99,8 @@ cancelado permite el siguiente; uno creado/pending/approved no.
 ### Webhook y consulta autoritativa
 
 1. Limitar tamaño/método/tópico; extraer `x-signature`, `x-request-id` y
-   `data.id` sin confiar en el cuerpo.
+   `data.id` sin confiar en el cuerpo; validar `ts` oficial en segundos o
+   milisegundos dentro de la misma ventana anti-replay.
 2. Validar con SDK oficial compatible o con el algoritmo oficial vigente. La
    documentación consultada usa `x-signature: ts=...,v1=...` y el manifest
    `id:[data.id];request-id:[x-request-id];ts:[ts];` para HMAC SHA-256. La

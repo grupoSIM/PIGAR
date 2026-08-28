@@ -85,16 +85,17 @@ completó la transición; TEST-007-014 continúa pendiente.
 | 2026-08-28 | staging no productivo | req-…               | Retorno `success` no autoritativo                          | retorno success / PENDIENTE_PAGO    | pass      | El retorno no produjo por sí mismo el cambio de estado.                                                                         |
 | 2026-08-28 | staging no productivo | req-…               | Pago de prueba aprobado y consulta autoritativa            | PENDIENTE_CONFORMIDAD               | pass      | Flujo normal de Mercado Pago, sin simulador; transición asíncrona tras validar el pago con el proveedor.                        |
 | 2026-08-28 | staging no productivo | req-…               | Ausencia de Webhook automático y recuperación              | sin POST / PENDIENTE_CONFORMIDAD    | partial   | Recuperación por conciliación observada; la pérdida no fue inducida de forma controlada.                                        |
+| 2026-08-28 | staging no productivo | req-…               | Entrega automática de Webhook `payment`                    | 401                                 | fail      | Mercado Pago entregó; el validador interpretó `ts` en unidad no compatible. Corrección pendiente de desplegar.                  |
 
 Controles documentales y de implementación ejecutados localmente el
 2026-08-27:
 
-| Comando                                                        | Salida resumida                                                                               |
-| -------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| `pnpm --filter api build`                                      | correcto; Prisma Client generado y TypeScript compilado.                                      |
-| `pnpm test:unit -- --grep feat-007`                            | correcto; 17 pruebas, 0 fallos. Incluye rechazo determinístico sin bloquear un nuevo intento. |
-| `pnpm lint`                                                    | correcto; ESLint sin errores.                                                                 |
-| `pnpm --filter api build && pnpm test:unit -- --grep feat-007` | correcto; compilación y 17 pruebas, 0 fallos, incluido arranque inmediato seguro del runner.  |
+| Comando                                                        | Salida resumida                                                                                              |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `pnpm --filter api build`                                      | correcto; Prisma Client generado y TypeScript compilado.                                                     |
+| `pnpm test:unit -- --grep feat-007`                            | correcto; 17 pruebas, 0 fallos. Incluye rechazo determinístico sin bloquear un nuevo intento.                |
+| `pnpm lint`                                                    | correcto; ESLint sin errores.                                                                                |
+| `pnpm --filter api build && pnpm test:unit -- --grep feat-007` | correcto; compilación y 17 pruebas, 0 fallos, incluidos `ts` en segundos/milisegundos y arranque del runner. |
 
 TEST-007-014 permanece pendiente. Aunque el operador habilitó la aplicación,
 cuentas de prueba, endpoint HTTPS y configuración segura, la primera creación

@@ -81,6 +81,20 @@ test("[feat-007] valida firma HMAC, componentes requeridos y ventana anti-replay
     validWebhookSignature(`ts=${ts},v1=${signature}`, requestId, dataId, secret, 1_700_000_400_001),
     false,
   );
+  const tsMilliseconds = "1700000000000";
+  const millisecondSignature = createHmac("sha256", secret)
+    .update(`id:${dataId};request-id:${requestId};ts:${tsMilliseconds};`)
+    .digest("hex");
+  assert.equal(
+    validWebhookSignature(
+      `ts=${tsMilliseconds},v1=${millisecondSignature}`,
+      requestId,
+      dataId,
+      secret,
+      1_700_000_010_000,
+    ),
+    true,
+  );
 });
 
 test("[feat-007] contrato no autoriza retornos de navegador ni aprobación humana", async () => {

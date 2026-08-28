@@ -113,9 +113,9 @@ export function validWebhookSignature(
   const ts = signature.match(/(?:^|,)\s*ts=(\d+)/)?.[1];
   const v1 = signature.match(/(?:^|,)\s*v1=([a-f0-9]+)/i)?.[1];
   if (!ts || !v1) return false;
-  const timestampMs = Number(ts) * 1000;
-  if (!Number.isSafeInteger(timestampMs) || Math.abs(nowMs - timestampMs) > 5 * 60_000)
-    return false;
+  const timestamp = Number(ts);
+  const timestampMs = ts.length >= 13 ? timestamp : timestamp * 1_000;
+  if (!Number.isSafeInteger(timestamp) || Math.abs(nowMs - timestampMs) > 5 * 60_000) return false;
   const manifest = `id:${dataId};request-id:${requestId};ts:${ts};`;
   const expected = createHmac("sha256", secret).update(manifest).digest("hex");
   const actual = Buffer.from(v1, "hex");
