@@ -33,6 +33,7 @@ export class MercadoPagoProvider implements PaymentProvider {
           },
         ],
         external_reference: input.externalReference,
+        notification_url: `${this.returnBaseUrl}/api/v1/webhooks/mercado-pago`,
         back_urls: {
           success: `${this.returnBaseUrl}/payment/success`,
           pending: `${this.returnBaseUrl}/payment/pending`,

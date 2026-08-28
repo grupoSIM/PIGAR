@@ -59,6 +59,7 @@ test("[feat-007] checkout y webhook sólo avanzan tras validación autoritativa"
   assert.match(webhook, /mercado-pago-payment-reconciliation/);
   assert.match(provider, /\/v1\/payments\//);
   assert.match(provider, /external_reference/);
+  assert.match(provider, /notification_url/);
   assert.match(runner, /RUNNER_STARTED/);
   assert.match(runner, /void this\.poll\(\)/);
   assert.match(runner, /leaseExpiresAt: \{ lt: now \}/);

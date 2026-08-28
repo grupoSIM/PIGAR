@@ -82,8 +82,10 @@ cancelado permite el siguiente; uno creado/pending/approved no.
 2. Reutilizar intento activo con preferencia válida o insertar intento local
    `CREATED` y referencia opaca.
 3. Construir preferencia mínima: un ítem genérico “Servicio PIGAR”, cantidad 1,
-   `ARS`, importe exacto, `external_reference`, `back_urls` HTTPS y Webhook de la
-   aplicación. Omitir `payer`, domicilio, multimedia, diagnóstico y texto libre.
+   `ARS`, importe exacto, `external_reference`, `back_urls` HTTPS y
+   `notification_url` HTTPS del receptor de Webhook de la aplicación, derivada de
+   la base de retorno autorizada. Omitir `payer`, domicilio, multimedia,
+   diagnóstico y texto libre.
 4. La API oficial de creación de preferencias consultada el 2026-08-17 documenta
    `Authorization`, no `X-Idempotency-Key`. Por ello, PIGAR no presupone esa
    garantía: serializa localmente, persiste la referencia antes de llamar y, ante
