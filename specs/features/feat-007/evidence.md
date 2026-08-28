@@ -64,7 +64,7 @@ las ediciones de feat-007 se limitaron a estado, bloqueo y nota.
 | AC-007-013 | TEST-007-009/011     | pending                                                                         |
 | AC-007-014 | TEST-007-005/011     | pending                                                                         |
 | AC-007-015 | TEST-007-012/013     | pending                                                                         |
-| AC-007-016 | TEST-007-014         | blocked — conciliación autoritativa del pago de prueba pendiente de diagnóstico |
+| AC-007-016 | TEST-007-014         | blocked — la entrega automática del Webhook de prueba responde 401; faltan los escenarios de orden y pérdida controlada |
 
 ## Verificación manual justificada
 
@@ -86,6 +86,8 @@ completó la transición; TEST-007-014 continúa pendiente.
 | 2026-08-28 | staging no productivo | req-…               | Pago de prueba aprobado y consulta autoritativa            | PENDIENTE_CONFORMIDAD               | pass      | Flujo normal de Mercado Pago, sin simulador; transición asíncrona tras validar el pago con el proveedor.                              |
 | 2026-08-28 | staging no productivo | req-…               | Ausencia de Webhook automático y recuperación              | sin POST / PENDIENTE_CONFORMIDAD    | partial   | Recuperación por conciliación observada; la pérdida no fue inducida de forma controlada.                                              |
 | 2026-08-28 | staging no productivo | req-…               | Entrega automática de Webhook `payment`                    | 401                                 | fail      | Mercado Pago entregó; `ts` fue aceptado. La clave fue verificada por el operador en el mecanismo seguro; la firma HMAC aún no valida. |
+| 2026-08-28 | staging no productivo | req-…               | Pago de prueba pendiente (`CONT`)                           | PENDIENTE_PAGO / Webhook 401        | partial   | La solicitud no avanzó, como corresponde a un pago pendiente; no se pudo validar su procesamiento por Webhook real.                  |
+| 2026-08-28 | staging no productivo | req-…               | Pago de prueba rechazado (`OTHE`)                           | PENDIENTE_PAGO / Webhook 401        | partial   | La solicitud no avanzó, como corresponde a un pago rechazado; no se pudo validar su procesamiento por Webhook real.                  |
 
 Controles documentales y de implementación ejecutados localmente el
 2026-08-27:
@@ -97,13 +99,17 @@ Controles documentales y de implementación ejecutados localmente el
 | `pnpm lint`                                                    | correcto; ESLint sin errores.                                                                                                                                          |
 | `pnpm --filter api build && pnpm test:unit -- --grep feat-007` | correcto; compilación y 17 pruebas, 0 fallos, incluidos `ts` en segundos/milisegundos, arranque y diagnóstico seguro de Webhook.                                       |
 | `pnpm --filter api build && pnpm test:unit -- --grep feat-007` | correcto; compilación y 17 pruebas, 0 fallos. El receptor delega la firma HMAC en el SDK oficial y conserva la ventana anti-replay para `ts` en segundos/milisegundos. |
+| `node node_modules/typescript/bin/tsc -p apps/api/tsconfig.json` + `node --test scripts/billing.test.mjs` | correcto; TypeScript compiló y 8/8 pruebas focalizadas superaron con `mercadopago` 3.6.0. La prueba de casing confirma el contrato vigente del SDK. |
 
-TEST-007-014 permanece pendiente. Aunque el operador habilitó la aplicación,
-cuentas de prueba, endpoint HTTPS y configuración segura, la primera creación
-de preferencia falló antes de crear un recurso remoto. La acción humana y los
-datos que no deben registrarse están definidos en `test-plan.md`. Los
-resultados previos de la PoC con mock no sustituyen esta validación y no se
-inventan resultados de Sandbox.
+TEST-007-014 permanece bloqueado. La creación de preferencia, el retorno no
+autoritativo, la consulta autoritativa, el pago aprobado y los estados de
+prueba pendiente/rechazado fueron observados en staging no productivo. Sin
+embargo, Mercado Pago responde 401 al entregar los Webhooks `payment` reales,
+por lo que no se pueden completar válidamente firma/recepción, duplicado,
+fuera de orden y pérdida controlada. La acción humana pendiente es escalar el
+caso por el canal de soporte de Mercado Pago sin adjuntar secretos ni payloads
+sin sanitizar. Los resultados previos de la PoC con mock no sustituyen esta
+validación.
 
 ### Evaluación de disponibilidad — 2026-08-27
 

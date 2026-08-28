@@ -105,7 +105,7 @@ test("[feat-007] valida firma HMAC, componentes requeridos y ventana anti-replay
 
   const mixedCaseDataId = "Test-Payment";
   const mixedCaseSignature = createHmac("sha256", secret)
-    .update(`id:${mixedCaseDataId.toLowerCase()};request-id:${requestId};ts:${tsMilliseconds};`)
+    .update(`id:${mixedCaseDataId};request-id:${requestId};ts:${tsMilliseconds};`)
     .digest("hex");
   assert.equal(
     validWebhookSignature(

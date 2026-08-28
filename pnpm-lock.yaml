@@ -91,8 +91,8 @@ importers:
         specifier: 6.1.3
         version: 6.1.3
       mercadopago:
-        specifier: 3.1.0
-        version: 3.1.0
+        specifier: 3.6.0
+        version: 3.6.0
       pg:
         specifier: ^8.22.0
         version: 8.22.0
@@ -1396,8 +1396,8 @@ packages:
     resolution: {integrity: sha512-DqC6n3QQ77zdFpCMASA1a3Jlb64Hv2N2DciFGkO/4L9+q/IpIAuRlKOvCXabtRW6cQf8usbmM6BE/TOPysCdIA==}
     engines: {bun: '>=1.0.0', deno: '>=1.30.0', node: '>=8.0.0'}
 
-  mercadopago@3.1.0:
-    resolution: {integrity: sha512-3VB8AFpE8eZgm67e22kVbR19k9JC/1j66voLSh7m9tPvkASuRKNH2Y7yb793rO+fIpMtvl+wBj27UY4jIItWYA==}
+  mercadopago@3.6.0:
+    resolution: {integrity: sha512-Dk47c/bgRPdbMPcRvopitgZq4jOujMfeMf/msWNr942QQ4p+CDBhhov+059UWhsoyGjdizzJaZeyveApoEgDBg==}
     engines: {node: '>=18'}
 
   minimatch@10.2.5:
@@ -3067,7 +3067,7 @@ snapshots:
 
   lru.min@1.1.4: {}
 
-  mercadopago@3.1.0: {}
+  mercadopago@3.6.0: {}
 
   minimatch@10.2.5:
     dependencies:
