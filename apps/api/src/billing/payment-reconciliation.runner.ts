@@ -38,6 +38,14 @@ export class PaymentReconciliationRunner implements OnModuleInit, OnModuleDestro
   private async poll(): Promise<void> {
     const now = new Date();
     try {
+      await this.database.claimedJob.updateMany({
+        where: {
+          jobType: JOB_TYPE,
+          state: "PROCESSING",
+          leaseExpiresAt: { lt: now },
+        },
+        data: { state: "PENDING", availableAt: now, leaseExpiresAt: null },
+      });
       const job = await this.database.claimedJob.findFirst({
         where: { jobType: JOB_TYPE, state: "PENDING", availableAt: { lte: now } },
         orderBy: { availableAt: "asc" },
