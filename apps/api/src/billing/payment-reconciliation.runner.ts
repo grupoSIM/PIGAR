@@ -23,6 +23,11 @@ export class PaymentReconciliationRunner implements OnModuleInit, OnModuleDestro
 
   onModuleInit(): void {
     const { pollIntervalMs } = loadWorkerConfiguration(process.env);
+    this.logger.info("payment.reconciliation.started", undefined, {
+      code: "RUNNER_STARTED",
+      duration_ms: 0,
+    });
+    void this.poll();
     this.timer = setInterval(() => void this.poll(), pollIntervalMs);
   }
 

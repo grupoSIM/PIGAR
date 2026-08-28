@@ -42,10 +42,11 @@ test("[feat-007] migración conserva historial, unicidad y restricciones monetar
 });
 
 test("[feat-007] checkout y webhook sólo avanzan tras validación autoritativa", async () => {
-  const [billing, webhook, provider] = await Promise.all([
+  const [billing, webhook, provider, runner] = await Promise.all([
     source("apps/api/src/billing/billing.service.ts"),
     source("apps/api/src/billing/mercado-pago-webhook.controller.ts"),
     source("apps/api/src/billing/mercado-pago.provider.ts"),
+    source("apps/api/src/billing/payment-reconciliation.runner.ts"),
   ]);
   assert.match(billing, /order\.request\.currency !== "ARS"/);
   assert.match(billing, /PREFERENCE_CREATION_UNCERTAIN/);
@@ -58,6 +59,8 @@ test("[feat-007] checkout y webhook sólo avanzan tras validación autoritativa"
   assert.match(webhook, /mercado-pago-payment-reconciliation/);
   assert.match(provider, /\/v1\/payments\//);
   assert.match(provider, /external_reference/);
+  assert.match(runner, /RUNNER_STARTED/);
+  assert.match(runner, /void this\.poll\(\)/);
 });
 
 test("[feat-007] valida firma HMAC, componentes requeridos y ventana anti-replay", () => {
