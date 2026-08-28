@@ -3,6 +3,7 @@ import { loadWorkerConfiguration } from "@pigar/config";
 import { createLogger } from "@pigar/observability";
 import { DatabaseService } from "../database.service.js";
 import { BillingService } from "./billing.service.js";
+import { PaymentProviderFailure } from "./payment-provider.error.js";
 
 const JOB_TYPE = "mercado-pago-payment-reconciliation";
 
@@ -51,11 +52,15 @@ export class PaymentReconciliationRunner implements OnModuleInit, OnModuleDestro
           where: { id: job.id },
           data: { state: "PROCESSED", leaseExpiresAt: null, lastSafeError: null },
         });
-      } catch {
+      } catch (error) {
         const attempts = job.attempts + 1;
         const cappedExponent = Math.min(attempts, 8);
         const backoffMs = Math.min(15 * 60_000, 1_000 * 2 ** cappedExponent);
         const jitterMs = Math.floor(Math.random() * 1_000);
+        const safeError =
+          error instanceof PaymentProviderFailure
+            ? error.safeCode
+            : "provider_or_reconciliation_failure";
         await this.database.claimedJob.update({
           where: { id: job.id },
           data: {
@@ -63,11 +68,11 @@ export class PaymentReconciliationRunner implements OnModuleInit, OnModuleDestro
             attempts,
             availableAt: new Date(now.getTime() + backoffMs + jitterMs),
             leaseExpiresAt: null,
-            lastSafeError: "provider_or_reconciliation_failure",
+            lastSafeError: safeError,
           },
         });
         this.logger.warn("payment.reconciliation.retry_scheduled", undefined, {
-          code: "RETRY_SCHEDULED",
+          code: safeError,
           duration_ms: 0,
         });
       }

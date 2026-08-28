@@ -47,47 +47,51 @@ las ediciones de feat-007 se limitaron a estado, bloqueo y nota.
 
 ## Criterios de aceptación
 
-| Criterio   | Evidencia esperada   | Resultado                                                                    |
-| ---------- | -------------------- | ---------------------------------------------------------------------------- |
-| AC-007-001 | TEST-007-001/005     | pending                                                                      |
-| AC-007-002 | TEST-007-002/005     | pending                                                                      |
-| AC-007-003 | TEST-007-001/009     | pending                                                                      |
-| AC-007-004 | TEST-007-002/006     | pending                                                                      |
-| AC-007-005 | TEST-007-003/012     | pending                                                                      |
-| AC-007-006 | TEST-007-004/007     | pending                                                                      |
-| AC-007-007 | TEST-007-006/008     | pending                                                                      |
-| AC-007-008 | TEST-007-005/008     | pending                                                                      |
-| AC-007-009 | TEST-007-008/010     | pending                                                                      |
-| AC-007-010 | TEST-007-009/012     | pending                                                                      |
-| AC-007-011 | TEST-007-001/006/012 | pending                                                                      |
-| AC-007-012 | TEST-007-003/012     | pending                                                                      |
-| AC-007-013 | TEST-007-009/011     | pending                                                                      |
-| AC-007-014 | TEST-007-005/011     | pending                                                                      |
-| AC-007-015 | TEST-007-012/013     | pending                                                                      |
-| AC-007-016 | TEST-007-014         | blocked — aplicación/cuentas no productivas y autorización humana requeridas |
+| Criterio   | Evidencia esperada   | Resultado                                                                       |
+| ---------- | -------------------- | ------------------------------------------------------------------------------- |
+| AC-007-001 | TEST-007-001/005     | pending                                                                         |
+| AC-007-002 | TEST-007-002/005     | pending                                                                         |
+| AC-007-003 | TEST-007-001/009     | pending                                                                         |
+| AC-007-004 | TEST-007-002/006     | pending                                                                         |
+| AC-007-005 | TEST-007-003/012     | pending                                                                         |
+| AC-007-006 | TEST-007-004/007     | pending                                                                         |
+| AC-007-007 | TEST-007-006/008     | pending                                                                         |
+| AC-007-008 | TEST-007-005/008     | pending                                                                         |
+| AC-007-009 | TEST-007-008/010     | pending                                                                         |
+| AC-007-010 | TEST-007-009/012     | pending                                                                         |
+| AC-007-011 | TEST-007-001/006/012 | pending                                                                         |
+| AC-007-012 | TEST-007-003/012     | pending                                                                         |
+| AC-007-013 | TEST-007-009/011     | pending                                                                         |
+| AC-007-014 | TEST-007-005/011     | pending                                                                         |
+| AC-007-015 | TEST-007-012/013     | pending                                                                         |
+| AC-007-016 | TEST-007-014         | blocked — conciliación autoritativa del pago de prueba pendiente de diagnóstico |
 
 ## Verificación manual justificada
 
 ### Ejecución parcial en staging no productivo — 2026-08-27
 
 La aplicación, las cuentas de prueba y el endpoint HTTPS fueron configurados por
-el operador sin exponer credenciales. El inicio de Checkout Pro se intentó una
-vez contra staging; Mercado Pago no registró una preferencia asociada. Por lo
-tanto no hubo pago ni Webhook `payment` que validar, y TEST-007-014 continúa
-pendiente.
+el operador sin exponer credenciales. El primer inicio de Checkout Pro falló sin
+crear una preferencia. Tras corregir la inyección de configuración no productiva,
+una preferencia y un pago de prueba aprobado fueron creados. Un Webhook oficial
+simulado por Mercado Pago fue aceptado, pero la conciliación autoritativa no
+completó la transición; TEST-007-014 continúa pendiente.
 
-| Fecha      | Ambiente              | Identificador PIGAR | Escenario                            | HTTP/estado normalizado             | Resultado | Observación técnica                                                             |
-| ---------- | --------------------- | ------------------- | ------------------------------------ | ----------------------------------- | --------- | ------------------------------------------------------------------------------- |
-| 2026-08-27 | staging no productivo | req-…               | Creación de preferencia Checkout Pro | 503 / PREFERENCE_CREATION_UNCERTAIN | fail      | No se creó preferencia en Mercado Pago; no se reintentó para evitar duplicados. |
+| Fecha      | Ambiente              | Identificador PIGAR | Escenario                                                  | HTTP/estado normalizado             | Resultado | Observación técnica                                                                                                  |
+| ---------- | --------------------- | ------------------- | ---------------------------------------------------------- | ----------------------------------- | --------- | -------------------------------------------------------------------------------------------------------------------- |
+| 2026-08-27 | staging no productivo | req-…               | Creación de preferencia Checkout Pro                       | 503 / PREFERENCE_CREATION_UNCERTAIN | fail      | No se creó preferencia en Mercado Pago; no se reintentó para evitar duplicados.                                      |
+| 2026-08-27 | staging no productivo | req-…               | Preferencia y pago de prueba aprobado                      | Checkout abierto / pago aprobado    | partial   | Pago de prueba realizado; el retorno de navegador no se usó como fuente de verdad.                                   |
+| 2026-08-27 | staging no productivo | req-…               | Webhook `payment` simulado oficial y consulta autoritativa | 200 / PENDIENTE_PAGO tras 90 s      | fail      | La firma/recepción fueron aceptadas; la conciliación no completó. Evidencia de simulación, no de entrega automática. |
 
 Controles documentales y de implementación ejecutados localmente el
 2026-08-27:
 
-| Comando                             | Salida resumida                                                                               |
-| ----------------------------------- | --------------------------------------------------------------------------------------------- |
-| `pnpm --filter api build`           | correcto; Prisma Client generado y TypeScript compilado.                                      |
-| `pnpm test:unit -- --grep feat-007` | correcto; 17 pruebas, 0 fallos. Incluye rechazo determinístico sin bloquear un nuevo intento. |
-| `pnpm lint`                         | correcto; ESLint sin errores.                                                                 |
+| Comando                                                        | Salida resumida                                                                               |
+| -------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `pnpm --filter api build`                                      | correcto; Prisma Client generado y TypeScript compilado.                                      |
+| `pnpm test:unit -- --grep feat-007`                            | correcto; 17 pruebas, 0 fallos. Incluye rechazo determinístico sin bloquear un nuevo intento. |
+| `pnpm lint`                                                    | correcto; ESLint sin errores.                                                                 |
+| `pnpm --filter api build && pnpm test:unit -- --grep feat-007` | correcto; compilación y 17 pruebas, 0 fallos, tras diagnóstico seguro de conciliación.        |
 
 TEST-007-014 permanece pendiente. Aunque el operador habilitó la aplicación,
 cuentas de prueba, endpoint HTTPS y configuración segura, la primera creación
