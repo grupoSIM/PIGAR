@@ -82,6 +82,8 @@ completó la transición; TEST-007-014 continúa pendiente.
 | 2026-08-27 | staging no productivo | req-…               | Creación de preferencia Checkout Pro                       | 503 / PREFERENCE_CREATION_UNCERTAIN | fail      | No se creó preferencia en Mercado Pago; no se reintentó para evitar duplicados.                                                 |
 | 2026-08-27 | staging no productivo | req-…               | Preferencia y pago de prueba aprobado                      | Checkout abierto / pago aprobado    | partial   | Pago de prueba realizado; el retorno de navegador no se usó como fuente de verdad.                                              |
 | 2026-08-27 | staging no productivo | req-…               | Webhook `payment` simulado oficial y consulta autoritativa | 200 / PENDIENTE_PAGO tras 90 s      | fail      | La firma/recepción fueron aceptadas; posible lease de trabajo vencida tras redeploy. Simulación oficial, no entrega automática. |
+| 2026-08-28 | staging no productivo | req-…               | Retorno `success` no autoritativo                          | retorno success / PENDIENTE_PAGO    | pass      | El retorno no produjo por sí mismo el cambio de estado.                                                                         |
+| 2026-08-28 | staging no productivo | req-…               | Pago de prueba aprobado y consulta autoritativa            | PENDIENTE_CONFORMIDAD               | pass      | La transición ocurrió de forma asíncrona tras validar el pago con el proveedor.                                                 |
 
 Controles documentales y de implementación ejecutados localmente el
 2026-08-27:
