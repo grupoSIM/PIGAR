@@ -84,6 +84,7 @@ completó la transición; TEST-007-014 continúa pendiente.
 | 2026-08-27 | staging no productivo | req-…               | Webhook `payment` simulado oficial y consulta autoritativa | 200 / PENDIENTE_PAGO tras 90 s      | fail      | La firma/recepción fueron aceptadas; posible lease de trabajo vencida tras redeploy. Simulación oficial, no entrega automática. |
 | 2026-08-28 | staging no productivo | req-…               | Retorno `success` no autoritativo                          | retorno success / PENDIENTE_PAGO    | pass      | El retorno no produjo por sí mismo el cambio de estado.                                                                         |
 | 2026-08-28 | staging no productivo | req-…               | Pago de prueba aprobado y consulta autoritativa            | PENDIENTE_CONFORMIDAD               | pass      | Flujo normal de Mercado Pago, sin simulador; transición asíncrona tras validar el pago con el proveedor.                        |
+| 2026-08-28 | staging no productivo | req-…               | Ausencia de Webhook automático y recuperación              | sin POST / PENDIENTE_CONFORMIDAD    | partial   | Recuperación por conciliación observada; la pérdida no fue inducida de forma controlada.                                        |
 
 Controles documentales y de implementación ejecutados localmente el
 2026-08-27:
