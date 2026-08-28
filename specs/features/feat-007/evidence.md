@@ -90,12 +90,13 @@ completó la transición; TEST-007-014 continúa pendiente.
 Controles documentales y de implementación ejecutados localmente el
 2026-08-27:
 
-| Comando                                                        | Salida resumida                                                                                                                  |
-| -------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm --filter api build`                                      | correcto; Prisma Client generado y TypeScript compilado.                                                                         |
-| `pnpm test:unit -- --grep feat-007`                            | correcto; 17 pruebas, 0 fallos. Incluye rechazo determinístico sin bloquear un nuevo intento.                                    |
-| `pnpm lint`                                                    | correcto; ESLint sin errores.                                                                                                    |
-| `pnpm --filter api build && pnpm test:unit -- --grep feat-007` | correcto; compilación y 17 pruebas, 0 fallos, incluidos `ts` en segundos/milisegundos, arranque y diagnóstico seguro de Webhook. |
+| Comando                                                        | Salida resumida                                                                                                                                                        |
+| -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm --filter api build`                                      | correcto; Prisma Client generado y TypeScript compilado.                                                                                                               |
+| `pnpm test:unit -- --grep feat-007`                            | correcto; 17 pruebas, 0 fallos. Incluye rechazo determinístico sin bloquear un nuevo intento.                                                                          |
+| `pnpm lint`                                                    | correcto; ESLint sin errores.                                                                                                                                          |
+| `pnpm --filter api build && pnpm test:unit -- --grep feat-007` | correcto; compilación y 17 pruebas, 0 fallos, incluidos `ts` en segundos/milisegundos, arranque y diagnóstico seguro de Webhook.                                       |
+| `pnpm --filter api build && pnpm test:unit -- --grep feat-007` | correcto; compilación y 17 pruebas, 0 fallos. El receptor delega la firma HMAC en el SDK oficial y conserva la ventana anti-replay para `ts` en segundos/milisegundos. |
 
 TEST-007-014 permanece pendiente. Aunque el operador habilitó la aplicación,
 cuentas de prueba, endpoint HTTPS y configuración segura, la primera creación

@@ -57,7 +57,7 @@ test("[feat-007] checkout y webhook sólo avanzan tras validación autoritativa"
   assert.match(webhook, /x-signature/);
   assert.match(webhook, /x-request-id/);
   assert.match(webhook, /data\.id/);
-  assert.match(webhook, /timingSafeEqual/);
+  assert.match(webhook, /WebhookSignatureValidator/);
   assert.match(webhook, /claimedJob\.upsert/);
   assert.match(webhook, /mercado-pago-payment-reconciliation/);
   assert.match(provider, /\/v1\/payments\//);
@@ -93,6 +93,21 @@ test("[feat-007] valida firma HMAC, componentes requeridos y ventana anti-replay
       `ts=${tsMilliseconds},v1=${millisecondSignature}`,
       requestId,
       dataId,
+      secret,
+      1_700_000_010_000,
+    ),
+    true,
+  );
+
+  const mixedCaseDataId = "Test-Payment";
+  const mixedCaseSignature = createHmac("sha256", secret)
+    .update(`id:${mixedCaseDataId.toLowerCase()};request-id:${requestId};ts:${tsMilliseconds};`)
+    .digest("hex");
+  assert.equal(
+    validWebhookSignature(
+      `ts=${tsMilliseconds},v1=${mixedCaseSignature}`,
+      requestId,
+      mixedCaseDataId,
       secret,
       1_700_000_010_000,
     ),
