@@ -41,6 +41,15 @@ export class MercadoPagoWebhookController {
       secret && signature && requestId && dataId
         ? webhookSignatureFailure(signature, requestId, dataId, secret)
         : undefined;
+    const eventId = webhookEventId(body);
+    const eventIdSignatureFailure =
+      signatureFailure === "WEBHOOK_SIGNATURE_INVALID" &&
+      secret &&
+      signature &&
+      requestId &&
+      eventId
+        ? webhookSignatureFailure(signature, requestId, eventId, secret)
+        : undefined;
     if (
       !secret ||
       !signature ||
@@ -51,7 +60,12 @@ export class MercadoPagoWebhookController {
       signatureFailure
     ) {
       this.logger.warn("payment.webhook.rejected", undefined, {
-        code: !secret ? "WEBHOOK_CONFIG_MISSING" : (signatureFailure ?? "WEBHOOK_SCHEMA_INVALID"),
+        code: !secret
+          ? "WEBHOOK_CONFIG_MISSING"
+          : signatureFailure === "WEBHOOK_SIGNATURE_INVALID" &&
+              eventIdSignatureFailure === undefined
+            ? "WEBHOOK_SIGNATURE_EVENT_ID_MATCH"
+            : (signatureFailure ?? "WEBHOOK_SCHEMA_INVALID"),
         duration_ms: 0,
       });
       throw new UnauthorizedException();
@@ -98,6 +112,13 @@ export class MercadoPagoWebhookController {
     return { received: true };
   }
 }
+
+function webhookEventId(value: unknown): string | undefined {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
+  const id = (value as Record<string, unknown>).id;
+  return typeof id === "string" || typeof id === "number" ? String(id) : undefined;
+}
+
 type PaymentNotification = {
   id: string | number;
   type: "payment";
