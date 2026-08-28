@@ -45,11 +45,12 @@ test("[feat-007] migración conserva historial, unicidad y restricciones monetar
 });
 
 test("[feat-007] checkout y webhook sólo avanzan tras validación autoritativa", async () => {
-  const [billing, webhook, provider, runner] = await Promise.all([
+  const [billing, webhook, provider, runner, nginx] = await Promise.all([
     source("apps/api/src/billing/billing.service.ts"),
     source("apps/api/src/billing/mercado-pago-webhook.controller.ts"),
     source("apps/api/src/billing/mercado-pago.provider.ts"),
     source("apps/api/src/billing/payment-reconciliation.runner.ts"),
+    source("infra/nginx/nginx.conf"),
   ]);
   assert.match(billing, /order\.request\.currency !== "ARS"/);
   assert.match(billing, /PREFERENCE_CREATION_UNCERTAIN/);
@@ -61,6 +62,8 @@ test("[feat-007] checkout y webhook sólo avanzan tras validación autoritativa"
   assert.match(webhook, /WEBHOOK_SIGNATURE_EVENT_ID_MATCH/);
   assert.match(webhook, /claimedJob\.upsert/);
   assert.match(webhook, /mercado-pago-payment-reconciliation/);
+  assert.match(nginx, /location = \/api\/v1\/webhooks\/mercado-pago/);
+  assert.match(nginx, /proxy_set_header X-Request-ID \$http_x_request_id/);
   assert.match(provider, /\/v1\/payments\//);
   assert.match(provider, /external_reference/);
   assert.match(provider, /notification_url/);
