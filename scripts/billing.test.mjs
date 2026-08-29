@@ -70,6 +70,7 @@ test("[feat-007] checkout y webhook sólo avanzan tras validación autoritativa"
   assert.match(runner, /RUNNER_STARTED/);
   assert.match(runner, /void this\.poll\(\)/);
   assert.match(runner, /leaseExpiresAt: \{ lt: now \}/);
+  assert.match(runner, /payment\.reconciliation\.provider_failed/);
 });
 
 test("[feat-007] valida firma HMAC, componentes requeridos y ventana anti-replay", () => {
@@ -255,6 +256,45 @@ test("[feat-007] un rechazo confirmado no bloquea un nuevo intento", async () =>
   const retry = await service.startCheckout(actor, "request-1", 4);
   assert.equal(retry.reused, false);
   assert.equal(calls, 2);
+});
+
+test("[feat-007] la conciliación aísla una falla del proveedor y expone sólo su código seguro", async () => {
+  const attempts = [
+    { id: "attempt-failed", state: "PENDING", externalReference: "ref-failed", checkedAt: new Date(0) },
+    { id: "attempt-next", state: "PENDING", externalReference: "ref-next", checkedAt: new Date(0) },
+  ];
+  const checked = [];
+  const service = new BillingService(
+    {
+      paymentAttempt: {
+        findMany: async () => attempts,
+        update: async ({ where, data }) => {
+          checked.push(where.id);
+          Object.assign(attempts.find((entry) => entry.id === where.id), data);
+        },
+      },
+    },
+    {
+      async createPreference() {
+        throw new Error("not used");
+      },
+      async getPayment() {
+        throw new Error("not used");
+      },
+      async searchPayments(reference) {
+        if (reference === "ref-failed")
+          throw new PaymentProviderFailure("unknown", "PAYMENT_PROVIDER_UNAVAILABLE");
+        return [];
+      },
+      async findPreference() {
+        return undefined;
+      },
+    },
+  );
+  const failures = [];
+  assert.equal(await service.reconcilePending(50, (failure) => failures.push(failure.safeCode)), 0);
+  assert.deepEqual(failures, ["PAYMENT_PROVIDER_UNAVAILABLE"]);
+  assert.deepEqual(checked, ["attempt-next"]);
 });
 
 function checkoutStore() {

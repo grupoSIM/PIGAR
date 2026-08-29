@@ -294,7 +294,10 @@ export class BillingService {
     return state;
   }
 
-  async reconcilePending(limit = 50) {
+  async reconcilePending(
+    limit = 50,
+    onProviderFailure?: (failure: PaymentProviderFailure) => void,
+  ) {
     const db: any = this.database;
     const attempts = await db.paymentAttempt.findMany({
       where: { state: { in: ["CREATED", "UNKNOWN", "PENDING"] } },
@@ -303,24 +306,29 @@ export class BillingService {
     });
     let reconciled = 0;
     for (const attempt of attempts) {
-      if (attempt.state === "UNKNOWN") {
-        const preference = await this.provider.findPreference(attempt.externalReference);
-        if (preference) {
-          await db.paymentAttempt.update({
-            where: { id: attempt.id },
-            data: { state: "CREATED", checkoutUrl: preference.checkoutUrl, checkedAt: new Date() },
-          });
+      try {
+        if (attempt.state === "UNKNOWN") {
+          const preference = await this.provider.findPreference(attempt.externalReference);
+          if (preference) {
+            await db.paymentAttempt.update({
+              where: { id: attempt.id },
+              data: { state: "CREATED", checkoutUrl: preference.checkoutUrl, checkedAt: new Date() },
+            });
+          }
         }
+        const payments = await this.provider.searchPayments(attempt.externalReference);
+        for (const payment of payments) {
+          await this.applyProviderPayment(payment);
+          reconciled += 1;
+        }
+        await db.paymentAttempt.update({
+          where: { id: attempt.id },
+          data: { checkedAt: new Date() },
+        });
+      } catch (error) {
+        if (!(error instanceof PaymentProviderFailure)) throw error;
+        onProviderFailure?.(error);
       }
-      const payments = await this.provider.searchPayments(attempt.externalReference);
-      for (const payment of payments) {
-        await this.applyProviderPayment(payment);
-        reconciled += 1;
-      }
-      await db.paymentAttempt.update({
-        where: { id: attempt.id },
-        data: { checkedAt: new Date() },
-      });
     }
     return reconciled;
   }

@@ -88,6 +88,7 @@ completó la transición; TEST-007-014 continúa pendiente.
 | 2026-08-28 | staging no productivo | req-…               | Entrega automática de Webhook `payment`                    | 401                                 | fail      | Mercado Pago entregó; `ts` fue aceptado. La clave fue verificada por el operador en el mecanismo seguro; la firma HMAC aún no valida. |
 | 2026-08-28 | staging no productivo | req-…               | Pago de prueba pendiente (`CONT`)                           | PENDIENTE_PAGO / Webhook 401        | partial   | La solicitud no avanzó, como corresponde a un pago pendiente; no se pudo validar su procesamiento por Webhook real.                  |
 | 2026-08-28 | staging no productivo | req-…               | Pago de prueba rechazado (`OTHE`)                           | PENDIENTE_PAGO / Webhook 401        | partial   | La solicitud no avanzó, como corresponde a un pago rechazado; no se pudo validar su procesamiento por Webhook real.                  |
+| 2026-08-29 | staging no productivo | req-…               | Regresión tras actualizar SDK a `mercadopago` 3.6.0         | Webhook 401 / orden sin avance      | fail      | Pago de prueba posterior al despliegue; la entrega real continúa rechazada y la recuperación no produjo transición observable.       |
 
 Controles documentales y de implementación ejecutados localmente el
 2026-08-27:
@@ -100,6 +101,7 @@ Controles documentales y de implementación ejecutados localmente el
 | `pnpm --filter api build && pnpm test:unit -- --grep feat-007` | correcto; compilación y 17 pruebas, 0 fallos, incluidos `ts` en segundos/milisegundos, arranque y diagnóstico seguro de Webhook.                                       |
 | `pnpm --filter api build && pnpm test:unit -- --grep feat-007` | correcto; compilación y 17 pruebas, 0 fallos. El receptor delega la firma HMAC en el SDK oficial y conserva la ventana anti-replay para `ts` en segundos/milisegundos. |
 | `node node_modules/typescript/bin/tsc -p apps/api/tsconfig.json` + `node --test scripts/billing.test.mjs` | correcto; TypeScript compiló y 8/8 pruebas focalizadas superaron con `mercadopago` 3.6.0. La prueba de casing confirma el contrato vigente del SDK. |
+| `node node_modules/typescript/bin/tsc -p apps/api/tsconfig.json` + `node --test scripts/billing.test.mjs` | correcto; TypeScript compiló y 9/9 pruebas focalizadas superaron. La conciliación aísla errores del proveedor y registra sólo `PAYMENT_PROVIDER_*` seguro. |
 
 TEST-007-014 permanece bloqueado. La creación de preferencia, el retorno no
 autoritativo, la consulta autoritativa, el pago aprobado y los estados de

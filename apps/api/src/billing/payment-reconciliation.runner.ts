@@ -51,7 +51,12 @@ export class PaymentReconciliationRunner implements OnModuleInit, OnModuleDestro
         orderBy: { availableAt: "asc" },
       });
       if (!job) {
-        await this.billing.reconcilePending();
+        await this.billing.reconcilePending(50, (failure) => {
+          this.logger.warn("payment.reconciliation.provider_failed", undefined, {
+            code: failure.safeCode,
+            duration_ms: 0,
+          });
+        });
         return;
       }
       const claimed = await this.database.claimedJob.updateMany({
