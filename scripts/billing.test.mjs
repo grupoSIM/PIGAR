@@ -260,7 +260,12 @@ test("[feat-007] un rechazo confirmado no bloquea un nuevo intento", async () =>
 
 test("[feat-007] la conciliación aísla una falla del proveedor y expone sólo su código seguro", async () => {
   const attempts = [
-    { id: "attempt-failed", state: "PENDING", externalReference: "ref-failed", checkedAt: new Date(0) },
+    {
+      id: "attempt-failed",
+      state: "PENDING",
+      externalReference: "ref-failed",
+      checkedAt: new Date(0),
+    },
     { id: "attempt-next", state: "PENDING", externalReference: "ref-next", checkedAt: new Date(0) },
   ];
   const checked = [];
@@ -270,7 +275,10 @@ test("[feat-007] la conciliación aísla una falla del proveedor y expone sólo 
         findMany: async () => attempts,
         update: async ({ where, data }) => {
           checked.push(where.id);
-          Object.assign(attempts.find((entry) => entry.id === where.id), data);
+          Object.assign(
+            attempts.find((entry) => entry.id === where.id),
+            data,
+          );
         },
       },
     },

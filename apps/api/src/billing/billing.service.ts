@@ -312,7 +312,11 @@ export class BillingService {
           if (preference) {
             await db.paymentAttempt.update({
               where: { id: attempt.id },
-              data: { state: "CREATED", checkoutUrl: preference.checkoutUrl, checkedAt: new Date() },
+              data: {
+                state: "CREATED",
+                checkoutUrl: preference.checkoutUrl,
+                checkedAt: new Date(),
+              },
             });
           }
         }
