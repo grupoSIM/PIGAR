@@ -77,15 +77,20 @@ export class MercadoPagoProvider implements PaymentProvider {
   private async request(path: string, init?: RequestInit): Promise<unknown> {
     if (!this.token)
       throw new PaymentProviderFailure("not_created", "PAYMENT_PROVIDER_UNAVAILABLE");
-    const response = await fetch(`${this.baseUrl}${path}`, {
-      ...init,
-      signal: AbortSignal.timeout(this.requestTimeoutMs),
-      headers: {
-        authorization: `Bearer ${this.token}`,
-        "content-type": "application/json",
-        ...(init?.headers ?? {}),
-      },
-    });
+    let response: Response;
+    try {
+      response = await fetch(`${this.baseUrl}${path}`, {
+        ...init,
+        signal: AbortSignal.timeout(this.requestTimeoutMs),
+        headers: {
+          authorization: `Bearer ${this.token}`,
+          "content-type": "application/json",
+          ...(init?.headers ?? {}),
+        },
+      });
+    } catch {
+      throw new PaymentProviderFailure("unknown", "PAYMENT_PROVIDER_UNAVAILABLE");
+    }
     if (!response.ok) {
       const certainNotCreated =
         response.status >= 400 &&
@@ -97,7 +102,11 @@ export class MercadoPagoProvider implements PaymentProvider {
         certainNotCreated ? "PAYMENT_PROVIDER_REJECTED" : "PAYMENT_PROVIDER_UNAVAILABLE",
       );
     }
-    return response.json();
+    try {
+      return await response.json();
+    } catch {
+      throw new PaymentProviderFailure("unknown", "PAYMENT_PROVIDER_UNAVAILABLE");
+    }
   }
   private checkoutUrl(value: unknown): string {
     if (typeof value !== "string") throw new ServiceUnavailableException("CHECKOUT_URL_INVALID");

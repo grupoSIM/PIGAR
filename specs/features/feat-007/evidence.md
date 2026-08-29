@@ -102,6 +102,7 @@ Controles documentales y de implementación ejecutados localmente el
 | `pnpm --filter api build && pnpm test:unit -- --grep feat-007` | correcto; compilación y 17 pruebas, 0 fallos. El receptor delega la firma HMAC en el SDK oficial y conserva la ventana anti-replay para `ts` en segundos/milisegundos. |
 | `node node_modules/typescript/bin/tsc -p apps/api/tsconfig.json` + `node --test scripts/billing.test.mjs` | correcto; TypeScript compiló y 8/8 pruebas focalizadas superaron con `mercadopago` 3.6.0. La prueba de casing confirma el contrato vigente del SDK. |
 | `node node_modules/typescript/bin/tsc -p apps/api/tsconfig.json` + `node --test scripts/billing.test.mjs` | correcto; TypeScript compiló y 9/9 pruebas focalizadas superaron. La conciliación aísla errores del proveedor y registra sólo `PAYMENT_PROVIDER_*` seguro. |
+| `prettier --check` + `node node_modules/typescript/bin/tsc -p apps/api/tsconfig.json` + `node --test scripts/billing.test.mjs` | correcto; formato válido, TypeScript compiló y 9/9 pruebas focalizadas superaron. Red, timeout y JSON inválido del proveedor se normalizan sin registrar detalles sensibles; `POLL_FAILED` incluye una etapa segura. |
 
 TEST-007-014 permanece bloqueado. La creación de preferencia, el retorno no
 autoritativo, la consulta autoritativa, el pago aprobado y los estados de
