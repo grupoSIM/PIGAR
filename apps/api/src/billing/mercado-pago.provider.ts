@@ -126,18 +126,25 @@ export class MercadoPagoProvider implements PaymentProvider {
     const item = value as Record<string, unknown>;
     if (
       (typeof item.id !== "number" && typeof item.id !== "string") ||
-      (item.status !== "approved" &&
-        item.status !== "pending" &&
-        item.status !== "rejected" &&
-        item.status !== "cancelled") ||
       typeof item.external_reference !== "string" ||
       typeof item.currency_id !== "string" ||
       typeof item.transaction_amount !== "number"
     )
       throw new ServiceUnavailableException("PAYMENT_RESPONSE_INVALID");
+    const status =
+      item.status === "in_process" || item.status === "authorized"
+        ? "pending"
+        : item.status;
+    if (
+      status !== "approved" &&
+      status !== "pending" &&
+      status !== "rejected" &&
+      status !== "cancelled"
+    )
+      throw new ServiceUnavailableException("PAYMENT_STATUS_UNSUPPORTED");
     return {
       id: String(item.id),
-      status: item.status,
+      status,
       externalReference: item.external_reference,
       currency: item.currency_id,
       amount: item.transaction_amount.toFixed(2),

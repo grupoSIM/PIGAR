@@ -41,6 +41,7 @@ export type PaymentReconciliationFailure = {
     | "PAYMENT_PROVIDER_REJECTED"
     | "PAYMENT_PROVIDER_UNAVAILABLE"
     | "PAYMENT_RESPONSE_INVALID"
+    | "PAYMENT_STATUS_UNSUPPORTED"
     | "PAYMENT_MISMATCH"
     | "PAYMENT_RECONCILIATION_STORAGE_FAILED";
 };
@@ -363,6 +364,14 @@ export class BillingService {
           response.message === "PAYMENT_RESPONSE_INVALID")
       )
         return "PAYMENT_RESPONSE_INVALID";
+      if (
+        (typeof response === "string" && response === "PAYMENT_STATUS_UNSUPPORTED") ||
+        (typeof response === "object" &&
+          response !== null &&
+          "message" in response &&
+          response.message === "PAYMENT_STATUS_UNSUPPORTED")
+      )
+        return "PAYMENT_STATUS_UNSUPPORTED";
     }
     return "PAYMENT_RECONCILIATION_STORAGE_FAILED";
   }

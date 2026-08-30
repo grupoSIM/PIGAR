@@ -69,6 +69,8 @@ test("[feat-007] checkout y webhook sólo avanzan tras validación autoritativa"
   assert.match(provider, /notification_url/);
   assert.match(provider, /await response\.json\(\)/);
   assert.match(provider, /PaymentProviderFailure\("unknown", "PAYMENT_PROVIDER_UNAVAILABLE"\)/);
+  assert.match(provider, /item\.status === "in_process" \|\| item\.status === "authorized"/);
+  assert.match(provider, /"PAYMENT_STATUS_UNSUPPORTED"/);
   assert.match(runner, /RUNNER_STARTED/);
   assert.match(runner, /void this\.poll\(\)/);
   assert.match(runner, /leaseExpiresAt: \{ lt: now \}/);
@@ -76,6 +78,7 @@ test("[feat-007] checkout y webhook sólo avanzan tras validación autoritativa"
   assert.match(runner, /failureCode = "POLL_PENDING_RECONCILIATION_FAILED"/);
   assert.match(runner, /code: failureCode/);
   assert.match(billing, /PAYMENT_RESPONSE_INVALID/);
+  assert.match(billing, /PAYMENT_STATUS_UNSUPPORTED/);
   assert.match(billing, /PAYMENT_MISMATCH/);
   assert.match(billing, /PAYMENT_RECONCILIATION_STORAGE_FAILED/);
 });
