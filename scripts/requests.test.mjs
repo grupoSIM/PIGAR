@@ -56,7 +56,18 @@ test("[request-access] un CLIENT no accede a recursos ajenos y DISPATCHER queda 
   await service.get(dispatcher, created.id, "request-test-004");
   assert.match(JSON.stringify(store.events), /request\.created/);
   assert.match(JSON.stringify(store.events), /request\.operational\.read/);
-  assert.doesNotMatch(JSON.stringify(store.events), /Calle|123|latitude|longitude|physicalName/i);
+  for (const event of store.events) {
+    assert.deepEqual(
+      Object.keys(event).sort(),
+      ["actorProfileId", "correlationId", "eventType", "metadata", "outcome"].sort(),
+    );
+    assert.deepEqual(Object.keys(event.metadata), ["resourceId"]);
+    assert.equal(event.metadata.resourceId, created.id);
+    assert.doesNotMatch(
+      JSON.stringify(event.metadata),
+      /Calle|"123"|latitude|longitude|physicalName/i,
+    );
+  }
 });
 
 test("[request-list-operational] ADMIN y DISPATCHER pueden listar solicitudes operativamente", async () => {
