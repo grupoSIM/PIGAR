@@ -75,6 +75,9 @@ test("[feat-007] checkout y webhook sólo avanzan tras validación autoritativa"
   assert.match(runner, /payment\.reconciliation\.provider_failed/);
   assert.match(runner, /failureCode = "POLL_PENDING_RECONCILIATION_FAILED"/);
   assert.match(runner, /code: failureCode/);
+  assert.match(billing, /PAYMENT_RESPONSE_INVALID/);
+  assert.match(billing, /PAYMENT_MISMATCH/);
+  assert.match(billing, /PAYMENT_RECONCILIATION_STORAGE_FAILED/);
 });
 
 test("[feat-007] valida firma HMAC, componentes requeridos y ventana anti-replay", () => {

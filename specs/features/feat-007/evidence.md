@@ -104,6 +104,7 @@ Controles documentales y de implementación ejecutados localmente el
 | `node node_modules/typescript/bin/tsc -p apps/api/tsconfig.json` + `node --test scripts/billing.test.mjs` | correcto; TypeScript compiló y 9/9 pruebas focalizadas superaron. La conciliación aísla errores del proveedor y registra sólo `PAYMENT_PROVIDER_*` seguro. |
 | `prettier --check` + `node node_modules/typescript/bin/tsc -p apps/api/tsconfig.json` + `node --test scripts/billing.test.mjs` | correcto; formato válido, TypeScript compiló y 9/9 pruebas focalizadas superaron. Red, timeout y JSON inválido del proveedor se normalizan sin registrar detalles sensibles; `POLL_FAILED` incluye una etapa segura. |
 | `prettier --check` + `node node_modules/typescript/bin/tsc -p apps/api/tsconfig.json` + `node --test scripts/billing.test.mjs` | correcto; formato válido, TypeScript compiló y 9/9 pruebas focalizadas superaron. La etapa del poll se codifica en `POLL_*_FAILED`, compatible con el logger de esquema fijo.                                        |
+| `node node_modules/typescript/bin/tsc -p apps/api/tsconfig.json` + `node --test scripts/billing.test.mjs` | correcto; TypeScript compiló y 9/9 pruebas focalizadas superaron. La conciliación aísla cada intento y clasifica respuesta inválida, desajuste y almacenamiento mediante códigos seguros. |
 
 TEST-007-014 permanece bloqueado. La creación de preferencia, el retorno no
 autoritativo, la consulta autoritativa, el pago aprobado y los estados de

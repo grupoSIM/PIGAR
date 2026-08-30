@@ -36,6 +36,14 @@ export type PaymentProvider = {
   searchPayments(reference: string): Promise<ProviderPayment[]>;
   findPreference(reference: string): Promise<{ checkoutUrl: string } | undefined>;
 };
+export type PaymentReconciliationFailure = {
+  safeCode:
+    | "PAYMENT_PROVIDER_REJECTED"
+    | "PAYMENT_PROVIDER_UNAVAILABLE"
+    | "PAYMENT_RESPONSE_INVALID"
+    | "PAYMENT_MISMATCH"
+    | "PAYMENT_RECONCILIATION_STORAGE_FAILED";
+};
 export const PAYMENT_PROVIDER = "PAYMENT_PROVIDER";
 
 @Injectable()
@@ -296,7 +304,7 @@ export class BillingService {
 
   async reconcilePending(
     limit = 50,
-    onProviderFailure?: (failure: PaymentProviderFailure) => void,
+    onFailure?: (failure: PaymentReconciliationFailure) => void,
   ) {
     const db: any = this.database;
     const attempts = await db.paymentAttempt.findMany({
@@ -330,8 +338,7 @@ export class BillingService {
           data: { checkedAt: new Date() },
         });
       } catch (error) {
-        if (!(error instanceof PaymentProviderFailure)) throw error;
-        onProviderFailure?.(error);
+        onFailure?.({ safeCode: this.reconciliationFailureCode(error) });
       }
     }
     return reconciled;
@@ -339,6 +346,25 @@ export class BillingService {
 
   async reconcileProviderPaymentId(providerPaymentId: string) {
     return this.applyProviderPayment(await this.provider.getPayment(providerPaymentId));
+  }
+
+  private reconciliationFailureCode(
+    error: unknown,
+  ): PaymentReconciliationFailure["safeCode"] {
+    if (error instanceof PaymentProviderFailure) return error.safeCode;
+    if (error instanceof ConflictException) return "PAYMENT_MISMATCH";
+    if (error instanceof ServiceUnavailableException) {
+      const response = error.getResponse();
+      if (
+        (typeof response === "string" && response === "PAYMENT_RESPONSE_INVALID") ||
+        (typeof response === "object" &&
+          response !== null &&
+          "message" in response &&
+          response.message === "PAYMENT_RESPONSE_INVALID")
+      )
+        return "PAYMENT_RESPONSE_INVALID";
+    }
+    return "PAYMENT_RECONCILIATION_STORAGE_FAILED";
   }
 
   async conformity(
