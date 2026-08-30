@@ -211,8 +211,31 @@ bloqueando producción.
   funcionalmente por `efe6225` tras la validación de staging.
 - Commit restaurado desplegado: `efe6225`; imágenes `pigar-app` y `pigar-nginx`
   publicadas y validadas por el operador en staging.
-- Rama: `codex/feat-007-webhook-diagnostics`.
-- Imágenes `pigar-app`/`pigar-nginx`: publicación GHCR exitosa y manifiestos
-  `linux/amd64` resolubles por el SHA del commit.
-- Despliegue: staging ejecutado por el operador; producción no autorizada. La
-  rama se retirará después de integrar sus cambios necesarios en `staging`.
+- Integración final en `staging`: `45013b0`; corrección determinística de la
+  prueba de privacidad: `8758b78`.
+- Calidad remota de `8758b78`: `PASS`, ejecución
+  [33337065937](https://github.com/grupoSIM/PIGAR/actions/runs/33337065937).
+  Incluyó formato, lint, tipos, unitarias, integración, seguridad, E2E,
+  contrato CI y documentación.
+- Imágenes `pigar-app`/`pigar-nginx` de `8758b78`: publicación GHCR `PASS`,
+  ejecución
+  [33337065933](https://github.com/grupoSIM/PIGAR/actions/runs/33337065933),
+  con manifiestos `linux/amd64` etiquetados por el SHA completo.
+- La primera calidad del commit de integración (`45013b0`, ejecución
+  `33323499765`) detectó un falso positivo no funcional: una búsqueda textual
+  de `123` podía coincidir aleatoriamente dentro del UUID sintético de
+  correlación. Se reemplazó por una comprobación semántica que limita las
+  claves del evento y valida únicamente el metadata auditable; el test
+  focalizado superó 7/7 localmente y la suite remota posterior quedó verde.
+- Inventario de exposición de esta verificación: sólo nombres de workflows,
+  conteos, códigos internos, SHAs Git y UUIDs sintéticos generados por tests.
+  No se registraron secretos, payloads del proveedor, IDs de pago completos,
+  emails ni datos de tarjeta.
+- La rama diagnóstica dejó de ser fuente de publicación; sus cambios netos
+  necesarios quedaron integrados en `staging` y el trigger temporal fue
+  retirado. La rama temporal de integración tiene como único propósito
+  conservar trazabilidad local durante este cierre y puede retirarse después
+  del 2026-09-06 por el responsable del repositorio.
+- Despliegue: staging fue ejecutado previamente por el operador. Esta
+  publicación generó imágenes nuevas, pero no realizó despliegue a Hostinger.
+  Producción no está autorizada y continúa bloqueada por AC-007-016.

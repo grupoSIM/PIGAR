@@ -1,6 +1,6 @@
 project: PIGAR
 active_feature: feat-007
-phase: publication_review
+phase: done
 updated_at: 2026-08-30T00:00:00-03:00
 
 blockers:
@@ -65,12 +65,13 @@ approvals:
     status: approved
     approved_by: usuario
     approved_at: 2026-08-30T00:00:00-03:00
-    note: El usuario solicitó cerrar feat-007, revisar los cambios que quedaron fuera de staging e integrar los que resulten necesarios. Producción no está autorizada.
+    note: El usuario solicitó cerrar feat-007, revisar e integrar los cambios necesarios en staging y generar sus imágenes. Integración, calidad remota e imágenes completadas; producción no está autorizada.
 
 quality:
   status: passed
 
 notes:
+  - feat-007 cerrada e integrada en `staging` el 2026-08-30. El commit `8758b78` superó quality (run 33337065937) y publicó las imágenes de aplicación/Nginx (run 33337065933). El fallo previo era un falso positivo del test de privacidad al buscar `123` en un UUID de correlación sintético y fue reemplazado por una validación semántica del metadata. AC-007-016 permanece como excepción exclusiva de staging y bloqueo explícito de producción.
   - Revisión independiente final de feat-007 aprobada el 2026-08-30: unitarias 39/39, integración 39/39, seguridad 52/52, E2E técnico 25/25 y frontend CLIENT/ADMIN 9/9. El veredicto habilita integrar en staging con AC-007-016 como excepción explícita; producción permanece bloqueada.
   - El usuario aprobó explícitamente la especificación de feat-007 el 2026-08-27 y autorizó implementar sólo el alcance no productivo. Las cuentas de prueba vendedor/comprador ya existen; TEST-007-014 y AC-007-016 permanecen bloqueados hasta implementar un endpoint HTTPS compatible, configurar secretos sólo fuera del repositorio y observar los escenarios oficiales. No se autorizan producción, cobros reales, commit, push, PR ni despliegue.
   - Especificación de feat-007 preparada el 2026-08-17 con requisitos, diseño, contrato HTTP, aceptación, tareas, plan de pruebas y evidencia inicial. La feature pasa a spec_review; TEST-007-014 y AC-007-016 quedan pendientes de acceso humano a una aplicación/cuentas no productivas de Mercado Pago. No se autoriza implementación, credenciales, cobros, commit, push, PR ni despliegue.
