@@ -57,10 +57,10 @@ features:
 
   - id: feat-007
     name: Resolución administrativa, cobro y conformidad
-    status: done
+    status: verification
     priority: must
     depends_on: [feat-003, feat-005]
-    note: Cerrada e integrada en staging el 2026-08-30 con conciliación autoritativa, revisión independiente y calidad/imágenes remotas aprobadas. TEST-007-014/AC-007-016 conservan una excepción por Webhook automático 401 que bloquea producción.
+    note: Reabierta el 2026-08-30 para garantizar que las imágenes de staging se publiquen sólo después de calidad exitosa del mismo SHA. TEST-007-014/AC-007-016 conservan una excepción por Webhook automático 401 que bloquea producción.
 
   - id: feat-008
     name: Presupuesto complejo, aprobación y reprogramación

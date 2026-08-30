@@ -29,6 +29,15 @@ de consultar la API de Mercado Pago y validar referencia, moneda e importe.
 - Customer web: resumen, botón pagar/retomar, estado en verificación y conformidad.
 - Admin web: resolución, cargo inmutable, historial mínimo y alertas.
 
+## Compuerta de publicación de staging
+
+El workflow `quality` es el único punto de entrada por push. Su job `verify`
+ejecuta todas las categorías bloqueantes y, sólo para `refs/heads/staging`,
+habilita mediante `needs` el workflow reutilizable que publica `pigar-app` y
+`pigar-nginx`. Ambos jobs conservan el mismo `github.sha`; los permisos
+`packages: write` se conceden únicamente al job de publicación. Si `verify`
+falla o es cancelado, GitHub omite el job de imágenes.
+
 ## Modelo de dominio y datos
 
 | Entidad                    | Campos mínimos                                                                                                                                        | Invariantes                                                                                                                          |

@@ -27,6 +27,7 @@ con aplicación y cuentas no productivas.
 | TEST-007-013 | technical E2E           | Flujo completo con PostgreSQL y proveedor mock: aprobado, pendiente y rechazo/reintento (AC-007-015).                                   | `pnpm test:e2e`                                                                                         | pass — 25/25; completado por TEST-007-012               |
 | TEST-007-014 | non-production provider | Aplicación/cuentas Mercado Pago, preferencia, retornos, firma, consulta, estados, duplicado/fuera de orden y conciliación (AC-007-016). | Manual asistida + harness no productivo, comando a definir sin secretos                                 | excepción staging — Webhook real responde 401           |
 | TEST-007-015 | quality                 | Formato, lint, tipos/build, documentación y diff.                                                                                       | `pnpm format:check`; `pnpm lint`; `pnpm typecheck`; `pnpm build`; `pnpm docs:check`; `git diff --check` | pass — 2026-08-30                                       |
+| TEST-007-016 | CI/release              | Imágenes del mismo SHA se publican sólo si calidad completa pasa en `staging`; fallo/cancelación las omite (AC-007-017).                | `pnpm test:ci-contract`; inspección de dependencias y ejecución remota de GitHub Actions                | pendiente                                               |
 
 ## Matriz focalizada del diagnóstico 401
 

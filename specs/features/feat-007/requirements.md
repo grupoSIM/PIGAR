@@ -1,7 +1,8 @@
 # Requisitos — feat-007: Resolución administrativa, cobro y conformidad
 
 - Estado: `verification` — alcance funcional de staging aceptado por el usuario
-  el 2026-08-30 con conciliación autoritativa y riesgo Webhook documentado.
+  el 2026-08-30 con conciliación autoritativa, riesgo Webhook documentado y
+  compuerta de publicación de imágenes en verificación.
 - Arquitectura: `approved_with_conditions`, usuario, 2026-08-17.
 - Dependencias: feat-003 y feat-005 cerradas.
 - Límite: esta especificación no autoriza código, migraciones, credenciales,
@@ -166,6 +167,11 @@ reclamos, garantías, calificaciones, notificaciones externas y producción.
 - NFR-007-008 — Retención: identificadores de pago y conformidad se conservan
   hasta definir base/plazo legal; el paso a producción queda bloqueado hasta
   aprobar retención, borrado y tratamiento de contracargos/reembolsos.
+- NFR-007-009 — Publicación segura de staging: las imágenes OCI de un SHA de
+  `staging` se construyen y publican únicamente después de que todas las
+  categorías bloqueantes de calidad del mismo SHA finalizan correctamente. Un
+  fallo o cancelación de calidad omite la publicación; `main` y otras ramas no
+  publican imágenes de staging.
 
 ## Dependencias y validación pendiente
 

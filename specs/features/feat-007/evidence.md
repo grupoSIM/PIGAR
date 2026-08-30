@@ -239,3 +239,31 @@ bloqueando producción.
 - Despliegue: staging fue ejecutado previamente por el operador. Esta
   publicación generó imágenes nuevas, pero no realizó despliegue a Hostinger.
   Producción no está autorizada y continúa bloqueada por AC-007-016.
+
+## Reapertura — compuerta de calidad para imágenes
+
+El usuario reabrió el cierre el 2026-08-30 al detectar que
+`publish-staging-images` se disparaba en paralelo con `quality`, contradiciendo
+la política documentada. El incremento incorpora NFR-007-009, AC-007-017,
+TASK-007-012 y TEST-007-016. `quality` llama al workflow reutilizable de
+imágenes mediante un job con `needs: verify`, limitado a
+`refs/heads/staging`; ambos usan el mismo `github.sha` y sólo el publicador
+recibe `packages: write`.
+
+| Fecha      | Verificación                                                                                 | Resultado                                                                                                                                                             |
+| ---------- | -------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-08-30 | `pnpm test:ci-contract`                                                                      | pass 3/3; valida dependencia de `verify`, rama staging, workflow reutilizable, SHA y ausencia de disparadores independientes.                                         |
+| 2026-08-30 | Prettier focalizado; ESLint de `scripts/ci-contract.test.mjs`; `node scripts/docs-check.mjs` | pass; todos los archivos de código/documentación afectados tienen formato válido, lint limpio y trazabilidad consistente.                                             |
+| 2026-08-30 | `git diff --check`                                                                           | pass; sólo advertencias de conversión LF/CRLF del checkout secundario, sin errores de whitespace.                                                                     |
+| 2026-08-30 | `pnpm format:check` global en worktree secundario                                            | no concluyente: señaló 125 archivos preexistentes por conversión CRLF del checkout. No se reescribieron; la CI Linux limpia ejecutará el control global autoritativo. |
+
+Pendiente para completar TEST-007-016: revisión independiente y ejecución
+remota donde `verify` termine antes del job de imágenes del mismo run/SHA.
+
+La revisión independiente estática emitió `PASS` sin hallazgos P0/P1/P2:
+confirmó dependencia y propagación del SHA, omisión ante fallo/cancelación,
+restricción a staging, ausencia de callers/disparadores alternativos y privilegio
+mínimo. Su observación P3 sobre regex fue resuelta haciendo que el contrato
+exija exactamente un caller y dos declaraciones `packages: write` (caller y
+reusable). La publicación remota queda habilitada; el cierre continúa pendiente
+de observar esa ejecución.

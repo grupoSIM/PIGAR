@@ -38,3 +38,11 @@ jobs:
       - run: pnpm test:e2e
       - run: pnpm test:ci-contract
       - run: pnpm docs:check
+
+  publish-staging-images:
+    needs: verify
+    if: github.ref == 'refs/heads/staging'
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/publish-staging-images.yml

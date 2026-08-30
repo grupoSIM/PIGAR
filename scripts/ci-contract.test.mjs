@@ -41,15 +41,25 @@ test("[ci-contract] el workflow ejecuta instalación reproducible y todas las ca
   assert.doesNotMatch(workflow, /deploy|ssh|secret/i);
 });
 
-test("[ci-contract] las imágenes de staging sólo se publican por push a staging", async () => {
-  const workflow = await readFile(
+test("[ci-contract] las imágenes de staging se publican sólo después de calidad exitosa", async () => {
+  const qualityWorkflow = await readFile(path.join(root, ".github", "workflows", "ci.yml"), "utf8");
+  const imageWorkflow = await readFile(
     path.join(root, ".github", "workflows", "publish-staging-images.yml"),
     "utf8",
   );
 
-  assert.match(workflow, /push:\n\s+branches:\n\s+- staging/);
-  assert.doesNotMatch(workflow, /workflow_run|workflow_dispatch|github\.ref_name == 'main'/);
-  assert.doesNotMatch(workflow, /codex\/feat-002-auth0-staging/);
+  assert.match(
+    qualityWorkflow,
+    /publish-staging-images:\n\s+needs: verify\n\s+if: github\.ref == 'refs\/heads\/staging'\n\s+permissions:\n\s+contents: read\n\s+packages: write\n\s+uses: \.\/\.github\/workflows\/publish-staging-images\.yml/,
+  );
+  assert.match(imageWorkflow, /on:\n\s+workflow_call:/);
+  assert.match(imageWorkflow, /IMAGE_TAG: \$\{\{ github\.sha \}\}/);
+  assert.doesNotMatch(imageWorkflow, /on:\n\s+(?:push|workflow_run|workflow_dispatch):/);
+  assert.equal(
+    qualityWorkflow.match(/uses: \.\/\.github\/workflows\/publish-staging-images\.yml/g)?.length,
+    1,
+  );
+  assert.equal((qualityWorkflow + imageWorkflow).match(/packages: write/g)?.length, 2);
 });
 
 test("[ci-contract] regresiones controladas bloquean formato, lint, tipos y suites", async (t) => {
