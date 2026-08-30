@@ -1,6 +1,6 @@
 project: PIGAR
 active_feature: feat-007
-phase: verification
+phase: done
 updated_at: 2026-08-30T00:00:00-03:00
 
 blockers:
@@ -60,7 +60,7 @@ approvals:
     status: approved
     approved_by: reviewer_independiente
     approved_at: 2026-08-30T00:00:00-03:00
-    note: PASS sin hallazgos bloqueantes para la feature y PASS estático del incremento de compuerta CI. TEST-007-016 permanece pendiente únicamente de ejecución remota; AC-007-016 sigue como excepción exclusiva de staging y bloqueo de producción.
+    note: PASS sin hallazgos bloqueantes para la feature y la compuerta CI. TEST-007-016 superó contrato local, revisión independiente y ejecución remota secuencial; AC-007-016 sigue como excepción exclusiva de staging y bloqueo de producción.
   publication:
     status: approved
     approved_by: usuario
@@ -68,9 +68,10 @@ approvals:
     note: El usuario solicitó implementar y probar ahora la compuerta que publica imágenes sólo después de calidad exitosa y volver a cerrar feat-007. La publicación se limita a staging; producción no está autorizada.
 
 quality:
-  status: pending
+  status: passed
 
 notes:
+  - feat-007 cerrada nuevamente el 2026-08-30. El SHA `942e028` ejecutó un único run quality 33338559977: `verify` superó todas las categorías en 4m22s y sólo entonces comenzó `publish-staging-images / publish`, que publicó ambas imágenes en 1m59s. No hubo workflow paralelo de imágenes. NFR-007-009/AC-007-017/TASK-007-012/TEST-007-016 quedan completos.
   - feat-007 reabierta por solicitud del usuario el 2026-08-30: el workflow de imágenes se ejecutaba en paralelo con quality pese a que la documentación exigía publicarlo después. Se agrega NFR-007-009/AC-007-017/TASK-007-012/TEST-007-016 y se requiere contrato local, ejecución remota e inspección independiente antes de volver a cerrar.
   - feat-007 cerrada e integrada en `staging` el 2026-08-30. El commit `8758b78` superó quality (run 33337065937) y publicó las imágenes de aplicación/Nginx (run 33337065933). El fallo previo era un falso positivo del test de privacidad al buscar `123` en un UUID de correlación sintético y fue reemplazado por una validación semántica del metadata. AC-007-016 permanece como excepción exclusiva de staging y bloqueo explícito de producción.
   - Revisión independiente final de feat-007 aprobada el 2026-08-30: unitarias 39/39, integración 39/39, seguridad 52/52, E2E técnico 25/25 y frontend CLIENT/ADMIN 9/9. El veredicto habilita integrar en staging con AC-007-016 como excepción explícita; producción permanece bloqueada.

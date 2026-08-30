@@ -257,13 +257,20 @@ recibe `packages: write`.
 | 2026-08-30 | `git diff --check`                                                                           | pass; sólo advertencias de conversión LF/CRLF del checkout secundario, sin errores de whitespace.                                                                     |
 | 2026-08-30 | `pnpm format:check` global en worktree secundario                                            | no concluyente: señaló 125 archivos preexistentes por conversión CRLF del checkout. No se reescribieron; la CI Linux limpia ejecutará el control global autoritativo. |
 
-Pendiente para completar TEST-007-016: revisión independiente y ejecución
-remota donde `verify` termine antes del job de imágenes del mismo run/SHA.
-
 La revisión independiente estática emitió `PASS` sin hallazgos P0/P1/P2:
 confirmó dependencia y propagación del SHA, omisión ante fallo/cancelación,
 restricción a staging, ausencia de callers/disparadores alternativos y privilegio
 mínimo. Su observación P3 sobre regex fue resuelta haciendo que el contrato
 exija exactamente un caller y dos declaraciones `packages: write` (caller y
-reusable). La publicación remota queda habilitada; el cierre continúa pendiente
-de observar esa ejecución.
+reusable).
+
+TEST-007-016 se completó en la ejecución remota
+[33338559977](https://github.com/grupoSIM/PIGAR/actions/runs/33338559977)
+del SHA `942e0281dc542aa6ebe1d24ff3d326df4e9555cd`. Existió un único run
+`quality`: `verify` superó instalación, Prisma, formato, lint, tipos, unitarias,
+integración, seguridad, E2E, contrato CI y documentación en 4m22s. Recién tras
+su finalización apareció `publish-staging-images / publish`, que construyó y
+publicó `pigar-app` y `pigar-nginx` en 1m59s. No se creó un workflow paralelo de
+imágenes y ambos tags usan el mismo SHA. AC-007-017 y TASK-007-012 quedan en
+`pass`; feat-007 vuelve a `done` sin modificar el bloqueo productivo de
+AC-007-016.
