@@ -37,7 +37,7 @@ export class PaymentReconciliationRunner implements OnModuleInit, OnModuleDestro
 
   private async poll(): Promise<void> {
     const now = new Date();
-    let stage = "lease_recovery";
+    let failureCode = "POLL_LEASE_RECOVERY_FAILED";
     try {
       await this.database.claimedJob.updateMany({
         where: {
@@ -47,13 +47,13 @@ export class PaymentReconciliationRunner implements OnModuleInit, OnModuleDestro
         },
         data: { state: "PENDING", availableAt: now, leaseExpiresAt: null },
       });
-      stage = "job_lookup";
+      failureCode = "POLL_JOB_LOOKUP_FAILED";
       const job = await this.database.claimedJob.findFirst({
         where: { jobType: JOB_TYPE, state: "PENDING", availableAt: { lte: now } },
         orderBy: { availableAt: "asc" },
       });
       if (!job) {
-        stage = "pending_reconciliation";
+        failureCode = "POLL_PENDING_RECONCILIATION_FAILED";
         await this.billing.reconcilePending(50, (failure) => {
           this.logger.warn("payment.reconciliation.provider_failed", undefined, {
             code: failure.safeCode,
@@ -62,16 +62,16 @@ export class PaymentReconciliationRunner implements OnModuleInit, OnModuleDestro
         });
         return;
       }
-      stage = "job_claim";
+      failureCode = "POLL_JOB_CLAIM_FAILED";
       const claimed = await this.database.claimedJob.updateMany({
         where: { id: job.id, state: "PENDING" },
         data: { state: "PROCESSING", leaseExpiresAt: new Date(now.getTime() + 60_000) },
       });
       if (claimed.count !== 1) return;
       try {
-        stage = "provider_payment_reconciliation";
+        failureCode = "POLL_PROVIDER_PAYMENT_RECONCILIATION_FAILED";
         await this.billing.reconcileProviderPaymentId(job.idempotencyKey);
-        stage = "job_processed_update";
+        failureCode = "POLL_JOB_PROCESSED_UPDATE_FAILED";
         await this.database.claimedJob.update({
           where: { id: job.id },
           data: { state: "PROCESSED", leaseExpiresAt: null, lastSafeError: null },
@@ -85,7 +85,7 @@ export class PaymentReconciliationRunner implements OnModuleInit, OnModuleDestro
           error instanceof PaymentProviderFailure
             ? error.safeCode
             : "provider_or_reconciliation_failure";
-        stage = "job_retry_update";
+        failureCode = "POLL_JOB_RETRY_UPDATE_FAILED";
         await this.database.claimedJob.update({
           where: { id: job.id },
           data: {
@@ -103,8 +103,7 @@ export class PaymentReconciliationRunner implements OnModuleInit, OnModuleDestro
       }
     } catch {
       this.logger.warn("payment.reconciliation.poll_failed", undefined, {
-        code: "POLL_FAILED",
-        stage,
+        code: failureCode,
         duration_ms: 0,
       });
     }
