@@ -148,6 +148,11 @@ services:
       AUTH0_MANAGEMENT_CLIENT_ID: ${AUTH0_MANAGEMENT_CLIENT_ID:-local-management-client-0001}
       AUTH0_MANAGEMENT_CLIENT_SECRET: ${AUTH0_MANAGEMENT_CLIENT_SECRET:-local-compose-not-a-secret}
       AUTH0_INTERNAL_CONNECTION: ${AUTH0_INTERNAL_CONNECTION:-local-internal-connection}
+      # Aislado de las variables de staging: el E2E sólo firma valores
+      # sintéticos y nunca hereda credenciales Mercado Pago del host.
+      MERCADO_PAGO_ACCESS_TOKEN: ${PIGAR_E2E_MERCADO_PAGO_ACCESS_TOKEN:-local-e2e-synthetic-access-token}
+      MERCADO_PAGO_WEBHOOK_SECRET: ${PIGAR_E2E_MERCADO_PAGO_WEBHOOK_SECRET:-local-e2e-synthetic-webhook-secret}
+      PIGAR_PAYMENT_RETURN_BASE_URL: ${PIGAR_E2E_PAYMENT_RETURN_BASE_URL:-https://staging.invalid}
     depends_on:
       migrate:
         condition: service_completed_successfully

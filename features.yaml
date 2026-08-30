@@ -57,10 +57,10 @@ features:
 
   - id: feat-007
     name: Resolución administrativa, cobro y conformidad
-    status: implementation
+    status: publication_review
     priority: must
     depends_on: [feat-003, feat-005]
-    note: Especificación aprobada por el usuario el 2026-08-27; implementación autorizada sólo en ambiente no productivo. TEST-007-014/AC-007-016 siguen bloqueados hasta validar la integración real con Mercado Pago sin secretos ni cobros reales.
+    note: Alcance funcional de staging aceptado por el usuario el 2026-08-30 con conciliación autoritativa. TEST-007-014/AC-007-016 conservan una excepción por Webhook automático 401 que bloquea producción, no el cierre de staging.
 
   - id: feat-008
     name: Presupuesto complejo, aprobación y reprogramación

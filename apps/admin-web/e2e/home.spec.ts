@@ -98,3 +98,47 @@ test("ADMIN abre los adjuntos mediante la entrega privada", async ({ page }) => 
     `http://127.0.0.1:8088/admin/api/requests/${request.id}/media/${mediaId}`,
   );
 });
+
+test("ADMIN registra la resolución y crea el cargo congelado", async ({ page }) => {
+  const request = {
+    id: "00000000-0000-4000-8000-000000000501",
+    description: "Resolución sintética",
+    completeness: "READY_FOR_OPERATION",
+    offer: { category: "Visita Simple", currency: "ARS", price: "50000.00", version: 1 },
+    address: null,
+    media: [],
+  };
+  const order = {
+    id: "00000000-0000-4000-8000-000000000502",
+    requestId: request.id,
+    state: "TRABAJO_FINALIZADO",
+    version: 4,
+    technician: { fullName: "Técnico sintético" },
+  };
+  let resolutionBody: Record<string, unknown> | undefined;
+  await page.route("**/admin/api/requests", (route) =>
+    route.fulfill({ json: { items: [request] } }),
+  );
+  await page.route("**/admin/api/operations/technicians", (route) =>
+    route.fulfill({ json: { items: [] } }),
+  );
+  await page.route("**/admin/api/operations/orders", (route) =>
+    route.fulfill({ json: { items: [order] } }),
+  );
+  await page.route("**/admin/api/operations/orders/*/resolution", async (route) => {
+    resolutionBody = route.request().postDataJSON() as Record<string, unknown>;
+    await route.fulfill({ json: { ...order, state: "PENDIENTE_PAGO", version: 5 } });
+  });
+  page.on("dialog", (dialog) => dialog.accept("Trabajo sintético finalizado"));
+  await page.goto("/admin");
+  await page.getByRole("button", { name: "Registrar resolución y cargo" }).click();
+  await expect(
+    page.getByText("Resolución registrada. El cliente puede iniciar el pago."),
+  ).toBeVisible();
+  await expect(page.getByText(/Orden: PENDIENTE_PAGO/)).toBeVisible();
+  expect(resolutionBody).toEqual({
+    outcome: "RESUELTO_EN_VISITA",
+    summary: "Trabajo sintético finalizado",
+    expectedOrderVersion: 4,
+  });
+});

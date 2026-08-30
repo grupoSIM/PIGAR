@@ -1,8 +1,67 @@
 import assert from "node:assert/strict";
-import { randomUUID } from "node:crypto";
+import { createHash, createHmac, randomUUID } from "node:crypto";
 import test from "node:test";
 import { DatabaseService } from "../apps/api/dist/database.service.js";
 import { BillingService } from "../apps/api/dist/billing/billing.service.js";
+import { MercadoPagoWebhookController } from "../apps/api/dist/billing/mercado-pago-webhook.controller.js";
+
+test("[feat-007][postgres][payment-concurrency] Webhook válido persiste una vez y el duplicado responde 200", async () => {
+  const database = new DatabaseService();
+  const environmentKeys = [
+    "MERCADO_PAGO_ACCESS_TOKEN",
+    "MERCADO_PAGO_WEBHOOK_SECRET",
+    "PIGAR_PAYMENT_RETURN_BASE_URL",
+  ];
+  const previous = Object.fromEntries(environmentKeys.map((key) => [key, process.env[key]]));
+  const secret = "synthetic-postgres-webhook-secret";
+  process.env.MERCADO_PAGO_ACCESS_TOKEN = "synthetic-access-token";
+  process.env.MERCADO_PAGO_WEBHOOK_SECRET = secret;
+  process.env.PIGAR_PAYMENT_RETURN_BASE_URL = "https://staging.example.test";
+  const dataId = `payment-${randomUUID()}`;
+  const eventId = `event-${randomUUID()}`;
+  const requestId = `request-${randomUUID()}`;
+  const ts = String(Math.floor(Date.now() / 1000));
+  const signature = createHmac("sha256", secret)
+    .update(`id:${dataId};request-id:${requestId};ts:${ts};`)
+    .digest("hex");
+  const controller = new MercadoPagoWebhookController(database);
+  const body = { id: eventId, type: "payment", data: { id: dataId } };
+  try {
+    await database.$connect();
+    assert.deepEqual(
+      await controller.receive(`ts=${ts},v1=${signature}`, requestId, dataId, "payment", body),
+      { received: true },
+    );
+    assert.deepEqual(
+      await controller.receive(`ts=${ts},v1=${signature}`, requestId, dataId, "payment", body),
+      { received: true, duplicate: true },
+    );
+    assert.equal(
+      await database.providerEventReceipt.count({
+        where: {
+          provider: "mercado-pago",
+          externalEventIdHash: createHash("sha256").update(eventId).digest("hex"),
+        },
+      }),
+      1,
+    );
+    assert.equal(
+      await database.claimedJob.count({
+        where: {
+          jobType: "mercado-pago-payment-reconciliation",
+          idempotencyKey: dataId,
+        },
+      }),
+      1,
+    );
+  } finally {
+    await database.$disconnect();
+    for (const key of environmentKeys) {
+      if (previous[key] === undefined) delete process.env[key];
+      else process.env[key] = previous[key];
+    }
+  }
+});
 
 test("[feat-007][postgres] resolución, conciliación y conformidad preservan evidencia", async () => {
   const database = new DatabaseService();

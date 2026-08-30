@@ -22,6 +22,7 @@ const suites = {
     "scripts/requests.test.mjs",
     "scripts/orders.test.mjs",
     "scripts/billing.test.mjs",
+    "scripts/payment-webhook-http.test.mjs",
   ],
   integration: [
     "scripts/api-health.test.mjs",
@@ -34,6 +35,7 @@ const suites = {
     "scripts/requests.test.mjs",
     "scripts/orders.test.mjs",
     "scripts/billing.test.mjs",
+    "scripts/payment-webhook-http.test.mjs",
   ],
   e2e: [
     "scripts/e2e-technical.test.mjs",
@@ -41,6 +43,7 @@ const suites = {
     "scripts/requests.test.mjs",
     "scripts/orders.test.mjs",
     "scripts/billing.test.mjs",
+    "scripts/payment-webhook-http.test.mjs",
   ],
   security: [
     "scripts/media-poc.test.mjs",
@@ -54,6 +57,7 @@ const suites = {
     "scripts/requests.test.mjs",
     "scripts/orders.test.mjs",
     "scripts/billing.test.mjs",
+    "scripts/payment-webhook-http.test.mjs",
   ],
 };
 

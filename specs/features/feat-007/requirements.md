@@ -1,7 +1,7 @@
 # Requisitos — feat-007: Resolución administrativa, cobro y conformidad
 
-- Estado: `implementation` — aprobado por el usuario el 2026-08-27 para
-  implementación exclusivamente no productiva.
+- Estado: `verification` — alcance funcional de staging aceptado por el usuario
+  el 2026-08-30 con conciliación autoritativa y riesgo Webhook documentado.
 - Arquitectura: `approved_with_conditions`, usuario, 2026-08-17.
 - Dependencias: feat-003 y feat-005 cerradas.
 - Límite: esta especificación no autoriza código, migraciones, credenciales,
@@ -170,9 +170,10 @@ reclamos, garantías, calificaciones, notificaciones externas y producción.
 ## Dependencias y validación pendiente
 
 - ADR-004 y decisiones DEC-007-001 a DEC-007-008 aprobadas.
-- La validación Mercado Pago no productiva exigida por ADR-004 está pendiente y
-  bloquea el cierre de la verificación de esta feature. Requiere que una
-  persona autorizada cree o habilite una aplicación de prueba y cuentas vendedor
-  y comprador del mismo país, configure una URL HTTPS de Webhooks de staging y
-  ejecute los escenarios de `test-plan.md`. No debe copiar secretos, contraseñas,
-  tokens ni datos de cuentas al repositorio, evidencia, chat o logs.
+- La validación Mercado Pago no productiva fue ejecutada parcialmente. La
+  preferencia, los retornos no autoritativos, la consulta oficial y los estados
+  aprobado, pendiente y rechazado fueron observados; la conciliación recuperó
+  un pago aprobado. La entrega Webhook automática moderna continúa respondiendo
+  401 por firma inválida, aunque el simulador responde 200. El usuario aceptó
+  esta excepción sólo para cerrar el alcance de staging. Producción permanece
+  bloqueada hasta resolver y validar extremo a extremo AC-007-016.

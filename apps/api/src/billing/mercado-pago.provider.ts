@@ -132,9 +132,7 @@ export class MercadoPagoProvider implements PaymentProvider {
     )
       throw new ServiceUnavailableException("PAYMENT_RESPONSE_INVALID");
     const status =
-      item.status === "in_process" || item.status === "authorized"
-        ? "pending"
-        : item.status;
+      item.status === "in_process" || item.status === "authorized" ? "pending" : item.status;
     if (
       status !== "approved" &&
       status !== "pending" &&

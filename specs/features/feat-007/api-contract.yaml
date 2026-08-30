@@ -256,7 +256,7 @@ components:
     MercadoPagoWebhookEnvelope:
       type: object
       additionalProperties: true
-      required: [action, api_version, data, date_created, id, live_mode, type]
+      required: [data, id, type]
       properties:
         action: { type: string, maxLength: 100 }
         api_version: { type: string, maxLength: 20 }

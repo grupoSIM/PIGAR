@@ -6,7 +6,11 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { BillingService } from "../apps/api/dist/billing/billing.service.js";
 import {
+  MercadoPagoWebhookController,
+  mercadoPagoWebhookSecret,
   validWebhookSignature,
+  webhookSchemaFailure,
+  webhookSignatureDiagnostic,
   webhookSignatureFailure,
 } from "../apps/api/dist/billing/mercado-pago-webhook.controller.js";
 import { PaymentProviderFailure } from "../apps/api/dist/billing/payment-provider.error.js";
@@ -14,6 +18,19 @@ import { PaymentProviderFailure } from "../apps/api/dist/billing/payment-provide
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 async function source(file) {
   return readFile(path.join(root, file), "utf8");
+}
+
+function signedHeader(secret, requestId, dataId, ts) {
+  const signature = createHmac("sha256", secret)
+    .update(
+      [
+        ...(dataId ? [`id:${dataId}`] : []),
+        ...(requestId ? [`request-id:${requestId}`] : []),
+        `ts:${ts}`,
+      ].join(";") + ";",
+    )
+    .digest("hex");
+  return `ts=${ts},v1=${signature}`;
 }
 
 test("[feat-007] migración conserva historial, unicidad y restricciones monetarias", async () => {
@@ -45,12 +62,13 @@ test("[feat-007] migración conserva historial, unicidad y restricciones monetar
 });
 
 test("[feat-007] checkout y webhook sólo avanzan tras validación autoritativa", async () => {
-  const [billing, webhook, provider, runner, nginx] = await Promise.all([
+  const [billing, webhook, provider, runner, nginx, stagingCompose] = await Promise.all([
     source("apps/api/src/billing/billing.service.ts"),
     source("apps/api/src/billing/mercado-pago-webhook.controller.ts"),
     source("apps/api/src/billing/mercado-pago.provider.ts"),
     source("apps/api/src/billing/payment-reconciliation.runner.ts"),
     source("infra/nginx/nginx.conf"),
+    source("infra/hostinger/docker-compose.traefik.yml"),
   ]);
   assert.match(billing, /order\.request\.currency !== "ARS"/);
   assert.match(billing, /PREFERENCE_CREATION_UNCERTAIN/);
@@ -60,10 +78,19 @@ test("[feat-007] checkout y webhook sólo avanzan tras validación autoritativa"
   assert.match(webhook, /data\.id/);
   assert.match(webhook, /WebhookSignatureValidator/);
   assert.match(webhook, /WEBHOOK_SIGNATURE_EVENT_ID_MATCH/);
+  assert.match(webhook, /WEBHOOK_SCHEMA_BODY_INVALID/);
+  assert.match(webhook, /BadRequestException/);
   assert.match(webhook, /claimedJob\.upsert/);
   assert.match(webhook, /mercado-pago-payment-reconciliation/);
   assert.match(nginx, /location = \/api\/v1\/webhooks\/mercado-pago/);
   assert.match(nginx, /proxy_set_header X-Request-ID \$http_x_request_id/);
+  assert.match(nginx, /client_max_body_size 64k/);
+  assert.match(nginx, /limit_req_status 429/);
+  assert.doesNotMatch(
+    nginx.match(/location = \/api\/v1\/webhooks\/mercado-pago \{[\s\S]*?\n[ ]{4}\}/)?.[0] ?? "",
+    /return 30[1278]|rewrite/,
+  );
+  assert.match(stagingCompose, /MERCADO_PAGO_WEBHOOK_SECRET: \$\{MERCADO_PAGO_WEBHOOK_SECRET:-\}/);
   assert.match(provider, /\/v1\/payments\//);
   assert.match(provider, /external_reference/);
   assert.match(provider, /notification_url/);
@@ -88,39 +115,31 @@ test("[feat-007] valida firma HMAC, componentes requeridos y ventana anti-replay
   const requestId = "test-request";
   const dataId = "test-payment";
   const ts = "1700000000";
-  const signature = createHmac("sha256", secret)
-    .update(`id:${dataId};request-id:${requestId};ts:${ts};`)
-    .digest("hex");
+  const signature = signedHeader(secret, requestId, dataId, ts);
   assert.equal(
-    validWebhookSignature(`ts=${ts},v1=${signature}`, requestId, dataId, secret, 1_700_000_010_000),
+    validWebhookSignature(signature, requestId, dataId, secret, 1_700_000_010_000),
     true,
   );
   assert.equal(
-    validWebhookSignature(`ts=${ts},v1=${signature}`, requestId, dataId, secret, 1_700_000_400_001),
+    validWebhookSignature(signature, requestId, dataId, secret, 1_700_000_300_001),
+    false,
+  );
+  assert.equal(
+    validWebhookSignature(signature, requestId, dataId, secret, 1_699_999_699_999),
     false,
   );
   const tsMilliseconds = "1700000000000";
-  const millisecondSignature = createHmac("sha256", secret)
-    .update(`id:${dataId};request-id:${requestId};ts:${tsMilliseconds};`)
-    .digest("hex");
+  const millisecondSignature = signedHeader(secret, requestId, dataId, tsMilliseconds);
   assert.equal(
-    validWebhookSignature(
-      `ts=${tsMilliseconds},v1=${millisecondSignature}`,
-      requestId,
-      dataId,
-      secret,
-      1_700_000_010_000,
-    ),
+    validWebhookSignature(millisecondSignature, requestId, dataId, secret, 1_700_000_010_000),
     true,
   );
 
   const mixedCaseDataId = "Test-Payment";
-  const mixedCaseSignature = createHmac("sha256", secret)
-    .update(`id:${mixedCaseDataId};request-id:${requestId};ts:${tsMilliseconds};`)
-    .digest("hex");
+  const mixedCaseSignature = signedHeader(secret, requestId, mixedCaseDataId, tsMilliseconds);
   assert.equal(
     validWebhookSignature(
-      `ts=${tsMilliseconds},v1=${mixedCaseSignature}`,
+      mixedCaseSignature,
       requestId,
       mixedCaseDataId,
       secret,
@@ -129,9 +148,236 @@ test("[feat-007] valida firma HMAC, componentes requeridos y ventana anti-replay
     true,
   );
   assert.equal(
+    validWebhookSignature(mixedCaseSignature, requestId, mixedCaseDataId.toLowerCase(), secret),
+    false,
+  );
+  assert.equal(
     webhookSignatureFailure(`ts=${ts},v1=00`, requestId, dataId, secret, 1_700_000_010_000),
+    "WEBHOOK_SIGNATURE_HEADER_INVALID",
+  );
+  assert.equal(
+    webhookSignatureFailure(
+      `ts=${ts},ts=${ts},v1=${"0".repeat(64)}`,
+      requestId,
+      dataId,
+      secret,
+      1_700_000_010_000,
+    ),
+    "WEBHOOK_SIGNATURE_HEADER_INVALID",
+  );
+  for (const [changedRequestId, changedDataId, changedSecret] of [
+    ["changed-request", dataId, secret],
+    [requestId, "changed-payment", secret],
+    [requestId, dataId, "changed-secret"],
+  ])
+    assert.equal(
+      webhookSignatureFailure(
+        signature,
+        changedRequestId,
+        changedDataId,
+        changedSecret,
+        1_700_000_010_000,
+      ),
+      "WEBHOOK_SIGNATURE_INVALID",
+    );
+});
+
+test("[mercado-pago-webhook] acepta el cuerpo oficial mínimo y separa errores de esquema", () => {
+  const minimal = { id: 1, type: "payment", data: { id: "payment-1" } };
+  assert.equal(webhookSchemaFailure("payment-1", "payment", minimal), undefined);
+  assert.equal(
+    webhookSchemaFailure("payment-1", "payment", {
+      ...minimal,
+      action: "payment.created",
+      api_version: "v1",
+      date_created: "2026-08-29T00:00:00Z",
+      live_mode: false,
+    }),
+    undefined,
+  );
+  assert.equal(
+    webhookSchemaFailure("payment-2", "payment", minimal),
+    "WEBHOOK_SCHEMA_BODY_INVALID",
+  );
+  assert.equal(
+    webhookSchemaFailure("payment-1", "merchant_order", minimal),
+    "WEBHOOK_SCHEMA_TOPIC_INVALID",
+  );
+  assert.equal(
+    webhookSchemaFailure(["payment-1", "payment-2"], "payment", minimal),
+    "WEBHOOK_SCHEMA_QUERY_DATA_ID_INVALID",
+  );
+});
+
+test("[mercado-pago-webhook] usa sólo la clave Webhook tipada y las variantes diagnósticas no autorizan", () => {
+  const secret = "sentinel-staging-webhook-secret";
+  assert.equal(
+    mercadoPagoWebhookSecret({
+      NODE_ENV: "development",
+      MERCADO_PAGO_ACCESS_TOKEN: "synthetic-access-token",
+      MERCADO_PAGO_WEBHOOK_SECRET: `  ${secret}  `,
+      PIGAR_PAYMENT_RETURN_BASE_URL: "https://staging.example.test",
+    }),
+    secret,
+  );
+  const requestId = "request-1";
+  const queryDataId = "query-payment";
+  const eventId = "event-1";
+  const ts = "1700000000";
+  const eventSignedHeader = signedHeader(secret, requestId, eventId, ts);
+  assert.equal(
+    webhookSignatureFailure(eventSignedHeader, requestId, queryDataId, secret, 1_700_000_010_000),
     "WEBHOOK_SIGNATURE_INVALID",
   );
+  assert.equal(
+    webhookSignatureDiagnostic(
+      eventSignedHeader,
+      requestId,
+      queryDataId,
+      { id: eventId, type: "payment", data: { id: queryDataId } },
+      secret,
+      1_700_000_010_000,
+    ),
+    "WEBHOOK_SIGNATURE_EVENT_ID_MATCH",
+  );
+
+  const bodyDataId = "body-payment";
+  assert.equal(
+    webhookSignatureDiagnostic(
+      signedHeader(secret, requestId, bodyDataId, ts),
+      requestId,
+      queryDataId,
+      { id: queryDataId, type: "payment", data: { id: bodyDataId } },
+      secret,
+      1_700_000_010_000,
+    ),
+    "WEBHOOK_SIGNATURE_BODY_DATA_ID_MATCH",
+  );
+
+  const mixedCaseDataId = "Mixed-Payment";
+  assert.equal(
+    webhookSignatureDiagnostic(
+      signedHeader(secret, requestId, mixedCaseDataId.toLowerCase(), ts),
+      requestId,
+      mixedCaseDataId,
+      { id: mixedCaseDataId, type: "payment", data: { id: mixedCaseDataId } },
+      secret,
+      1_700_000_010_000,
+    ),
+    "WEBHOOK_SIGNATURE_LOWERCASE_DATA_ID_MATCH",
+  );
+
+  const mergedRequestId = "request-first, request-second";
+  assert.equal(
+    webhookSignatureDiagnostic(
+      signedHeader(secret, "request-first", queryDataId, ts),
+      mergedRequestId,
+      queryDataId,
+      { id: queryDataId, type: "payment", data: { id: queryDataId } },
+      secret,
+      1_700_000_010_000,
+    ),
+    "WEBHOOK_SIGNATURE_REQUEST_ID_FIRST_VALUE_MATCH",
+  );
+
+  assert.equal(
+    webhookSignatureDiagnostic(
+      signedHeader(secret, "", queryDataId, ts),
+      requestId,
+      queryDataId,
+      { id: queryDataId, type: "payment", data: { id: queryDataId } },
+      secret,
+      1_700_000_010_000,
+    ),
+    "WEBHOOK_SIGNATURE_WITHOUT_REQUEST_ID_MATCH",
+  );
+});
+
+test("[payment-webhook-http] devuelve 400 al esquema, 401 a la firma y persiste sólo lo válido", async () => {
+  const environmentKeys = [
+    "MERCADO_PAGO_ACCESS_TOKEN",
+    "MERCADO_PAGO_WEBHOOK_SECRET",
+    "PIGAR_PAYMENT_RETURN_BASE_URL",
+  ];
+  const previous = Object.fromEntries(environmentKeys.map((key) => [key, process.env[key]]));
+  const secret = "synthetic-http-webhook-secret";
+  process.env.MERCADO_PAGO_ACCESS_TOKEN = "synthetic-access-token";
+  process.env.MERCADO_PAGO_WEBHOOK_SECRET = secret;
+  process.env.PIGAR_PAYMENT_RETURN_BASE_URL = "https://staging.example.test";
+  const writes = [];
+  let duplicate = false;
+  const database = {
+    async $transaction(callback) {
+      if (duplicate) throw { code: "P2002" };
+      return callback({
+        providerEventReceipt: {
+          async create(input) {
+            writes.push({ kind: "receipt", input });
+          },
+        },
+        claimedJob: {
+          async upsert(input) {
+            writes.push({ kind: "job", input });
+          },
+        },
+      });
+    },
+  };
+  const controller = new MercadoPagoWebhookController(database);
+  process.env.MERCADO_PAGO_WEBHOOK_SECRET = "different-runtime-value";
+  const dataId = "payment-http-1";
+  const requestId = "request-http-1";
+  const ts = String(Math.floor(Date.now() / 1000));
+  const signature = signedHeader(secret, requestId, dataId, ts);
+  const body = { id: "event-http-1", type: "payment", data: { id: dataId } };
+  try {
+    assert.deepEqual(await controller.receive(signature, requestId, dataId, "payment", body), {
+      received: true,
+    });
+    assert.equal(writes.length, 2);
+    duplicate = true;
+    assert.deepEqual(await controller.receive(signature, requestId, dataId, "payment", body), {
+      received: true,
+      duplicate: true,
+    });
+    duplicate = false;
+    await assert.rejects(
+      controller.receive(signature, requestId, dataId, "payment", { ...body, data: {} }),
+      (error) => error?.getStatus?.() === 400,
+    );
+    await assert.rejects(
+      controller.receive(`ts=${ts},v1=${"0".repeat(64)}`, requestId, dataId, "payment", body),
+      (error) => error?.getStatus?.() === 401,
+    );
+    await assert.rejects(
+      controller.receive(signature, [requestId, "duplicate"], dataId, "payment", body),
+      (error) => error?.getStatus?.() === 401,
+    );
+    await assert.rejects(
+      controller.receive(signedHeader(secret, "", dataId, ts), undefined, dataId, "payment", body),
+      (error) => error?.getStatus?.() === 401,
+    );
+    await assert.rejects(
+      controller.receive(
+        signedHeader(secret, requestId, "body-payment", ts),
+        requestId,
+        dataId,
+        "payment",
+        { ...body, data: { id: "body-payment" } },
+      ),
+      (error) => error?.getStatus?.() === 400,
+    );
+    await assert.rejects(
+      controller.receive(signature, requestId, [dataId, "duplicate"], "payment", body),
+      (error) => error?.getStatus?.() === 400,
+    );
+    assert.equal(writes.length, 2);
+  } finally {
+    for (const key of environmentKeys) {
+      if (previous[key] === undefined) delete process.env[key];
+      else process.env[key] = previous[key];
+    }
+  }
 });
 
 test("[feat-007] contrato no autoriza retornos de navegador ni aprobación humana", async () => {

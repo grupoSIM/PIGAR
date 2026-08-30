@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
+import { createHash, createHmac } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
@@ -10,12 +11,17 @@ const composeFile = path.join(root, "infra", "compose", "docker-compose.yml");
 const project = `pigar-e2e-${process.pid}`;
 const port = "18088";
 const baseUrl = `http://127.0.0.1:${port}`;
+const webhookSecret = "local-e2e-synthetic-webhook-secret";
 
 function compose(arguments_) {
   return new Promise((resolve, reject) => {
     const child = spawn("docker", ["compose", "-p", project, "-f", composeFile, ...arguments_], {
       cwd: root,
-      env: { ...process.env, PIGAR_HTTP_PORT: port },
+      env: {
+        ...process.env,
+        PIGAR_HTTP_PORT: port,
+        PIGAR_E2E_MERCADO_PAGO_WEBHOOK_SECRET: webhookSecret,
+      },
       stdio: ["ignore", "pipe", "pipe"],
     });
     let output = "";
@@ -153,6 +159,72 @@ test(
     const customerOffers = await fetch(`${baseUrl}/api/offers`);
     assert.equal(customerOffers.status, 200);
     assert.deepEqual(await customerOffers.json(), expectedOffers);
+
+    const webhookDataId = `synthetic-payment-${process.pid}`;
+    const webhookEventId = `synthetic-event-${process.pid}`;
+    const webhookRequestId = `synthetic-request-${process.pid}`;
+    const webhookTimestamp = String(Math.floor(Date.now() / 1000));
+    const webhookHash = createHmac("sha256", webhookSecret)
+      .update(`id:${webhookDataId};request-id:${webhookRequestId};ts:${webhookTimestamp};`)
+      .digest("hex");
+    const webhookUrl = `${baseUrl}/api/v1/webhooks/mercado-pago?data.id=${webhookDataId}&type=payment`;
+    const webhookBody = {
+      id: webhookEventId,
+      type: "payment",
+      data: { id: webhookDataId },
+    };
+    const webhookHeaders = {
+      "content-type": "application/json",
+      "x-request-id": webhookRequestId,
+      "x-signature": `ts=${webhookTimestamp},v1=${webhookHash}`,
+    };
+    const webhook = await fetch(webhookUrl, {
+      method: "POST",
+      headers: webhookHeaders,
+      body: JSON.stringify(webhookBody),
+      redirect: "manual",
+    });
+    assert.equal(webhook.status, 200);
+    assert.deepEqual(await webhook.json(), { received: true });
+    const duplicateWebhook = await fetch(webhookUrl, {
+      method: "POST",
+      headers: webhookHeaders,
+      body: JSON.stringify(webhookBody),
+      redirect: "manual",
+    });
+    assert.equal(duplicateWebhook.status, 200);
+    assert.deepEqual(await duplicateWebhook.json(), { received: true, duplicate: true });
+    const invalidSchemaWebhook = await fetch(webhookUrl, {
+      method: "POST",
+      headers: webhookHeaders,
+      body: JSON.stringify({ ...webhookBody, data: {} }),
+      redirect: "manual",
+    });
+    assert.equal(invalidSchemaWebhook.status, 400);
+    const invalidSignatureWebhook = await fetch(webhookUrl, {
+      method: "POST",
+      headers: {
+        ...webhookHeaders,
+        "x-signature": `ts=${webhookTimestamp},v1=${"0".repeat(64)}`,
+      },
+      body: JSON.stringify(webhookBody),
+      redirect: "manual",
+    });
+    assert.equal(invalidSignatureWebhook.status, 401);
+    const webhookReceiptHash = createHash("sha256").update(webhookEventId).digest("hex");
+    const webhookPersistence = await compose([
+      "exec",
+      "-T",
+      "postgres",
+      "psql",
+      "-U",
+      "pigar",
+      "-d",
+      "pigar",
+      "-Atc",
+      `SELECT (SELECT COUNT(*) FROM provider_event_receipt WHERE provider = 'mercado-pago' AND "externalEventIdHash" = '${webhookReceiptHash}'), (SELECT COUNT(*) FROM claimed_job WHERE "jobType" = 'mercado-pago-payment-reconciliation' AND "idempotencyKey" = '${webhookDataId}')`,
+    ]);
+    assert.equal(webhookPersistence.trim(), "1|1");
 
     const nginxConfig = await readFile(path.join(root, "infra", "nginx", "nginx.conf"), "utf8");
     assert.match(nginxConfig, /location \^~ \/api\/v1\/ \{[\s\S]*?proxy_pass http:\/\/api;/);

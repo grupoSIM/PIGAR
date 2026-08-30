@@ -2,6 +2,15 @@
 
 import { useEffect, useState } from "react";
 
+type BillingView = {
+  resolution: { summary: string };
+  charge: { money: { currency: string; amount: string } };
+  payment: {
+    status: "PENDIENTE" | "APROBADO" | "RECHAZADO" | "CANCELADO";
+    canStartOrResume: boolean;
+  };
+};
+
 type CustomerRequest = {
   id: string;
   createdAt: string;
@@ -14,6 +23,7 @@ type CustomerRequest = {
     technician: { fullName: string } | null;
     history: Array<{ action: string; toState: string; occurredAt: string }>;
   } | null;
+  billing?: BillingView;
 };
 
 export function CustomerRequests() {
@@ -64,7 +74,20 @@ export function CustomerRequests() {
       const response = await fetch("/api/requests");
       if (response.status === 401) throw new Error("auth");
       if (!response.ok) throw new Error("load");
-      setItems(((await response.json()) as { items?: CustomerRequest[] }).items ?? []);
+      const listed = ((await response.json()) as { items?: CustomerRequest[] }).items ?? [];
+      const hydrated = await Promise.all(
+        listed.map(async (item) => {
+          if (
+            !item.order ||
+            !["PENDIENTE_PAGO", "PENDIENTE_CONFORMIDAD", "CERRADA"].includes(item.order.state)
+          )
+            return item;
+          const billingResponse = await fetch(`/api/requests/${item.id}/billing`);
+          if (!billingResponse.ok) return item;
+          return { ...item, billing: (await billingResponse.json()) as BillingView };
+        }),
+      );
+      setItems(hydrated);
     } catch (error) {
       setMessage(
         error instanceof Error && error.message === "auth"
@@ -115,6 +138,15 @@ export function CustomerRequests() {
               {item.order?.state ?? "Pendiente de asignación"}
             </p>
             {item.order?.technician && <p>Técnico asignado: {item.order.technician.fullName}</p>}
+            {item.billing && (
+              <div>
+                <p>Resolución: {item.billing.resolution.summary}</p>
+                <p>
+                  Cargo: {item.billing.charge.money.currency} {item.billing.charge.money.amount}
+                </p>
+                <p>Estado del pago: {item.billing.payment.status}</p>
+              </div>
+            )}
             {item.order && (
               <ul aria-label="Historial de la orden">
                 {item.order.history.map((entry) => (
@@ -126,7 +158,10 @@ export function CustomerRequests() {
             )}
             {item.order?.state === "PENDIENTE_PAGO" && (
               <button type="button" onClick={() => void pay(item)}>
-                Pagar
+                {item.billing?.payment.status === "RECHAZADO" ||
+                item.billing?.payment.status === "CANCELADO"
+                  ? "Reintentar pago"
+                  : "Pagar o retomar"}
               </button>
             )}
             {item.order?.state === "PENDIENTE_CONFORMIDAD" && (

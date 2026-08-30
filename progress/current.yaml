@@ -1,10 +1,10 @@
 project: PIGAR
 active_feature: feat-007
-phase: implementation
-updated_at: 2026-08-27T00:00:00-03:00
+phase: publication_review
+updated_at: 2026-08-30T00:00:00-03:00
 
 blockers:
-  - TEST-007-014 y AC-007-016 deben completarse en staging no productivo antes de cerrar la verificación de feat-007. Una persona autorizada debe configurar la URL HTTPS de Webhooks y los secretos sólo en el mecanismo seguro del ambiente; luego deben verificarse preferencia, retorno no autoritativo, firma vigente, consulta autoritativa, aprobado, pendiente, rechazado, duplicado/fuera de orden y conciliación.
+  - Producción permanece bloqueada por TEST-007-014/AC-007-016: el simulador Webhook responde 200, pero la entrega automática moderna responde 401 por firma inválida. El usuario aceptó cerrar sólo staging con conciliación autoritativa; no se permite trasladar esta excepción a producción.
 
 architecture_conditions:
   before_specification_approval:
@@ -57,14 +57,21 @@ approvals:
     approved_at: 2026-08-27T00:00:00-03:00
     note: El usuario aprobó explícitamente la especificación y autorizó implementar sólo feat-007 en ambiente no productivo. TEST-007-014/AC-007-016 se mantienen bloqueados hasta contar con endpoint HTTPS compatible y ejecutar la validación real; no se autorizan producción, secretos en Git, cobros reales, commit, push, PR ni despliegue.
   verification:
-    status: pending
+    status: approved
+    approved_by: reviewer_independiente
+    approved_at: 2026-08-30T00:00:00-03:00
+    note: PASS sin hallazgos bloqueantes. Calidad completa y E2E superaron; AC-007-016 permanece como excepción exclusiva de staging y bloqueo de producción.
   publication:
-    status: pending
+    status: approved
+    approved_by: usuario
+    approved_at: 2026-08-30T00:00:00-03:00
+    note: El usuario solicitó cerrar feat-007, revisar los cambios que quedaron fuera de staging e integrar los que resulten necesarios. Producción no está autorizada.
 
 quality:
-  status: not_run
+  status: passed
 
 notes:
+  - Revisión independiente final de feat-007 aprobada el 2026-08-30: unitarias 39/39, integración 39/39, seguridad 52/52, E2E técnico 25/25 y frontend CLIENT/ADMIN 9/9. El veredicto habilita integrar en staging con AC-007-016 como excepción explícita; producción permanece bloqueada.
   - El usuario aprobó explícitamente la especificación de feat-007 el 2026-08-27 y autorizó implementar sólo el alcance no productivo. Las cuentas de prueba vendedor/comprador ya existen; TEST-007-014 y AC-007-016 permanecen bloqueados hasta implementar un endpoint HTTPS compatible, configurar secretos sólo fuera del repositorio y observar los escenarios oficiales. No se autorizan producción, cobros reales, commit, push, PR ni despliegue.
   - Especificación de feat-007 preparada el 2026-08-17 con requisitos, diseño, contrato HTTP, aceptación, tareas, plan de pruebas y evidencia inicial. La feature pasa a spec_review; TEST-007-014 y AC-007-016 quedan pendientes de acceso humano a una aplicación/cuentas no productivas de Mercado Pago. No se autoriza implementación, credenciales, cobros, commit, push, PR ni despliegue.
   - El usuario aprobó el 2026-08-17 las ocho decisiones de discovery y la revisión arquitectónica condicionada de feat-007. La feature pasa a specification; debe validar Mercado Pago con cuentas no productivas y luego detenerse en spec_review. No se autoriza implementación, credenciales reales, cobros, commit, push ni despliegue.

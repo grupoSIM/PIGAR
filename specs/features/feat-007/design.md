@@ -1,8 +1,8 @@
 # Diseño — feat-007: Resolución administrativa, cobro y conformidad
 
-Estado: `implementation`; aprobado por el usuario el 2026-08-27 para
-implementación exclusivamente no productiva. La validación no productiva de
-Mercado Pago permanece pendiente.
+Estado: `verification`; el usuario aceptó el 2026-08-30 el alcance de staging
+con conciliación autoritativa y la falla del Webhook automático registrada como
+riesgo residual. Esta excepción no habilita producción.
 
 ## Resumen y decisiones
 
@@ -17,7 +17,7 @@ Checkout Pro permanece detrás de un `PaymentProviderPort`. El retorno del
 navegador nunca es autoridad. Webhook y conciliación sólo pueden avanzar después
 de consultar la API de Mercado Pago y validar referencia, moneda e importe.
 
-## Componentes afectados (previstos, no implementados)
+## Componentes implementados
 
 - Contratos: estados/acciones existentes más DTOs de resolución, cargo, intento,
   recibo y conformidad; la matriz deberá separar `CREATE_FIXED_PAYMENT` operativo
@@ -83,9 +83,10 @@ cancelado permite el siguiente; uno creado/pending/approved no.
    `CREATED` y referencia opaca.
 3. Construir preferencia mínima: un ítem genérico “Servicio PIGAR”, cantidad 1,
    `ARS`, importe exacto, `external_reference`, `back_urls` HTTPS y
-   `notification_url` HTTPS del receptor de Webhook de la aplicación, derivada de
-   la base de retorno autorizada. Omitir `payer`, domicilio, multimedia,
-   diagnóstico y texto libre.
+   `notification_url` HTTPS del receptor. La evidencia de staging del 2026-08-30
+   confirmó que sin `notification_url` no se emiten entregas automáticas para las
+   preferencias de prueba, aunque el simulador de la aplicación responda 200.
+   Omitir `payer`, domicilio, multimedia, diagnóstico y texto libre.
 4. La API oficial de creación de preferencias consultada el 2026-08-17 documenta
    `Authorization`, no `X-Idempotency-Key`. Por ello, PIGAR no presupone esa
    garantía: serializa localmente, persiste la referencia antes de llamar y, ante

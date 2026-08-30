@@ -303,10 +303,7 @@ export class BillingService {
     return state;
   }
 
-  async reconcilePending(
-    limit = 50,
-    onFailure?: (failure: PaymentReconciliationFailure) => void,
-  ) {
+  async reconcilePending(limit = 50, onFailure?: (failure: PaymentReconciliationFailure) => void) {
     const db: any = this.database;
     const attempts = await db.paymentAttempt.findMany({
       where: { state: { in: ["CREATED", "UNKNOWN", "PENDING"] } },
@@ -349,9 +346,7 @@ export class BillingService {
     return this.applyProviderPayment(await this.provider.getPayment(providerPaymentId));
   }
 
-  private reconciliationFailureCode(
-    error: unknown,
-  ): PaymentReconciliationFailure["safeCode"] {
+  private reconciliationFailureCode(error: unknown): PaymentReconciliationFailure["safeCode"] {
     if (error instanceof PaymentProviderFailure) return error.safeCode;
     if (error instanceof ConflictException) return "PAYMENT_MISMATCH";
     if (error instanceof ServiceUnavailableException) {
