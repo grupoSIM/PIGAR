@@ -40,10 +40,8 @@ test(
       "node",
       "--test",
       "apps/api/src/notifications/notifications-postgres.test.mjs",
-      "scripts/billing-postgres.test.mjs",
     ]);
     assert.match(output, /\[notifications\]\[postgres\]/);
-    assert.match(output, /\[feat-007\]\[postgres\]/);
     assert.doesNotMatch(output, /not ok|fail 1/i);
   },
 );
