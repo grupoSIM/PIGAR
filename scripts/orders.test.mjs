@@ -95,7 +95,9 @@ test("[order-service] asigna de forma idempotente, aplica versión y oculta PII 
   });
   assert.equal(enRoute.version, 2);
   assert.deepEqual(
-    store.events.filter((item) => item.aggregateType === "work_order").map((item) => item.eventType),
+    store.events
+      .filter((item) => item.aggregateType === "work_order")
+      .map((item) => item.eventType),
     ["work_order.assignment_changed", "work_order.en_route"],
   );
   const customer = await service.customerView(client, "request-1");

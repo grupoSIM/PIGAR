@@ -7,14 +7,31 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 test("[notifications] las seis plantillas allowlist son estáticas, versionadas y sin datos prohibidos", async () => {
-  const source = await readFile(path.join(root, "apps/api/src/notifications/notification-templates.ts"), "utf8");
-  for (const event of ["assignment_changed", "en_route", "cancelled", "payment.approved", "payment.rejected", "closed"]) assert.match(source, new RegExp(event));
+  const source = await readFile(
+    path.join(root, "apps/api/src/notifications/notification-templates.ts"),
+    "utf8",
+  );
+  for (const event of [
+    "assignment_changed",
+    "en_route",
+    "cancelled",
+    "payment.approved",
+    "payment.rejected",
+    "closed",
+  ])
+    assert.match(source, new RegExp(event));
   assert.match(source, /version !== 1/);
   assert.doesNotMatch(source, /domicilio|teléfono|importe|providerPaymentId|checkoutUrl/i);
 });
 
 test("[notifications] migración agrega FKs restrictivas, unicidad, índices y no borra historial", async () => {
-  const migration = await readFile(path.join(root, "apps/api/prisma/migrations/20260831090000_feat_009_transactional_notifications/migration.sql"), "utf8");
+  const migration = await readFile(
+    path.join(
+      root,
+      "apps/api/prisma/migrations/20260831090000_feat_009_transactional_notifications/migration.sql",
+    ),
+    "utf8",
+  );
   assert.match(migration, /transactional_notification_source_recipient_key/);
   assert.match(migration, /ON DELETE RESTRICT/g);
   assert.match(migration, /recipient_created_id_idx/);

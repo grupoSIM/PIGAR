@@ -98,7 +98,9 @@ test("CLIENT puede reiniciar el acceso si la API rechaza su autorización", asyn
   );
 });
 
-test("CLIENT ve una bandeja accesible, marca leído y conserva degradación local", async ({ page }) => {
+test("CLIENT ve una bandeja accesible, marca leído y conserva degradación local", async ({
+  page,
+}) => {
   let read = false;
   await page.route("**/api/requests", (route) => route.fulfill({ json: { items: [] } }));
   await page.route("**/api/notifications*", (route) => {
@@ -115,18 +117,24 @@ test("CLIENT ve una bandeja accesible, marca leído y conserva degradación loca
                 summary: "Tu pago fue confirmado.",
                 createdAt: "2026-08-31T11:00:00.000Z",
                 readAt: null,
-                target: { kind: "REQUEST_DETAIL", requestId: "00000000-0000-4000-8000-000000000902" },
+                target: {
+                  kind: "REQUEST_DETAIL",
+                  requestId: "00000000-0000-4000-8000-000000000902",
+                },
               },
             ]
           : [
-          {
-            id: "00000000-0000-4000-8000-000000000901",
-            title: "Técnico en camino",
-            summary: "La atención de tu solicitud está en camino.",
-            createdAt: "2026-08-31T12:00:00.000Z",
-            readAt: read ? "2026-08-31T12:01:00.000Z" : null,
-            target: { kind: "REQUEST_DETAIL", requestId: "00000000-0000-4000-8000-000000000902" },
-          },
+              {
+                id: "00000000-0000-4000-8000-000000000901",
+                title: "Técnico en camino",
+                summary: "La atención de tu solicitud está en camino.",
+                createdAt: "2026-08-31T12:00:00.000Z",
+                readAt: read ? "2026-08-31T12:01:00.000Z" : null,
+                target: {
+                  kind: "REQUEST_DETAIL",
+                  requestId: "00000000-0000-4000-8000-000000000902",
+                },
+              },
             ],
       },
     });
@@ -144,7 +152,9 @@ test("CLIENT ve una bandeja accesible, marca leído y conserva degradación loca
       },
     });
   });
-  await page.route("**/api/requests/*/order", (route) => route.fulfill({ json: { state: "EN_CAMINO" } }));
+  await page.route("**/api/requests/*/order", (route) =>
+    route.fulfill({ json: { state: "EN_CAMINO" } }),
+  );
   await page.goto("/");
   await page.getByRole("button", { name: /Notificaciones \(1 sin leer\)/ }).click();
   await expect(page.getByRole("heading", { name: "Notificaciones" })).toBeVisible();

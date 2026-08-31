@@ -22,9 +22,7 @@ export function Notifications() {
       if (!response.ok) throw new Error();
       const next = (await response.json()) as Page;
       setPage((current) =>
-        append && current
-          ? { ...next, items: [...current.items, ...next.items] }
-          : next,
+        append && current ? { ...next, items: [...current.items, ...next.items] } : next,
       );
     } catch {
       setError(true);
@@ -51,7 +49,9 @@ export function Notifications() {
             },
       );
     }
-    const response = await fetch(`/api/requests/${encodeURIComponent(item.target.requestId)}/order`);
+    const response = await fetch(
+      `/api/requests/${encodeURIComponent(item.target.requestId)}/order`,
+    );
     if (!response.ok) {
       setError(true);
       return;
