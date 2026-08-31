@@ -70,10 +70,10 @@ features:
 
   - id: feat-009
     name: Notificaciones transaccionales
-    status: publication_review
+    status: done
     priority: should
     depends_on: [feat-005]
-    note: Implementación local, migración y verificación independiente aprobadas el 2026-08-31. El usuario autorizó publicación y despliegue/UAT de staging; queda su ejecución antes del cierre. Los proveedores externos permanecen fuera del MVP.
+    note: Integrada, publicada y validada en staging el 2026-08-31: calidad e imágenes del SHA e91707f, migración y UAT sintética superadas. Los proveedores externos permanecen fuera del MVP.
 
   - id: feat-010
     name: Calificaciones, garantía e incidencias

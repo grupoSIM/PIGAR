@@ -87,12 +87,12 @@
 
 | Criterio   | Requisitos                                                                   | Tareas                                   | Pruebas                                  | Evidencia |
 | ---------- | ---------------------------------------------------------------------------- | ---------------------------------------- | ---------------------------------------- | --------- |
-| AC-009-001 | REQ-009-001, NFR-009-001                                                     | TASK-009-002, TASK-009-007               | TEST-009-001, TEST-009-003               | pendiente |
-| AC-009-002 | REQ-009-002, NFR-009-001, NFR-009-005                                        | TASK-009-001, TASK-009-003, TASK-009-007 | TEST-009-004, TEST-009-007               | pendiente |
-| AC-009-003 | REQ-009-002, REQ-009-005, NFR-009-003                                        | TASK-009-003, TASK-009-008               | TEST-009-001, TEST-009-006               | pendiente |
-| AC-009-004 | REQ-009-003, NFR-009-002, NFR-009-004                                        | TASK-009-001, TASK-009-004, TASK-009-008 | TEST-009-002, TEST-009-005, TEST-009-010 | pendiente |
-| AC-009-005 | REQ-009-004, NFR-009-001                                                     | TASK-009-001, TASK-009-004, TASK-009-008 | TEST-009-002, TEST-009-004, TEST-009-005 | pendiente |
-| AC-009-006 | REQ-009-003, REQ-009-004, REQ-009-007, NFR-009-002                           | TASK-009-004, TASK-009-006               | TEST-009-006                             | pendiente |
-| AC-009-007 | REQ-009-005, REQ-009-006, NFR-009-002                                        | TASK-009-004, TASK-009-005, TASK-009-008 | TEST-009-008, TEST-009-009               | pendiente |
-| AC-009-008 | REQ-009-006, NFR-009-008                                                     | TASK-009-005, TASK-009-008               | TEST-009-008, TEST-009-012               | pendiente |
-| AC-009-009 | REQ-009-007, NFR-009-003, NFR-009-005, NFR-009-006, NFR-009-007, NFR-009-009 | TASK-009-001, TASK-009-006, TASK-009-007 | TEST-009-007, TEST-009-010, TEST-009-011 | pendiente |
+| AC-009-001 | REQ-009-001, NFR-009-001                                                     | TASK-009-002, TASK-009-007               | TEST-009-001, TEST-009-003               | passed local |
+| AC-009-002 | REQ-009-002, NFR-009-001, NFR-009-005                                        | TASK-009-001, TASK-009-003, TASK-009-007 | TEST-009-004, TEST-009-007               | passed local |
+| AC-009-003 | REQ-009-002, REQ-009-005, NFR-009-003                                        | TASK-009-003, TASK-009-008               | TEST-009-001, TEST-009-006               | passed local/staging |
+| AC-009-004 | REQ-009-003, NFR-009-002, NFR-009-004                                        | TASK-009-001, TASK-009-004, TASK-009-008 | TEST-009-002, TEST-009-005, TEST-009-010 | passed local/staging |
+| AC-009-005 | REQ-009-004, NFR-009-001                                                     | TASK-009-001, TASK-009-004, TASK-009-008 | TEST-009-002, TEST-009-004, TEST-009-005 | passed local/staging |
+| AC-009-006 | REQ-009-003, REQ-009-004, REQ-009-007, NFR-009-002                           | TASK-009-004, TASK-009-006               | TEST-009-006                             | passed local |
+| AC-009-007 | REQ-009-005, REQ-009-006, NFR-009-002                                        | TASK-009-004, TASK-009-005, TASK-009-008 | TEST-009-008, TEST-009-009               | passed local/staging |
+| AC-009-008 | REQ-009-006, NFR-009-008                                                     | TASK-009-005, TASK-009-008               | TEST-009-008, TEST-009-012               | passed local/staging |
+| AC-009-009 | REQ-009-007, NFR-009-003, NFR-009-005, NFR-009-006, NFR-009-007, NFR-009-009 | TASK-009-001, TASK-009-006, TASK-009-007 | TEST-009-007, TEST-009-010, TEST-009-011 | passed local |

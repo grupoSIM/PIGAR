@@ -85,4 +85,4 @@ cada ID permanecen explícitamente pendientes hasta que exista su prueba dinámi
 | TEST-009-009 | E2E                   | Destino reautorizado y estado actual; AC-009-007         | `PIGAR_E2E_TEST_AUTH=1 pnpm test:e2e:frontends`               | passed |
 | TEST-009-010 | migration/performance | Constraints, índices y p95; AC-009-004, AC-009-009       | `node --test scripts/notifications-postgres.test.mjs`          | passed |
 | TEST-009-011 | quality               | Suite completa, docs y logs; AC-009-009                  | `pnpm lint && pnpm typecheck && pnpm build && pnpm docs:check` | passed |
-| TEST-009-012 | staging UAT           | Seis avisos y accesibilidad; AC-009-008                  | manual según checklist aprobado                                | pending |
+| TEST-009-012 | staging UAT           | Seis avisos y accesibilidad; AC-009-008                  | manual según checklist aprobado                                | passed |

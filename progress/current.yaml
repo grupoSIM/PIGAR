@@ -1,6 +1,6 @@
 project: PIGAR
 active_feature: feat-009
-phase: publication_review
+phase: done
 updated_at: 2026-08-31T00:00:00-03:00
 
 blockers:
@@ -55,7 +55,7 @@ approvals:
     status: approved
     approved_by: independent_reviewer
     approved_at: 2026-08-31T00:00:00-03:00
-    note: Implementación, migración y pruebas locales aprobadas por revisión independiente. La UAT de staging continúa pendiente de ejecución.
+    note: Implementación, migración y pruebas locales aprobadas por revisión independiente; la UAT sintética de staging superó el 2026-08-31.
   publication:
     status: approved
     approved_by: usuario
@@ -66,7 +66,8 @@ quality:
   status: passed
 
 notes:
+  - feat-009 cerrada en staging el 2026-08-31. Los commits `9aa0feb`, `015f3b9` y `e91707f` fueron integrados; GitHub Actions 33432458042 superó calidad completa y publicó imágenes. La UAT sintética verificó los seis tipos de aviso, lectura monotónica, reautorización y accesibilidad sin datos personales.
   - El usuario aprobó explícitamente la especificación de feat-009 el 2026-08-31 y autorizó implementación local. El 2026-08-31 autorizó también commit, push, integración, publicación de imágenes y despliegue/UAT de staging. Los canales/proveedores externos continúan fuera del alcance.
-  - DEC-009-001 a DEC-009-006 aprobadas por el usuario el 2026-08-30. La implementación local in-app superó verificación independiente; la UAT de staging queda pendiente de ejecución antes del cierre.
+  - DEC-009-001 a DEC-009-006 aprobadas por el usuario el 2026-08-30. La implementación local in-app superó verificación independiente y la UAT de staging antes del cierre.
   - feat-009 inició discovery el 2026-08-30 por aprobación del usuario. Se recomienda una bandeja transaccional in-app para CLIENT y mantener proveedores externos diferidos, sujeto a DEC-009-001 a DEC-009-006.
   - feat-007 permanece cerrada en staging; su excepción Webhook continúa bloqueando únicamente producción.
