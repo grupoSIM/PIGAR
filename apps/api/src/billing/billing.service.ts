@@ -275,14 +275,27 @@ export class BillingService {
       throw new ConflictException("PAYMENT_MISMATCH");
     const state = payment.status.toUpperCase();
     if (["APPROVED", "REJECTED", "CANCELLED"].includes(attempt.state)) return attempt.state;
-    await db.paymentAttempt.update({
-      where: { id: attempt.id },
-      data: { state, providerPaymentIdHash: hash(payment.id), checkedAt: new Date() },
-    });
-    if (state !== "APPROVED" || attempt.charge.workOrder.state !== "PENDIENTE_PAGO") return state;
-    await db.$transaction(async (tx: any) => {
+    const applied = await db.$transaction(async (tx: any) => {
+      const claimed = await tx.paymentAttempt.updateMany({
+        where: { id: attempt.id, state: attempt.state },
+        data: { state, providerPaymentIdHash: hash(payment.id), checkedAt: new Date() },
+      });
+      if (!claimed.count) return false;
+      if (state === "REJECTED") {
+        await tx.outboxEvent.create({
+          data: {
+            eventType: "payment.rejected",
+            version: 1,
+            aggregateType: "work_order",
+            aggregateId: attempt.charge.workOrder.id,
+            payload: { requestId: attempt.charge.workOrder.requestId },
+          },
+        });
+        return true;
+      }
+      if (state !== "APPROVED") return true;
       const current = await tx.workOrder.findUnique({ where: { id: attempt.charge.workOrder.id } });
-      if (!current || current.state !== "PENDIENTE_PAGO") return;
+      if (!current || current.state !== "PENDIENTE_PAGO") return true;
       const version = current.version + 1;
       await tx.workOrder.update({
         where: { id: current.id },
@@ -299,7 +312,18 @@ export class BillingService {
           },
         },
       });
+      await tx.outboxEvent.create({
+        data: {
+          eventType: "payment.approved",
+          version: 1,
+          aggregateType: "work_order",
+          aggregateId: current.id,
+          payload: { requestId: current.requestId },
+        },
+      });
+      return true;
     });
+    if (!applied) return state;
     return state;
   }
 
@@ -416,6 +440,15 @@ export class BillingService {
               version,
             },
           },
+        },
+      });
+      await tx.outboxEvent.create({
+        data: {
+          eventType: "work_order.closed",
+          version: 1,
+          aggregateType: "work_order",
+          aggregateId: order.id,
+          payload: { requestId },
         },
       });
       return {

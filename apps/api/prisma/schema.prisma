@@ -104,8 +104,10 @@ model OutboxEvent {
   attempts Int @default(0)
   availableAt DateTime @default(now()) @db.Timestamptz(3)
   processedAt DateTime? @db.Timestamptz(3)
+  leaseExpiresAt DateTime? @db.Timestamptz(3)
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  notifications TransactionalNotification[]
   @@index([state, availableAt])
   @@map("outbox_event")
 }
@@ -168,6 +170,7 @@ model Profile {
   assignmentCommands AssignmentIdempotency[]
   resolutionCommands ResolutionCommand[]
   conformities Conformity[]
+  notifications TransactionalNotification[]
   @@index([role, status])
   @@map("profile")
 }
@@ -194,9 +197,29 @@ model ServiceRequest {
   address RequestAddress?
   media RequestMedia[]
   workOrder WorkOrder?
+  notifications TransactionalNotification[]
   @@unique([clientProfileId, idempotencyKey])
   @@index([clientProfileId, createdAt])
   @@map("service_request")
+}
+
+model TransactionalNotification {
+  id String @id @default(uuid()) @db.Uuid
+  recipientProfileId String @db.Uuid
+  sourceEventId String @db.Uuid
+  requestId String @db.Uuid
+  eventType String @db.VarChar(100)
+  templateKey String @db.VarChar(80)
+  templateVersion Int
+  readAt DateTime? @db.Timestamptz(3)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  recipient Profile @relation(fields: [recipientProfileId], references: [id], onDelete: Restrict)
+  sourceEvent OutboxEvent @relation(fields: [sourceEventId], references: [id], onDelete: Restrict)
+  request ServiceRequest @relation(fields: [requestId], references: [id], onDelete: Restrict)
+  @@unique([sourceEventId, recipientProfileId])
+  @@index([recipientProfileId, createdAt, id])
+  @@index([recipientProfileId, readAt])
+  @@map("transactional_notification")
 }
 
 model Technician {

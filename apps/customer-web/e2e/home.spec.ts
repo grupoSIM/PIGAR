@@ -98,6 +98,63 @@ test("CLIENT puede reiniciar el acceso si la API rechaza su autorización", asyn
   );
 });
 
+test("CLIENT ve una bandeja accesible, marca leído y conserva degradación local", async ({ page }) => {
+  let read = false;
+  await page.route("**/api/requests", (route) => route.fulfill({ json: { items: [] } }));
+  await page.route("**/api/notifications*", (route) => {
+    const laterPage = route.request().url().includes("cursor=");
+    return route.fulfill({
+      json: {
+        unreadCount: read ? 0 : 1,
+        nextCursor: laterPage ? null : "synthetic-next-page",
+        items: laterPage
+          ? [
+              {
+                id: "00000000-0000-4000-8000-000000000903",
+                title: "Pago confirmado",
+                summary: "Tu pago fue confirmado.",
+                createdAt: "2026-08-31T11:00:00.000Z",
+                readAt: null,
+                target: { kind: "REQUEST_DETAIL", requestId: "00000000-0000-4000-8000-000000000902" },
+              },
+            ]
+          : [
+          {
+            id: "00000000-0000-4000-8000-000000000901",
+            title: "Técnico en camino",
+            summary: "La atención de tu solicitud está en camino.",
+            createdAt: "2026-08-31T12:00:00.000Z",
+            readAt: read ? "2026-08-31T12:01:00.000Z" : null,
+            target: { kind: "REQUEST_DETAIL", requestId: "00000000-0000-4000-8000-000000000902" },
+          },
+            ],
+      },
+    });
+  });
+  await page.route("**/api/notifications/*/read", async (route) => {
+    read = true;
+    await route.fulfill({
+      json: {
+        id: "00000000-0000-4000-8000-000000000901",
+        title: "Técnico en camino",
+        summary: "La atención de tu solicitud está en camino.",
+        createdAt: "2026-08-31T12:00:00.000Z",
+        readAt: "2026-08-31T12:01:00.000Z",
+        target: { kind: "REQUEST_DETAIL", requestId: "00000000-0000-4000-8000-000000000902" },
+      },
+    });
+  });
+  await page.route("**/api/requests/*/order", (route) => route.fulfill({ json: { state: "EN_CAMINO" } }));
+  await page.goto("/");
+  await page.getByRole("button", { name: /Notificaciones \(1 sin leer\)/ }).click();
+  await expect(page.getByRole("heading", { name: "Notificaciones" })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Técnico en camino\. Sin leer/ })).toBeVisible();
+  await page.getByRole("button", { name: "Cargar más" }).click();
+  await expect(page.getByRole("button", { name: /Pago confirmado\. Sin leer/ })).toBeVisible();
+  await page.getByRole("button", { name: /Técnico en camino\. Sin leer/ }).click();
+  await expect.poll(() => read).toBe(true);
+});
+
 test("CLIENT ve pagos pendiente y rechazado y puede reintentar sin adelantar la orden", async ({
   page,
 }) => {

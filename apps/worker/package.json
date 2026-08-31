@@ -9,9 +9,11 @@
   },
   "dependencies": {
     "@pigar/config": "workspace:*",
-    "@pigar/observability": "workspace:*"
+    "@pigar/observability": "workspace:*",
+    "pg": "^8.22.0"
   },
   "devDependencies": {
-    "@types/node": "^22.19.0"
+    "@types/node": "^22.19.0",
+    "@types/pg": "^8.15.6"
   }
 }

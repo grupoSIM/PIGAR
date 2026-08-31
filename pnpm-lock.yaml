@@ -152,10 +152,16 @@ importers:
       '@pigar/observability':
         specifier: workspace:*
         version: link:../../packages/observability
+      pg:
+        specifier: ^8.22.0
+        version: 8.22.0
     devDependencies:
       '@types/node':
         specifier: ^22.19.0
         version: 22.20.1
+      '@types/pg':
+        specifier: ^8.15.6
+        version: 8.20.0
 
   packages/config: {}
 
@@ -1138,6 +1144,7 @@ packages:
   eslint@9.39.5:
     resolution: {integrity: sha512-DgZS62aPLXKlnxILS/AYCoRvHaZeXceIzlXPkkGGzJWSow1aEk0lbTlxUSlyjC8jcaKxAdOnTDz+o1JFSBsyjw==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+    deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
     hasBin: true
     peerDependencies:
       jiti: '*'

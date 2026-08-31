@@ -160,6 +160,12 @@ test("[feat-007][postgres] resolución, conciliación y conformidad preservan ev
     const afterApproval = await database.workOrder.findUniqueOrThrow({ where: { id: order.id } });
     assert.equal(afterApproval.state, "PENDIENTE_CONFORMIDAD");
     assert.equal(afterApproval.version, 3);
+    assert.equal(
+      await database.outboxEvent.count({
+        where: { aggregateId: order.id, eventType: "payment.approved" },
+      }),
+      1,
+    );
 
     const authoritative = providerPayments.get(paymentId);
     await billing.applyProviderPayment({ ...authoritative, status: "pending" });
@@ -168,6 +174,12 @@ test("[feat-007][postgres] resolución, conciliación y conformidad preservan ev
 
     const conformity = await billing.conformity(clientActor, request.id, "v1", 3);
     assert.equal(conformity.orderState, "CERRADA");
+    assert.equal(
+      await database.outboxEvent.count({
+        where: { aggregateId: order.id, eventType: "work_order.closed" },
+      }),
+      1,
+    );
 
     const resolution = await database.resolution.findUniqueOrThrow({
       where: { workOrderId: order.id },

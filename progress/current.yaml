@@ -1,175 +1,72 @@
 project: PIGAR
-active_feature: feat-007
-phase: done
-updated_at: 2026-08-30T00:00:00-03:00
+active_feature: feat-009
+phase: publication_review
+updated_at: 2026-08-31T00:00:00-03:00
 
 blockers:
-  - Producción permanece bloqueada por TEST-007-014/AC-007-016: el simulador Webhook responde 200, pero la entrega automática moderna responde 401 por firma inválida. El usuario aceptó cerrar sólo staging con conciliación autoritativa; no se permite trasladar esta excepción a producción.
+  - Todo canal externo requiere revisar ADR-007 y aprobar proveedor, consentimiento, plantillas, costes, soporte y tratamiento de datos; permanece fuera de esta especificación.
+  - Producción continúa bloqueada además por TEST-007-014/AC-007-016 hasta resolver el Webhook automático de Mercado Pago.
 
 architecture_conditions:
   before_specification_approval:
-    - Convertir las PoC de carga multimedia por streaming y webhooks/idempotencia de pagos en tareas con criterios de aceptación.
-    - Definir la máquina de estados exacta, permisos administrativos y tratamiento de pagos pendientes o rechazados.
-    - Incluir matriz de permisos y pruebas negativas de acceso cruzado a solicitudes y multimedia.
-    - Definir capacidad mínima del VPS, límites por contenedor, alertas y presupuesto/cuotas de proveedores externos.
-    - Validar Auth0, Google Maps y Mercado Pago con cuentas no productivas, incluyendo MFA, restricciones de claves y cuotas.
-    - Documentar el cifrado en reposo aplicable al VPS y mantener ADR-007 sin chat ni mensajería integrada.
+    - Mantener el estado de dominio y su historial como única fuente de verdad; una notificación nunca confirma una transición.
+    - Definir eventos, destinatarios, contenido allowlist, idempotencia, permisos, retención y recuperación de avisos.
+    - Si se incorpora un canal externo, revisar ADR-007 y validar privacidad, consentimiento, bajas, rebotes, costes, cuotas, secretos y soporte.
   before_production:
     - Validar con asesoría legal los plazos de retención y borrado.
     - Elegir y aprobar un destino externo de backup cifrado y probar una restauración completa.
     - Completar hardening del VPS, modelado de amenazas, monitoreo y respuesta a incidentes.
 
 risks:
-  - Aplicación, base de datos y multimedia comparten un único VPS y dominio de falla.
-  - El crecimiento de multimedia puede agotar disco, ancho de banda o capacidad del VPS.
-  - Pagos, identidad y mapas agregan dependencia de proveedores externos.
-  - Multimedia y domicilios requieren límites de acceso, retención y borrado verificables.
+  - Avisos duplicados, perdidos o demorados pueden generar expectativas incorrectas aunque no alteren el dominio.
+  - Contenido o logs de notificaciones pueden filtrar datos de solicitudes, técnicos, pagos o proveedores.
+  - Un proveedor externo agrega costes, cuotas, secretos, entregabilidad, consentimiento y dependencia operativa.
+  - El historial de avisos y su estado de lectura requieren retención, índices y autorización por propietario.
 
 decisions:
-  - id: ADR-001
-    status: accepted
-  - id: ADR-002
-    status: accepted
-  - id: ADR-003
-    status: accepted
-  - id: ADR-004
-    status: accepted
-  - id: ADR-005
-    status: accepted
-  - id: ADR-006
-    status: accepted
   - id: ADR-007
     status: accepted
-  - id: ADR-008
+    note: El MVP aprobado ofrece estado e historial dentro del portal; email, Web Push y WhatsApp siguen diferidos.
+  - id: DEC-009-001
     status: accepted
-  - id: ADR-009
+  - id: DEC-009-002
+    status: accepted
+  - id: DEC-009-003
+    status: accepted
+  - id: DEC-009-004
+    status: accepted
+  - id: DEC-009-005
+    status: accepted
+  - id: DEC-009-006
     status: accepted
 
 approvals:
   architecture:
     status: approved_with_conditions
     approved_by: usuario
-    approved_at: 2026-08-17T00:00:00-03:00
-    note: El usuario aprobó DEC-007-001 a DEC-007-008 y la revisión focalizada de dinero, proveedor y conformidad. Se habilita specification, no implementación ni credenciales/cobros reales.
+    approved_at: 2026-08-30T00:00:00-03:00
+    note: El usuario aprobó DEC-009-001 a DEC-009-006 para una bandeja exclusivamente in-app. ADR-007 permanece vigente; cualquier canal/proveedor externo requiere una puerta nueva.
   specification:
     status: approved
     approved_by: usuario
-    approved_at: 2026-08-27T00:00:00-03:00
-    note: El usuario aprobó explícitamente la especificación y autorizó implementar sólo feat-007 en ambiente no productivo. TEST-007-014/AC-007-016 se mantienen bloqueados hasta contar con endpoint HTTPS compatible y ejecutar la validación real; no se autorizan producción, secretos en Git, cobros reales, commit, push, PR ni despliegue.
+    approved_at: 2026-08-31T00:00:00-03:00
+    note: El usuario aprobó explícitamente los siete artefactos de feat-009 y autorizó la implementación local exclusiva de la bandeja in-app; no autorizó publicación.
   verification:
     status: approved
-    approved_by: reviewer_independiente
-    approved_at: 2026-08-30T00:00:00-03:00
-    note: PASS sin hallazgos bloqueantes para la feature y la compuerta CI. TEST-007-016 superó contrato local, revisión independiente y ejecución remota secuencial; AC-007-016 sigue como excepción exclusiva de staging y bloqueo de producción.
+    approved_by: independent_reviewer
+    approved_at: 2026-08-31T00:00:00-03:00
+    note: Implementación, migración y pruebas locales aprobadas por revisión independiente. La UAT de staging continúa pendiente de ejecución.
   publication:
     status: approved
     approved_by: usuario
-    approved_at: 2026-08-30T00:00:00-03:00
-    note: El usuario solicitó implementar y probar ahora la compuerta que publica imágenes sólo después de calidad exitosa y volver a cerrar feat-007. La publicación se limita a staging; producción no está autorizada.
+    approved_at: 2026-08-31T00:00:00-03:00
+    note: El usuario autorizó explícitamente commit, integración, push, publicación de imágenes y despliegue/UAT de staging el 2026-08-31.
 
 quality:
   status: passed
 
 notes:
-  - feat-007 cerrada nuevamente el 2026-08-30. El SHA `942e028` ejecutó un único run quality 33338559977: `verify` superó todas las categorías en 4m22s y sólo entonces comenzó `publish-staging-images / publish`, que publicó ambas imágenes en 1m59s. No hubo workflow paralelo de imágenes. NFR-007-009/AC-007-017/TASK-007-012/TEST-007-016 quedan completos.
-  - feat-007 reabierta por solicitud del usuario el 2026-08-30: el workflow de imágenes se ejecutaba en paralelo con quality pese a que la documentación exigía publicarlo después. Se agrega NFR-007-009/AC-007-017/TASK-007-012/TEST-007-016 y se requiere contrato local, ejecución remota e inspección independiente antes de volver a cerrar.
-  - feat-007 cerrada e integrada en `staging` el 2026-08-30. El commit `8758b78` superó quality (run 33337065937) y publicó las imágenes de aplicación/Nginx (run 33337065933). El fallo previo era un falso positivo del test de privacidad al buscar `123` en un UUID de correlación sintético y fue reemplazado por una validación semántica del metadata. AC-007-016 permanece como excepción exclusiva de staging y bloqueo explícito de producción.
-  - Revisión independiente final de feat-007 aprobada el 2026-08-30: unitarias 39/39, integración 39/39, seguridad 52/52, E2E técnico 25/25 y frontend CLIENT/ADMIN 9/9. El veredicto habilita integrar en staging con AC-007-016 como excepción explícita; producción permanece bloqueada.
-  - El usuario aprobó explícitamente la especificación de feat-007 el 2026-08-27 y autorizó implementar sólo el alcance no productivo. Las cuentas de prueba vendedor/comprador ya existen; TEST-007-014 y AC-007-016 permanecen bloqueados hasta implementar un endpoint HTTPS compatible, configurar secretos sólo fuera del repositorio y observar los escenarios oficiales. No se autorizan producción, cobros reales, commit, push, PR ni despliegue.
-  - Especificación de feat-007 preparada el 2026-08-17 con requisitos, diseño, contrato HTTP, aceptación, tareas, plan de pruebas y evidencia inicial. La feature pasa a spec_review; TEST-007-014 y AC-007-016 quedan pendientes de acceso humano a una aplicación/cuentas no productivas de Mercado Pago. No se autoriza implementación, credenciales, cobros, commit, push, PR ni despliegue.
-  - El usuario aprobó el 2026-08-17 las ocho decisiones de discovery y la revisión arquitectónica condicionada de feat-007. La feature pasa a specification; debe validar Mercado Pago con cuentas no productivas y luego detenerse en spec_review. No se autoriza implementación, credenciales reales, cobros, commit, push ni despliegue.
-  - feat-007 iniciada en discovery por instrucción del usuario el 2026-08-17. Se propone completar el camino de Visita Simple desde TRABAJO_FINALIZADO hasta pago confirmado y conformidad, usando la oferta congelada y Mercado Pago Checkout Pro. La revisión arquitectónica focalizada y ocho decisiones quedan pendientes; no se autoriza código, credenciales, cobros, publicación ni despliegue.
-  - feat-013 se integró y publicó en `staging` el 2026-08-14. La calidad remota 31842824934 superó todas las categorías y las imágenes de staging se publicaron en la ejecución 31842824901. La siguiente iteración separará las secciones de pantalla conforme a Stitch.
-  - Revisión independiente final de feat-013 aprobada el 2026-08-14: tareas, cinco criterios, UAT inicial, seguridad 39/39, E2E y política CI verificadas. La feature entra en `publication_review`; el usuario autorizó commit, integración en `staging` y push para generar imágenes de staging.
-  - El usuario aprobó la implementación inicial de feat-013 el 2026-08-14: la siguiente iteración visual deberá separar las secciones conforme a Stitch. Autorizó integrar en `staging`, publicar el cambio y limitar calidad remota a `main`/`staging`, con imágenes sólo desde `staging`.
-  - `pnpm test:security` de feat-013 superó 39/39 el 2026-08-14 después de reconstruir los enlaces `node_modules` desde el lockfile y limpiar dos entornos Compose temporales huérfanos que ocupaban el puerto aislado 18088. Persiste únicamente la UAT humana visual/accesible antes de publication_review.
-  - La revisión independiente de feat-013 no habilitó publication_review el 2026-08-14: falta ejecutar `pnpm test:security` en un entorno reproducible sin acceso privilegiado al daemon Docker y registrar UAT humana visual/accesible en staging. La UI y el drawer tablet fueron corregidos y sus E2E superaron.
-  - Implementación local de feat-013 completada el 2026-08-14: shell visual CLIENT/ADMIN, fuentes locales con licencia OFL, estados accesibles y pruebas E2E de ambos portales verificadas. Las imágenes se reconstruyeron sin caché y el entorno local quedó saludable en los puertos canónicos 3000, 3002 y 8088. Falta revisión independiente y autorización de publicación; no se realizó commit, push ni despliegue.
-  - El usuario aprobó la especificación de feat-013 el 2026-08-14 y solicitó completar la feature y dejar el entorno local disponible para pruebas manuales. Se habilita implementación local, no commit, push ni despliegue.
-  - Alcance y decisiones de discovery de feat-013 confirmados por el usuario el 2026-08-14. La especificación se preparó para revisión; no existe todavía aprobación para implementar, publicar ni desplegar.
-  - feat-013 iniciada en discovery por instrucción del usuario el 2026-08-14. Su objetivo es adoptar el sistema visual de los paquetes Stitch ya revisados en los flujos existentes de CLIENT y ADMIN, sin alterar reglas de negocio, datos, permisos, proveedores ni despliegues. Requiere especificación y aprobación humana antes de modificar código.
-  - Staging de feat-005 actualizado y validado manualmente por el usuario el 2026-08-14 con las imágenes del SHA `fbc681617dc3a90b2e7d7b67d8bc6eb1707f36fc`. No se desplegó producción.
-  - feat-005 cerrada por autorización de publicación del usuario el 2026-08-14. Se publica en la rama `codex/feat-005-operational-orders`; su único propósito es la integración aprobada y deberá retirarse tras integrar el commit en la rama objetivo.
-  - Re-verificación y revisión independiente de feat-005 superadas el 2026-08-14 tras los hotfixes locales. La feature vuelve a publication_review; no existe autorización específica de commit, push, PR ni despliegue.
-  - La corrección local posterior a la revisión independiente de feat-005 reabre implementation: el portal CLIENT ahora conserva una salida de sesión visible y ofrece reiniciar el acceso cuando falla la autorización. Debe repetirse la verificación y la revisión independiente antes de publication_review.
-  - feat-005 completó verification el 2026-08-14: formato, lint, typecheck, build, 25 unitarias, pruebas de seguridad/integración con Compose PostgreSQL y E2E funcionales de ambos portales superaron. El Reviewer independiente emitió PASS; la feature ingresa en publication_review. No existe autorización específica de commit, push, PR ni despliegue.
-  - La aprobación arquitectónica no aprueba la especificación ni autoriza cambios en código de producto.
-  - Alcance corregido por el usuario: sin aplicación de operarios ni tracking en el MVP.
-  - Restricción de infraestructura: backend, backoffice y multimedia en un VPS de Hostinger.
-  - Se recibieron y revisaron los ZIP de Google Stitch para cliente y backoffice.
-  - UI-D01 a UI-D03 resueltas por el usuario: comunicación cliente-administración, bandeja operativa sin KPIs y multimedia opcional limitada.
-  - ADR-007 se interpreta como estado e historial dentro del portal, sin chat ni mensajería integrada en el MVP.
-  - Los artefactos obligatorios de feat-001 fueron aprobados explícitamente por el usuario el 2026-07-23.
-  - VPS de desarrollo confirmado: 2 vCPU, 8 GB RAM, 100 GB de disco y 8 TB de transferencia; producción se dimensionará con evidencia.
-  - Las condiciones arquitectónicas se mantienen como tareas y controles verificables; la aprobación no las exime.
-  - TASK-001 completada: monorepo, límites de dependencias y build verificados; quedan tareas de producto e infraestructura.
-  - TASK-002 completada: shells cliente/administración, accesibilidad estructural y respuestas HTTP locales verificadas.
-  - TASK-003 completada: API NestJS/Fastify, worker y healthchecks diferenciados verificados; contrato OpenAPI sincronizado mediante TASK-016.
-  - TASK-004 completada: migración técnica de PostgreSQL/Prisma y readiness con dependencia real verificados con datos sintéticos.
-  - TASK-005 completada: Compose con Nginx como única entrada local, redes privadas, volúmenes persistentes, healthchecks y límites base verificados; la revisión de seguridad integral queda en TASK-013.
-  - TASK-006 completada: PoC aislada de multimedia validó streaming acotado, límites MVP, temporal/rename atómico, checksum, metadatos técnicos, limpieza y entrega interna no pública.
-  - TASK-007 completada: PoC aislada de pagos mediante mock contractual validó firma HMAC, consulta autoritativa, deduplicación concurrente, eventos fuera de orden y conciliación de intención pendiente; falta validación opcional contra Mercado Pago Sandbox con cuenta no productiva.
-  - TASK-008 completada: comandos raíz para formato, lint, tipos/build y suites unitarias, integración, seguridad y E2E; los filtros exigen coincidencia y la E2E ejecuta Compose temporal aislado. CI bloqueante queda en TASK-014.
-  - TASK-009 completada: configuración tipada para API y worker, validación temprana sin revelar valores, requisitos sensibles de producción y `.env.example` sin secretos; logs estructurados quedan en TASK-010.
-  - TASK-010 completada: logs estructurados/sanitizados, correlation ID en healthchecks, telemetría técnica y runbook de alertas; no se agregó proveedor externo de monitoreo.
-  - TASK-011 completada: contrato v1 puro de estados de orden y pago con tabla de transiciones, reasignación versionada/histórica y regla de no adelantar la orden con pagos pendientes o rechazados; permisos quedan en TASK-012.
-  - TASK-012 completada: matriz de permisos v1 y pruebas negativas; el técnico no representa una cuenta/sesión/token de PIGAR y queda denegado en todas las acciones y transiciones.
-  - TASK-013 completada: revisión local de seguridad de red, multimedia, logs y datos sintéticos; permanecen bloqueantes antes de producción la auditoría remota de dependencias, escaneo/pin por digest de imágenes, cifrado, backup y hardening del VPS.
-  - TASK-014 completada: CI bloqueante configurado en GitHub Actions, con instalación reproducible, categorías de calidad y meta-prueba local de regresiones; sin secretos ni despliegue, primera ejecución remota pendiente de publicación.
-  - TASK-015 completada: capacidad, límites, costes/cuotas de referencia y recuperación documentados; no se seleccionó proveedor adicional, y cifrado/backup/restauración siguen bloqueando producción hasta su aprobación y prueba.
-  - TASK-016 completada: `api-contract.yaml` y prueba HTTP de contrato validan healthchecks, error `application/problem+json` y `X-Request-ID`.
-  - TASK-017 completada: evidencia consolidada y revisión independiente preparada; feat-001 pasa a verification, sin autorización de publicación y con CI remoto/bloqueantes de producción pendientes.
-  - El usuario aprobó la revisión independiente de feat-001 el 2026-07-25; la feature pasa a publication_review. Hostinger queda declarado como testing/staging para equipo y cliente, no producción; publicación/despliegue siguen sin autorización.
-  - El usuario autorizó el 2026-07-25 crear el repositorio público grupoSIM/PIGAR, realizar el commit inicial y hacer push; no autorizó despliegues.
-  - CI remoto aprobado el 2026-07-25 en GitHub Actions run 30169241231; feat-001 queda cerrada. Los bloqueantes de producción siguen vigentes y Hostinger no es producción.
-  - feat-012 iniciada en discovery por instrucción del usuario: staging técnico manual en Hostinger, sin funcionalidades de producto ni autorización de despliegue todavía.
-  - El usuario aprobó la especificación de feat-012 el 2026-07-25; se habilita implementación local de artefactos de staging, no acceso ni despliegue remoto.
-  - feat-002 ingresó en discovery por instrucción del usuario el 2026-07-27. ADR-003 sigue aceptada; la especificación requerirá validar Auth0 con cuenta no productiva y aprobación humana antes de modificar código.
-  - Alcance de discovery de feat-002 confirmado por el usuario el 2026-07-27; se preparan los artefactos de especificación. No existe aprobación de especificación ni autorización de implementación.
-  - El usuario aprobó el 2026-07-27 sustituir magic link por código OTP email con Universal Login. La enmienda a ADR-003 permite MFA selectivo por aplicación mediante Actions; no autoriza implementación.
-  - La validación manual no productiva de `google-oauth2` para `PIGAR-STAGING-CUSTOMER` completó con éxito el 2026-07-27; no se registró el perfil devuelto.
-  - La prueba de conexión de base de datos para `PIGAR-STAGING-ADMIN` fue exitosa el 2026-07-27, pero no constituye evidencia de MFA: Auth0 indica probar Actions Post Login desde Authentication Profile.
-  - MFA TOTP fue validado el 2026-07-27 mediante la Action Post Login; la condición temporal fue restaurada y desplegada exclusivamente para `PIGAR-STAGING-ADMIN`.
-  - El usuario aprobó el 2026-07-27 usar Auth0 Organizations para invitaciones administrativas del MVP, limitado al único equipo interno PIGAR.
-  - El usuario revisó y aprobó la especificación de feat-002 el 2026-07-27. Se habilita implementación local del MVP; no autoriza commit, push, PR ni despliegue. La aceptación de invitaciones requiere implementar y desplegar HTTPS `/login` en el backoffice y conservará evidencia antes del cierre.
-  - El usuario confirmó el 2026-07-29 la revisión de arquitectura del flujo: cliente por Google u OTP email sin registro visible; cuentas internas aprovisionadas por ADMIN con contraseña y MFA; operarios sin cuenta en el MVP. La especificación de feat-002 vuelve a spec_review y sustituye el flujo anterior de Organizations/invitaciones cuando sea aprobada.
-  - El usuario aprobó la especificación revisada de feat-002 el 2026-07-29. La feature pasa a approved y se habilita implementación local del flujo de clientes Google/OTP email y cuentas internas preaprovisionadas con MFA; no autoriza commit, push, PR ni despliegue.
-  - Implementación local de feat-002 iniciada el 2026-07-29: el selector cliente usa conexiones Auth0 explícitas para Google y OTP email; el aprovisionamiento interno reemplaza Organizations/invitaciones mediante Management API. Sin cambios externos ni autorización de publicación.
-  - Staging de feat-002 validado manualmente el 2026-07-29: OTP email para cliente y cuenta interna administrativa con contraseña/MFA.
-  - El usuario decidió el 2026-08-01 excluir Google del MVP de feat-002. Google se reconsiderará antes de producción con decisión y validación no productiva separadas; la enmienda no autoriza cambios de código, proveedores, despliegue ni publicación.
-  - TASK-002-002 actualizada el 2026-08-01: se retiraron Google, su configuración versionada de staging y el callback heredado de invitaciones; pruebas unitarias/E2E focalizadas y typecheck local superaron. La validación de la imagen en staging requiere despliegue autorizado.
-  - Implementación de feat-002 completada localmente el 2026-08-01: todas las tareas están verificadas con evidencia. La feature ingresa en verification; formato, lint, typecheck, 11 unitarias, 11 integraciones, 22 seguridad y 2 E2E superaron con Docker Desktop accesible. Los fallos previos provenían del aislamiento de la sesión, no del proyecto. Falta revisión independiente y validar en staging la imagen que retire Google.
-  - Revisión independiente de feat-002 aprobada el 2026-08-01: login/callback administrativo bajo `/admin` y TEST-002-008 verificados. La feature pasa a publication_review; el usuario autorizó commit y push para generar imágenes de staging, sin autorizar despliegue.
-  - Staging de feat-002 actualizado autorizadamente el 2026-08-01 con la imagen del commit `1589fd915717193705b1cea262af52f7aa5b951a`. Las rutas públicas esperadas respondieron HTTP 200 y los puertos 3000/5432 no quedaron expuestos. La feature permanece en publication_review: el smoke test no sustituye la aceptación funcional manual de identidad.
-  - feat-002 cerrada el 2026-08-02: el usuario validó en staging la imagen desplegada con OTP email de cliente y acceso administrativo con usuario/contraseña y MFA; Google no se presentó y queda fuera del MVP. Se conservaron la revisión independiente y la aprobación de publicación ya registradas.
-  - feat-003 retomada en discovery el 2026-08-02 tras el cierre de feat-002. No hay decisiones comerciales, zonas, precios, proveedor de mapas ni permisos de edición aprobados todavía.
-  - Discovery de feat-003 completado el 2026-08-02: una zona única, Visita Simple a ARS 50.000 como precio final, tarifas fijas por categoría, sólo ADMIN edita, vista pública limitada y congelamiento al confirmar solicitud. La especificación ingresa en spec_review y queda pendiente de aprobación humana; no se autoriza implementación.
-  - El usuario aprobó la especificación de feat-003 el 2026-08-02. La feature pasa a approved; se habilita implementación local sólo bajo instrucción posterior. No autoriza commit, push, PR ni despliegue.
-  - Implementación local de feat-003 iniciada el 2026-08-02 por instrucción del usuario. No autoriza commit, push, PR ni despliegue.
-  - Implementación local de feat-003 completada el 2026-08-02: catálogo versionado, migración no destructiva y seed sintético de Visita Simple/ARS 50.000; oferta pública, administración sólo ADMIN, consulta DISPATCHER y auditoría sanitizada. Formato, lint, typecheck, pruebas focalizadas y E2E Compose locales superaron. La feature pasa a verification; falta revisión independiente y no existe autorización de publicación.
-  - Revisión independiente de feat-003 ejecutada el 2026-08-02: fail por QR-003-001, regresión en la prueba unitaria del shell cliente al omitir la marca PIGAR en la página modificada. Formato, lint, typecheck, integración y seguridad focalizadas del catálogo y E2E Compose pasaron; la integración completa excedió el límite local sin resultado. La feature permanece en verification y no se autoriza publicación.
-  - QR-003-001 corregido el 2026-08-02: la página pública vuelve a declarar PIGAR. Formato y suite unitaria completa (16/16) superaron; el reintento de integración completa superó 16/16. Se solicita nuevo veredicto independiente; no existe autorización de publicación.
-  - Revisión independiente final de feat-003 aprobada el 2026-08-02: QR-003-001 quedó resuelto y formato, 16/16 unitarias y 16/16 integraciones superaron. Se conservan las verificaciones de seguridad focalizada y E2E Compose aprobadas para el cambio previo. La feature pasa a publication_review; la aprobación de publicación sigue pendiente y no autoriza commit, push, PR ni despliegue.
-  - El usuario autorizó el 2026-08-02 crear el commit local y hacer push de feat-003; no autorizó PR ni despliegue.
-  - Commit local de feat-003 creado: d16d85462383ed91f266392d37f2977b01647f7e. Se publicará en `codex/feat-003-catalog`; PR y despliegue no autorizados.
-  - Push de feat-003 completado el 2026-08-02 en origin/codex/feat-003-catalog. No se creó PR ni se desplegó; la feature queda cerrada.
-  - Staging de feat-003 actualizado autorizadamente el 2026-08-02 con la imagen d16d85462383ed91f266392d37f2977b01647f7e. Las rutas públicas, administración, readiness y catálogo respondieron HTTPS 200; la oferta mostró Visita Simple/ARS 50.000/v1. No se desplegó producción.
-  - La publicación automática de imágenes de staging queda limitada a `main` tras calidad y a la rama dedicada `staging`; se eliminó el disparador de `codex/feat-002-auth0-staging` y su contrato local fue verificado el 2026-08-02.
-  - La rama `staging` fue publicada el 2026-08-02 desde ebdbc4aada09afe59aa12270449ca3c26d5216f9; la ejecución 30778967918 de publicación de imágenes finalizó correctamente. No se modificó el despliegue de Hostinger ni producción.
-  - feat-004 ingresó en discovery el 2026-08-03. No existe autorización de especificación, implementación, publicación ni despliegue.
-  - Revisión arquitectónica focalizada de feat-004 el 2026-08-03: approved_with_conditions. No requiere ADR nueva si se mantienen ADR-005/006/008.
-  - Discovery de feat-004: el usuario confirmó Google con degradación manual; descripción/calle/número obligatorios y barrio/entre calles; hasta cinco imágenes y un video, con al menos una evidencia multimedia obligatoria para operar; ADMIN y DISPATCHER acceden operativamente. Los testers autenticados pueden usar staging con los datos necesarios, incluidos domicilio y geolocalización; cifrado, retención, backup, capacidad y validación comercial de Google se exigen antes de producción.
-  - Especificación de feat-004 preparada el 2026-08-03 para UAT de testers autenticados en staging; queda en spec_review y requiere aprobación humana antes de implementar.
-  - El usuario aprobó la especificación de feat-004 el 2026-08-03. Se habilita implementación local; no autoriza commit, push, PR ni despliegue.
-  - Implementación local de feat-004 iniciada el 2026-08-03. No autoriza commit, push, PR ni despliegue.
-  - Revisión independiente de feat-004 falló el 2026-08-03: tareas 002 a 005 reabiertas por idempotencia incompleta, auditoría de mutaciones, puerto Google/fallback, atomicidad y validación multimedia, flujo UI y cobertura HTTP/PG/E2E. La calidad global además permanece bloqueada por formato preexistente fuera del alcance.
-  - Implementación de feat-004 completada y verificada el 2026-08-04: idempotencia web preservada, límites de adjuntos pesimistas en PostgreSQL (`FOR UPDATE`), parseo de cajas MP4 en disco (`moov`/`mvhd`), UI operativa ADMIN/DISPATCHER, pruebas automatizadas (6/6) y linting de repositorios pasaron con éxito.
-  - Revisión independiente final de feat-004 aprobada el 2026-08-04 con dictamen PASSED: hallazgos QR-004-007 a QR-004-012 verificados y resueltos. La feature pasa a verification; no se autoriza commit, push, PR ni despliegue.
-  - Las pruebas E2E de frontend exigidas por la convención fueron implementadas y ejecutadas con éxito. Se registró evidencia. La feature pasa a publication_review.
-  - El usuario autorizó el 2026-08-04 la publicación (commit y push) de feat-004. La feature pasa a done.
-  - Commit y push completados en la rama `codex/feat-004-request` (commit a8b3c6d). No se creó PR automáticamente. La feature queda cerrada.
-  - La rama `staging` fue actualizada con los cambios de feat-004 y pusheada a origin el 2026-08-04. Las imágenes están siendo construidas por la CI bajo el SHA `703cd420f451adb7e573717a463f3c807c18774f`.
-  - feat-004 cerrada el 2026-08-12: la UAT final de staging validó mapa y buscador de domicilio, creación de solicitud, carga de imágenes y visibilidad operativa/auditada de adjuntos desde ADMIN. El hotfix publicado `596151cd75b271835333404272cb48699e709f32` superó calidad e imágenes de staging; los bloqueantes de producción siguen fuera de alcance.
-  - feat-005 ingresó en discovery el 2026-08-12 por instrucción del usuario. No existe autorización de especificación, implementación, publicación ni despliegue; las decisiones de producto sobre creación de orden, registro de técnicos, cancelaciones y alcance de hitos operativos quedan pendientes.
-  - Discovery de feat-005 actualizado el 2026-08-12: la asignación inicial crea la orden; el registro interno de técnicos incluye nombre completo, teléfono y estado activo/inactivo; ADMIN administra técnicos y ADMIN/DISPATCHER operan asignación, reasignación, hitos y cancelación previa a atención con motivo. El cliente ve nombre completo, estado e historial seguro, sin contacto ni ubicación. La revisión arquitectónica focalizada de datos personales queda pendiente antes de especificación.
-  - Revisión arquitectónica focalizada de feat-005 aprobada por el usuario el 2026-08-12 con condiciones: teléfono obligatorio para técnico activo/asignable, visible sólo a ADMIN/DISPATCHER; el cliente ve nombre completo, estado e historial seguro, y ante cancelación sólo el estado `CANCELADA`, sin motivo. No requiere ADR nueva. La feature pasa a specification; no existe aprobación de especificación, implementación, publicación ni despliegue.
+  - El usuario aprobó explícitamente la especificación de feat-009 el 2026-08-31 y autorizó implementación local. El 2026-08-31 autorizó también commit, push, integración, publicación de imágenes y despliegue/UAT de staging. Los canales/proveedores externos continúan fuera del alcance.
+  - DEC-009-001 a DEC-009-006 aprobadas por el usuario el 2026-08-30. La implementación local in-app superó verificación independiente; la UAT de staging queda pendiente de ejecución antes del cierre.
+  - feat-009 inició discovery el 2026-08-30 por aprobación del usuario. Se recomienda una bandeja transaccional in-app para CLIENT y mantener proveedores externos diferidos, sujeto a DEC-009-001 a DEC-009-006.
+  - feat-007 permanece cerrada en staging; su excepción Webhook continúa bloqueando únicamente producción.

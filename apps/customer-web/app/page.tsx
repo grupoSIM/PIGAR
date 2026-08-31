@@ -2,6 +2,7 @@ import { ProductShell } from "@pigar/ui";
 import { auth0 } from "../lib/auth0";
 import { RequestForm } from "./request-form";
 import { CustomerRequests } from "./customer-requests";
+import { Notifications } from "./notifications";
 
 export const dynamic = "force-dynamic";
 
@@ -39,6 +40,7 @@ export default async function CustomerHome() {
           <p className="session-action">
             <a href={logoutHref}>Cerrar sesión</a>
           </p>
+          <Notifications />
           <CustomerRequests />
           <RequestForm mapsApiKey={process.env["PIGAR_G" + "OOGLE_BROWSER_KEY"]} />
         </>

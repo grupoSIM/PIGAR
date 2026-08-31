@@ -1,0 +1,225 @@
+openapi: 3.1.0
+info:
+  title: PIGAR Transactional Notifications API
+  version: 1.0.0-draft
+  description: >-
+    Contrato propuesto de feat-009 para la bandeja in-app del CLIENT. Los avisos
+    no son autoritativos y no habilitan canales o proveedores externos.
+servers:
+  - url: /api
+security:
+  - bearerAuth: []
+paths:
+  /v1/notifications:
+    get:
+      summary: Lista las notificaciones del CLIENT autenticado
+      operationId: listOwnNotifications
+      parameters:
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: Página propia ordenada y conteo no leído del mismo perfil
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationPage"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+
+  /v1/notifications/{notificationId}/read:
+    put:
+      summary: Marca una notificación propia como leída de forma idempotente
+      operationId: markOwnNotificationRead
+      parameters:
+        - $ref: "#/components/parameters/NotificationId"
+      responses:
+        "200":
+          description: Proyección actual; conserva el primer readAt ante reintento
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationItem"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    Cursor:
+      name: cursor
+      in: query
+      required: false
+      description: Cursor opaco emitido por la página anterior.
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 512
+    Limit:
+      name: limit
+      in: query
+      required: false
+      description: Cantidad solicitada; 20 por defecto y 50 como máximo.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 50
+        default: 20
+    NotificationId:
+      name: notificationId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  schemas:
+    NotificationType:
+      type: string
+      enum:
+        - WORK_ORDER_ASSIGNMENT_CHANGED
+        - WORK_ORDER_EN_ROUTE
+        - WORK_ORDER_CANCELLED
+        - PAYMENT_APPROVED
+        - PAYMENT_REJECTED
+        - WORK_ORDER_CLOSED
+    NotificationTarget:
+      type: object
+      additionalProperties: false
+      required:
+        - kind
+        - requestId
+      properties:
+        kind:
+          const: REQUEST_DETAIL
+        requestId:
+          type: string
+          format: uuid
+          description: Referencia opaca ya autorizable para el CLIENT propietario.
+    NotificationItem:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - type
+        - title
+        - summary
+        - createdAt
+        - readAt
+        - target
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          $ref: "#/components/schemas/NotificationType"
+        title:
+          type: string
+          minLength: 1
+          maxLength: 80
+        summary:
+          type: string
+          minLength: 1
+          maxLength: 160
+        createdAt:
+          type: string
+          format: date-time
+        readAt:
+          oneOf:
+            - type: string
+              format: date-time
+            - type: "null"
+        target:
+          $ref: "#/components/schemas/NotificationTarget"
+    NotificationPage:
+      type: object
+      additionalProperties: false
+      required:
+        - items
+        - unreadCount
+        - nextCursor
+      properties:
+        items:
+          type: array
+          maxItems: 50
+          items:
+            $ref: "#/components/schemas/NotificationItem"
+        unreadCount:
+          type: integer
+          minimum: 0
+        nextCursor:
+          oneOf:
+            - type: string
+              minLength: 1
+              maxLength: 512
+            - type: "null"
+    Problem:
+      type: object
+      additionalProperties: false
+      required:
+        - type
+        - title
+        - status
+      properties:
+        type:
+          type: string
+          format: uri-reference
+        title:
+          type: string
+        status:
+          type: integer
+          minimum: 400
+          maximum: 599
+        code:
+          type: string
+        requestId:
+          type: string
+  responses:
+    BadRequest:
+      description: Cursor, límite, identificador o entrada inválidos.
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+    Unauthorized:
+      description: Autenticación requerida o inválida.
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+    Forbidden:
+      description: El perfil autenticado no tiene rol CLIENT habilitado.
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+    NotFound:
+      description: Notificación inexistente o no perteneciente al CLIENT.
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+    TooManyRequests:
+      description: Límite excedido; puede incluir Retry-After.
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+            minimum: 1

@@ -2,6 +2,11 @@
 
 La migración `0001_technical_foundations` crea exclusivamente tablas de soporte:
 `outbox_event`, `claimed_job`, `provider_event_receipt` y `media_poc_object`.
+
+`20260831090000_feat_009_transactional_notifications` es aditiva y forward-only:
+agrega el lease al outbox y la proyección `transactional_notification` con FKs
+RESTRICT, unicidad fuente/destinatario e índices de bandeja/no leídos. Un rollback
+de aplicación conserva filas; cualquier corrección posterior debe ser forward-fix.
 No contiene perfiles, solicitudes, órdenes, pagos, ubicaciones, URLs firmadas ni
 payloads externos completos.
 

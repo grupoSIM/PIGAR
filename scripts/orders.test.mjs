@@ -94,6 +94,10 @@ test("[order-service] asigna de forma idempotente, aplica versión y oculta PII 
     expectedVersion: 1,
   });
   assert.equal(enRoute.version, 2);
+  assert.deepEqual(
+    store.events.filter((item) => item.aggregateType === "work_order").map((item) => item.eventType),
+    ["work_order.assignment_changed", "work_order.en_route"],
+  );
   const customer = await service.customerView(client, "request-1");
   assert.deepEqual(customer.technician, { fullName: "Técnico sintético" });
   assert.doesNotMatch(JSON.stringify(customer), /555|motivo interno|technician-1/i);
@@ -120,6 +124,7 @@ function orderStore() {
   const orders = [];
   const events = [];
   const store = {
+    events,
     $transaction: async (operation) => operation(store),
     technician: {
       findUnique: async ({ where }) => (where.id === technician.id ? technician : null),
@@ -198,6 +203,12 @@ function orderStore() {
       create: async ({ data }) => {
         events.push(data);
         return data;
+      },
+    },
+    outboxEvent: {
+      create: async ({ data }) => {
+        events.push(data);
+        return { id: `event-${events.length}`, ...data };
       },
     },
   };

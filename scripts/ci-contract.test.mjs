@@ -22,7 +22,9 @@ function mustFail(command, arguments_) {
 }
 
 test("[ci-contract] el workflow ejecuta instalación reproducible y todas las categorías bloqueantes", async () => {
-  const workflow = await readFile(path.join(root, ".github", "workflows", "ci.yml"), "utf8");
+  const workflow = (
+    await readFile(path.join(root, ".github", "workflows", "ci.yml"), "utf8")
+  ).replaceAll("\r\n", "\n");
 
   for (const command of [
     "pnpm install --frozen-lockfile --ignore-scripts",
@@ -42,11 +44,12 @@ test("[ci-contract] el workflow ejecuta instalación reproducible y todas las ca
 });
 
 test("[ci-contract] las imágenes de staging se publican sólo después de calidad exitosa", async () => {
-  const qualityWorkflow = await readFile(path.join(root, ".github", "workflows", "ci.yml"), "utf8");
-  const imageWorkflow = await readFile(
-    path.join(root, ".github", "workflows", "publish-staging-images.yml"),
-    "utf8",
-  );
+  const qualityWorkflow = (
+    await readFile(path.join(root, ".github", "workflows", "ci.yml"), "utf8")
+  ).replaceAll("\r\n", "\n");
+  const imageWorkflow = (
+    await readFile(path.join(root, ".github", "workflows", "publish-staging-images.yml"), "utf8")
+  ).replaceAll("\r\n", "\n");
 
   assert.match(
     qualityWorkflow,

@@ -110,6 +110,15 @@ export class OrdersService {
           where: { id: reservation.id },
           data: { workOrderId: order.id },
         });
+        await tx.outboxEvent.create({
+          data: {
+            eventType: "work_order.assignment_changed",
+            version: 1,
+            aggregateType: "work_order",
+            aggregateId: order.id,
+            payload: { requestId },
+          },
+        });
         return order;
       });
       await this.audit(actor, "order.assigned", result.id, correlation);
@@ -206,6 +215,24 @@ export class OrdersService {
           },
           include: { technician: true, transitions: { orderBy: { version: "asc" } } },
         });
+        const eventType =
+          input.action === OrderTransitionAction.REASSIGN_TECHNICIAN
+            ? "work_order.assignment_changed"
+            : input.action === OrderTransitionAction.MARK_EN_ROUTE
+              ? "work_order.en_route"
+              : input.action === OrderTransitionAction.CANCEL
+                ? "work_order.cancelled"
+                : undefined;
+        if (eventType)
+          await tx.outboxEvent.create({
+            data: {
+              eventType,
+              version: 1,
+              aggregateType: "work_order",
+              aggregateId: order.id,
+              payload: { requestId: order.requestId },
+            },
+          });
         return updated;
       });
     } catch (error) {

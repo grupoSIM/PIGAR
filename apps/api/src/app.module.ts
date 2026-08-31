@@ -19,6 +19,8 @@ import { MercadoPagoProvider } from "./billing/mercado-pago.provider.js";
 import { BillingController } from "./billing/billing.controller.js";
 import { MercadoPagoWebhookController } from "./billing/mercado-pago-webhook.controller.js";
 import { PaymentReconciliationRunner } from "./billing/payment-reconciliation.runner.js";
+import { NotificationsController } from "./notifications/notifications.controller.js";
+import { NotificationsService } from "./notifications/notifications.service.js";
 
 @Module({
   controllers: [
@@ -31,6 +33,7 @@ import { PaymentReconciliationRunner } from "./billing/payment-reconciliation.ru
     OrdersController,
     BillingController,
     MercadoPagoWebhookController,
+    NotificationsController,
   ],
   providers: [
     DatabaseService,
@@ -45,6 +48,7 @@ import { PaymentReconciliationRunner } from "./billing/payment-reconciliation.ru
     BillingService,
     MercadoPagoProvider,
     PaymentReconciliationRunner,
+    NotificationsService,
     { provide: PAYMENT_PROVIDER, useExisting: MercadoPagoProvider },
   ],
 })
