@@ -1,73 +1,77 @@
 project: PIGAR
-active_feature: feat-009
-phase: done
-updated_at: 2026-08-31T00:00:00-03:00
+active_feature: feat-010
+phase: publication_review
+updated_at: 2026-09-02T16:40:00-03:00
 
 blockers:
-  - Todo canal externo requiere revisar ADR-007 y aprobar proveedor, consentimiento, plantillas, costes, soporte y tratamiento de datos; permanece fuera de esta especificación.
+  - La garantía permanece expresamente diferida; cualquier promesa comercial, remedio económico u operativo requiere un discovery y aprobación nuevos.
   - Producción continúa bloqueada además por TEST-007-014/AC-007-016 hasta resolver el Webhook automático de Mercado Pago.
 
 architecture_conditions:
   before_specification_approval:
-    - Mantener el estado de dominio y su historial como única fuente de verdad; una notificación nunca confirma una transición.
-    - Definir eventos, destinatarios, contenido allowlist, idempotencia, permisos, retención y recuperación de avisos.
-    - Si se incorpora un canal externo, revisar ADR-007 y validar privacidad, consentimiento, bajas, rebotes, costes, cuotas, secretos y soporte.
+    - Mantener la orden cerrada y su historial como fuente de verdad; una calificación o incidencia no reabre, altera pagos ni crea una nueva orden automáticamente.
+    - Mantener la garantía fuera de feat-010; no calcular elegibilidad ni ofrecer una promesa de cobertura.
+    - Aplicar los datos, actores, permisos, idempotencia, retención, borrado, logs y pruebas negativas aprobados para calificaciones e incidencias.
+    - Mantener texto libre sólo en `Otro` de la calificación, con revisión focalizada aprobada y los límites documentados; multimedia y canales externos siguen excluidos.
   before_production:
     - Validar con asesoría legal los plazos de retención y borrado.
     - Elegir y aprobar un destino externo de backup cifrado y probar una restauración completa.
     - Completar hardening del VPS, modelado de amenazas, monitoreo y respuesta a incidentes.
 
 risks:
-  - Avisos duplicados, perdidos o demorados pueden generar expectativas incorrectas aunque no alteren el dominio.
-  - Contenido o logs de notificaciones pueden filtrar datos de solicitudes, técnicos, pagos o proveedores.
-  - Un proveedor externo agrega costes, cuotas, secretos, entregabilidad, consentimiento y dependencia operativa.
-  - El historial de avisos y su estado de lectura requieren retención, índices y autorización por propietario.
+  - Una garantía ambigua puede crear una obligación comercial o legal no prevista.
+  - Comentarios, incidencias o adjuntos pueden contener datos personales y elevar la exposición, retención y superficie de abuso.
+  - Accesos cruzados, duplicados o reaperturas implícitas pueden alterar expectativas de postventa sin modificar el dominio autorizado.
+  - Un flujo de incidencia que cree trabajo, pagos o notificaciones sin contrato explícito extendería el MVP fuera del alcance aprobado.
 
 decisions:
   - id: ADR-007
     status: accepted
     note: El MVP aprobado ofrece estado e historial dentro del portal; email, Web Push y WhatsApp siguen diferidos.
-  - id: DEC-009-001
+  - id: DEC-010-001
     status: accepted
-  - id: DEC-009-002
+    note: CLIENT propietario puede crear una única calificación inmutable de 1 a 5 estrellas por orden CERRADA, con motivo allowlist y `Otro` obligatorio de 1 a 100 caracteres.
+  - id: DEC-010-002
     status: accepted
-  - id: DEC-009-003
+    note: No se ofrece ni calcula garantía en feat-010; queda diferida como decisión comercial y legal futura.
+  - id: DEC-010-003
     status: accepted
-  - id: DEC-009-004
+    note: CLIENT propietario abre una incidencia estructurada por orden CERRADA; ADMIN/DISPATCHER realizan triage y cierre sin crear, reabrir ni alterar órdenes, pagos o conformidad.
+  - id: DEC-010-004
     status: accepted
-  - id: DEC-009-005
+    note: Incidencias usan tipo estructurado sin texto libre ni multimedia. Sólo `Otro` de la calificación admite mensaje de hasta 100 caracteres, con minimización y retención documentadas.
+  - id: DEC-010-005
     status: accepted
-  - id: DEC-009-006
-    status: accepted
+    note: La postventa se consulta sólo en el portal; no se agregan avisos in-app, email, Web Push, WhatsApp ni proveedores externos.
 
 approvals:
   architecture:
     status: approved_with_conditions
     approved_by: usuario
-    approved_at: 2026-08-30T00:00:00-03:00
-    note: El usuario aprobó DEC-009-001 a DEC-009-006 para una bandeja exclusivamente in-app. ADR-007 permanece vigente; cualquier canal/proveedor externo requiere una puerta nueva.
+    approved_at: 2026-08-31T00:00:00-03:00
+    note: El usuario aprobó DEC-010-001 a DEC-010-005 y cerrar discovery. Architect Reviewer independiente aprobó con condiciones el texto libre limitado a `Otro`; no autoriza implementación.
   specification:
     status: approved
     approved_by: usuario
-    approved_at: 2026-08-31T00:00:00-03:00
-    note: El usuario aprobó explícitamente los siete artefactos de feat-009 y autorizó la implementación local exclusiva de la bandeja in-app; no autorizó publicación.
+    approved_at: 2026-09-01T08:49:57-03:00
+    note: El usuario aprobó explícitamente los siete artefactos de feat-010, las allowlists, el ciclo ABIERTA → EN_TRIAGE → CERRADA y los límites de rate limiting; habilita implementación, no publicación.
   verification:
     status: approved
-    approved_by: independent_reviewer
-    approved_at: 2026-08-31T00:00:00-03:00
-    note: Implementación, migración y pruebas locales aprobadas por revisión independiente; la UAT sintética de staging superó el 2026-08-31.
+    approved_by: Aristotle
+    approved_at: 2026-09-02T16:35:00-03:00
+    note: review-9 PASS independiente sobre el estado actual; habilita publication_review.
   publication:
-    status: approved
-    approved_by: usuario
-    approved_at: 2026-08-31T00:00:00-03:00
-    note: El usuario autorizó explícitamente commit, integración, push, publicación de imágenes y despliegue/UAT de staging el 2026-08-31.
+    status: pending
+    note: No hay publicación autorizada para feat-010.
 
 quality:
   status: passed
 
 notes:
-  - feat-009 cerrada en staging el 2026-08-31. Los commits `9aa0feb`, `015f3b9` y `e91707f` fueron integrados; GitHub Actions 33432458042 superó calidad completa y publicó imágenes. La UAT sintética verificó los seis tipos de aviso, lectura monotónica, reautorización y accesibilidad sin datos personales.
-  - El usuario aprobó explícitamente la especificación de feat-009 el 2026-08-31 y autorizó implementación local. El 2026-08-31 autorizó también commit, push, integración, publicación de imágenes y despliegue/UAT de staging. Los canales/proveedores externos continúan fuera del alcance.
-  - DEC-009-001 a DEC-009-006 aprobadas por el usuario el 2026-08-30. La implementación local in-app superó verificación independiente y la UAT de staging antes del cierre.
-  - feat-009 inició discovery el 2026-08-30 por aprobación del usuario. Se recomienda una bandeja transaccional in-app para CLIENT y mantener proveedores externos diferidos, sujeto a DEC-009-001 a DEC-009-006.
-  - feat-007 permanece cerrada en staging; su excepción Webhook continúa bloqueando únicamente producción.
+  - Los siete artefactos de feat-010 fueron aprobados explícitamente por el usuario el 2026-09-01; la feature transitó spec_review → approved → implementation y volvió a verification tras correcciones posteriores a review-6. La aprobación no autoriza commit, push, PR, publicación ni despliegue.
+  - review-7 del 2026-09-02 fue FAIL; sus hallazgos se corrigieron y requieren nueva revisión independiente. No habilita publication_review.
+  - review-8 del 2026-09-02 fue FAIL por degradación ADMIN; se corrigió con error accesible, conservación de datos y reintento. review-9 emitió PASS independiente y habilitó publication_review.
+  - feat-010 cerró discovery el 2026-08-31 por autorización explícita del usuario y se encuentra en publication_review. No autoriza publicación ni despliegue sin la puerta humana correspondiente.
+  - Architect Reviewer independiente emitió el 2026-08-31 `approved_with_conditions` para el límite aprobado, incluido el texto libre de hasta 100 caracteres exclusivo de `Otro`. No requiere ADR nueva mientras no se agreguen garantía, cambio de orden, dinero, proveedor/canal o multimedia.
+  - La dependencia feat-007 está cerrada en staging; su excepción Webhook continúa bloqueando únicamente producción.
+  - feat-006 y feat-011 permanecen fuera del MVP; feat-008 sigue bloqueada por la dependencia propuesta feat-006.
