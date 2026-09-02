@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type BillingView = {
   resolution: { summary: string };
@@ -169,9 +169,240 @@ export function CustomerRequests() {
                 Confirmar conformidad
               </button>
             )}
+            {item.order?.state === "CERRADA" && <Aftercare requestId={item.id} />}
           </li>
         ))}
       </ul>
+    </section>
+  );
+}
+
+type Incident = {
+  id: string;
+  type: string;
+  status: string;
+  history: Array<{ action: string; toStatus: string; createdAt: string }>;
+};
+function Aftercare({ requestId }: { requestId: string }) {
+  const [reason, setReason] = useState("CALIDAD_DEL_TRABAJO");
+  const [stars, setStars] = useState("5");
+  const [otherMessage, setOtherMessage] = useState("");
+  const [incidentType, setIncidentType] = useState("RESULTADO_NO_ESPERADO");
+  const [notice, setNotice] = useState<string>();
+  const [incidents, setIncidents] = useState<Incident[]>([]);
+  const [rated, setRated] = useState(false);
+  const [noticeKind, setNoticeKind] = useState<"status" | "error">("status");
+  const [submitting, setSubmitting] = useState<"rating" | "incident" | null>(null);
+  const [otherError, setOtherError] = useState(false);
+  const noticeRef = useRef<HTMLParagraphElement>(null);
+  const otherInputRef = useRef<HTMLInputElement>(null);
+
+  function notify(message: string, kind: "status" | "error") {
+    setNoticeKind(kind);
+    setNotice(message);
+  }
+
+  useEffect(() => {
+    void Promise.all([
+      fetch(`/api/requests/${requestId}/rating`),
+      fetch(`/api/requests/${requestId}/incidents`),
+    ])
+      .then(async ([rating, listed]) => {
+        setRated(rating.ok);
+        if (listed.ok) setIncidents(((await listed.json()) as { items?: Incident[] }).items ?? []);
+      })
+      .catch(() => notify("No pudimos cargar la información de postventa.", "error"));
+  }, [requestId]);
+
+  useEffect(() => {
+    if (noticeKind === "error") noticeRef.current?.focus();
+  }, [notice, noticeKind]);
+
+  async function rate() {
+    if (reason === "OTRO" && !otherMessage.trim()) {
+      setOtherError(true);
+      notify("Escribí un motivo breve para continuar.", "error");
+      otherInputRef.current?.focus();
+      return;
+    }
+    setSubmitting("rating");
+    try {
+      const response = await fetch(`/api/requests/${requestId}/rating`, {
+        method: "POST",
+        headers: { "content-type": "application/json", "idempotency-key": crypto.randomUUID() },
+        body: JSON.stringify({
+          stars: Number(stars),
+          reason,
+          ...(reason === "OTRO" ? { otherMessage } : {}),
+        }),
+      });
+      if (!response.ok) {
+        const retryAfter = response.headers.get("retry-after");
+        notify(
+          response.status === 429 && retryAfter
+            ? `Demasiados intentos. Esperá ${retryAfter} segundos y volvé a intentar.`
+            : "No pudimos registrar la calificación. Revisá los datos e intentá nuevamente.",
+          "error",
+        );
+        return;
+      }
+      setRated(true);
+      notify("La calificación quedó registrada y no puede editarse.", "status");
+    } catch {
+      notify("No pudimos conectar con postventa. Intentá nuevamente.", "error");
+    } finally {
+      setSubmitting(null);
+    }
+  }
+  async function openIncident() {
+    setSubmitting("incident");
+    try {
+      const response = await fetch(`/api/requests/${requestId}/incidents`, {
+        method: "POST",
+        headers: { "content-type": "application/json", "idempotency-key": crypto.randomUUID() },
+        body: JSON.stringify({ type: incidentType }),
+      });
+      if (!response.ok) {
+        const retryAfter = response.headers.get("retry-after");
+        notify(
+          response.status === 429 && retryAfter
+            ? `Demasiados intentos. Esperá ${retryAfter} segundos y volvé a intentar.`
+            : "No pudimos abrir la incidencia. Sólo puede haber una activa por orden.",
+          "error",
+        );
+        return;
+      }
+      const incident = (await response.json()) as Incident;
+      setIncidents((current) => [incident, ...current]);
+      notify("La incidencia quedó abierta para revisión.", "status");
+    } catch {
+      notify("No pudimos conectar con postventa. Intentá nuevamente.", "error");
+    } finally {
+      setSubmitting(null);
+    }
+  }
+  return (
+    <section aria-label="Postventa" className="customer-requests__aftercare">
+      <h3>Postventa</h3>
+      {notice && (
+        <p ref={noticeRef} role={noticeKind === "error" ? "alert" : "status"} tabIndex={-1}>
+          {notice}
+        </p>
+      )}
+      {rated ? (
+        <p>Tu calificación ya fue registrada.</p>
+      ) : (
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            void rate();
+          }}
+        >
+          <fieldset>
+            <legend>Calificá el trabajo</legend>
+            <label>
+              Estrellas{" "}
+              <select value={stars} onChange={(event) => setStars(event.target.value)}>
+                {[1, 2, 3, 4, 5].map((value) => (
+                  <option key={value} value={value}>
+                    {value} estrella{value === 1 ? "" : "s"}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Motivo{" "}
+              <select value={reason} onChange={(event) => setReason(event.target.value)}>
+                {[
+                  "CALIDAD_DEL_TRABAJO",
+                  "PUNTUALIDAD",
+                  "TRATO_Y_COMUNICACION",
+                  "CLARIDAD_DEL_PROCESO",
+                  "EXPERIENCIA_GENERAL",
+                  "OTRO",
+                ].map((value) => (
+                  <option key={value} value={value}>
+                    {value.replaceAll("_", " ")}
+                  </option>
+                ))}
+              </select>
+            </label>
+            {reason === "OTRO" && (
+              <label>
+                Contanos brevemente{" "}
+                <input
+                  ref={otherInputRef}
+                  value={otherMessage}
+                  onChange={(event) => {
+                    setOtherMessage(event.target.value);
+                    setOtherError(false);
+                  }}
+                  minLength={1}
+                  maxLength={100}
+                  required
+                  aria-invalid={otherError}
+                  aria-describedby="other-message-help other-message-count other-message-error"
+                />
+                <span id="other-message-help">No incluyas datos personales, enlaces ni HTML.</span>
+                <span id="other-message-count">{otherMessage.length}/100 caracteres</span>
+                {otherError && (
+                  <span id="other-message-error" role="alert">
+                    El motivo es obligatorio.
+                  </span>
+                )}
+              </label>
+            )}
+            <button type="submit" disabled={submitting !== null}>
+              {submitting === "rating" ? "Registrando…" : "Registrar calificación"}
+            </button>
+          </fieldset>
+        </form>
+      )}
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          void openIncident();
+        }}
+      >
+        <fieldset disabled={incidents.some((incident) => incident.status !== "CERRADA")}>
+          <legend>Abrir incidencia estructurada</legend>
+          <label>
+            Tipo{" "}
+            <select value={incidentType} onChange={(event) => setIncidentType(event.target.value)}>
+              {[
+                "RESULTADO_NO_ESPERADO",
+                "PROBLEMA_REAPARECIO",
+                "TRABAJO_INCOMPLETO",
+                "DANIO_REPORTADO",
+                "CONSULTA_SOBRE_COBRO",
+              ].map((value) => (
+                <option key={value} value={value}>
+                  {value.replaceAll("_", " ")}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button type="submit" disabled={submitting !== null}>
+            {submitting === "incident" ? "Abriendo…" : "Abrir incidencia"}
+          </button>
+        </fieldset>
+      </form>
+      {incidents.length > 0 && (
+        <ul aria-label="Historial de incidencias">
+          {incidents.map((incident) => (
+            <li key={incident.id}>
+              {incident.type.replaceAll("_", " ")} — {incident.status}
+              <ul>
+                {incident.history.map((entry) => (
+                  <li key={`${entry.action}-${entry.createdAt}`}>
+                    {entry.toStatus} — {new Date(entry.createdAt).toLocaleString("es-AR")}
+                  </li>
+                ))}
+              </ul>
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   );
 }

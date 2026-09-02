@@ -77,7 +77,7 @@ features:
 
   - id: feat-010
     name: Calificaciones, garantía e incidencias
-    status: proposed
+    status: publication_review
     priority: should
     depends_on: [feat-007]
 

@@ -9,7 +9,7 @@ export async function bootstrap(): Promise<NestFastifyApplication> {
   const configuration = loadApiConfiguration(process.env);
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
-    new FastifyAdapter({ logger: false }),
+    new FastifyAdapter({ logger: false, bodyLimit: 8 * 1024 }),
     { logger: ["error", "warn", "log"] },
   );
 

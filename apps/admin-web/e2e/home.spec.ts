@@ -142,3 +142,164 @@ test("ADMIN registra la resolución y crea el cargo congelado", async ({ page })
     expectedOrderVersion: 4,
   });
 });
+
+test("ADMIN inicia triage y cierra una incidencia estructurada", async ({ page }) => {
+  let status = "ABIERTA";
+  const incidentListUrls: string[] = [];
+  const incident = {
+    id: "00000000-0000-4000-8000-000000000801",
+    type: "TRABAJO_INCOMPLETO",
+    status,
+    version: 1,
+    createdAt: "2026-09-01T12:00:00.000Z",
+    history: [
+      {
+        sequence: 1,
+        action: "OPEN",
+        fromStatus: null,
+        toStatus: "ABIERTA",
+        actorRole: "CLIENT",
+        createdAt: "2026-09-01T12:00:00.000Z",
+      },
+    ],
+  };
+  await page.route("**/admin/api/requests", (route) => route.fulfill({ json: { items: [] } }));
+  await page.route("**/admin/api/operations/technicians", (route) =>
+    route.fulfill({ json: { items: [] } }),
+  );
+  await page.route("**/admin/api/operations/orders", (route) =>
+    route.fulfill({ json: { items: [] } }),
+  );
+  await page.route("**/admin/api/operations/incidents**", async (route) => {
+    incidentListUrls.push(route.request().url());
+    await route.fulfill({ json: { items: [{ ...incident, status }] } });
+  });
+  await page.route("**/admin/api/operations/incidents/*/transitions", async (route) => {
+    const body = route.request().postDataJSON() as { action: string; expectedVersion: number };
+    expect(body).toEqual({
+      action: status === "ABIERTA" ? "START_TRIAGE" : "CLOSE",
+      expectedVersion: status === "ABIERTA" ? 1 : 2,
+    });
+    status = status === "ABIERTA" ? "EN_TRIAGE" : "CERRADA";
+    await route.fulfill({
+      json: {
+        ...incident,
+        status,
+        version: status === "EN_TRIAGE" ? 2 : 3,
+        history: [
+          ...incident.history,
+          {
+            sequence: status === "EN_TRIAGE" ? 2 : 3,
+            action: body.action,
+            fromStatus: status === "EN_TRIAGE" ? "ABIERTA" : "EN_TRIAGE",
+            toStatus: status,
+            actorRole: "ADMIN",
+            createdAt: "2026-09-01T12:01:00.000Z",
+          },
+        ],
+      },
+    });
+  });
+  await page.goto("/admin");
+  await page.getByLabel("Filtrar incidencias por estado").focus();
+  await expect(page.getByLabel("Filtrar incidencias por estado")).toBeFocused();
+  await page.getByLabel("Filtrar incidencias por estado").selectOption("ABIERTA");
+  await expect.poll(() => incidentListUrls.at(-1) ?? "").toContain("status=ABIERTA");
+  await page.getByLabel("Filtrar incidencias por tipo").selectOption("TRABAJO_INCOMPLETO");
+  await expect.poll(() => incidentListUrls.at(-1) ?? "").toContain("type=TRABAJO_INCOMPLETO");
+  const incidentRegion = page.getByRole("region", { name: "Bandeja de incidencias de postventa" });
+  await page.getByRole("button", { name: "Iniciar triage" }).click();
+  await expect(incidentRegion.getByText("EN_TRIAGE", { exact: true }).last()).toBeVisible();
+  await page.getByRole("button", { name: "Cerrar incidencia" }).click();
+  await expect(incidentRegion.getByText("CERRADA", { exact: true }).last()).toBeVisible();
+  await expect(
+    incidentRegion.getByRole("list").filter({ hasText: "CERRADA" }).last(),
+  ).toContainText("2026");
+});
+
+test("ADMIN consulta rating e incidencias de una orden cerrada", async ({ page }) => {
+  const request = {
+    id: "00000000-0000-4000-8000-000000000901",
+    description: "Postventa sintética",
+    completeness: "READY_FOR_OPERATION",
+    offer: { category: "Visita Simple", currency: "ARS", price: "50000.00", version: 1 },
+    address: null,
+    media: [],
+  };
+  const order = {
+    id: "00000000-0000-4000-8000-000000000902",
+    requestId: request.id,
+    state: "CERRADA",
+    version: 7,
+    technician: { fullName: "Técnico sintético" },
+  };
+  await page.route("**/admin/api/requests", (route) =>
+    route.fulfill({ json: { items: [request] } }),
+  );
+  await page.route("**/admin/api/operations/technicians", (route) =>
+    route.fulfill({ json: { items: [] } }),
+  );
+  await page.route("**/admin/api/operations/orders", (route) =>
+    route.fulfill({ json: { items: [order] } }),
+  );
+  await page.route("**/admin/api/operations/incidents**", (route) =>
+    route.fulfill({ json: { items: [] } }),
+  );
+  await page.route(`**/admin/api/operations/orders/${order.id}/aftercare`, (route) =>
+    route.fulfill({
+      json: {
+        orderId: order.id,
+        orderState: "CERRADA",
+        rating: {
+          id: "00000000-0000-4000-8000-000000000903",
+          stars: 4,
+          reason: "PUNTUALIDAD",
+          otherMessage: null,
+          createdAt: "2026-09-01T12:00:00.000Z",
+        },
+        incidents: [],
+        nextCursor: null,
+      },
+    }),
+  );
+  await page.goto("/admin");
+  await page.getByRole("button", { name: "Consultar postventa" }).click();
+  await expect(page.getByText("Calificación: 4/5 — PUNTUALIDAD")).toBeVisible();
+  await expect(page.getByText("Incidencias: 0")).toBeVisible();
+});
+
+test("ADMIN distingue error de bandeja y permite reintentar", async ({ page }) => {
+  let listAttempts = 0;
+  const incident = {
+    id: "00000000-0000-4000-8000-000000000951",
+    type: "TRABAJO_INCOMPLETO",
+    status: "ABIERTA",
+    version: 1,
+    history: [],
+  };
+  await page.route("**/admin/api/requests", (route) => route.fulfill({ json: { items: [] } }));
+  await page.route("**/admin/api/operations/technicians", (route) =>
+    route.fulfill({ json: { items: [] } }),
+  );
+  await page.route("**/admin/api/operations/orders", (route) =>
+    route.fulfill({ json: { items: [] } }),
+  );
+  await page.route("**/admin/api/operations/incidents**", async (route) => {
+    listAttempts += 1;
+    if (listAttempts === 1) {
+      await route.abort("failed");
+      return;
+    }
+    await route.fulfill({ json: { items: [incident] } });
+  });
+  await page.route("**/admin/api/operations/incidents/*/transitions", (route) =>
+    route.abort("failed"),
+  );
+  await page.goto("/admin");
+  const incidentAlert = page.locator('p[role="alert"]');
+  await expect(incidentAlert).toContainText("No pudimos cargar");
+  await page.getByRole("button", { name: "Reintentar" }).click();
+  await expect(page.getByRole("button", { name: "Iniciar triage" })).toBeVisible();
+  await page.getByRole("button", { name: "Iniciar triage" }).click();
+  await expect(incidentAlert).toContainText("No pudimos conectar");
+});

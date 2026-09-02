@@ -45,3 +45,17 @@ resolución, cargo, intentos, conformidad y transiciones de pago; la migración
 de PostgreSQL que impide más de un intento activo por cargo. Un rollback de
 aplicación debe seguir tolerando tablas y estados nuevos; una corrección se hace
 con otra migración aditiva, sin borrar evidencia comercial.
+
+## feat-010 — postventa
+
+La migración `20260901090000_feat_010_aftercare` es aditiva y forward-only:
+incorpora calificaciones e incidencias de postventa separadas de `WorkOrder`,
+pagos, cargos y conformidad. Sus FKs son `RESTRICT`; la calificación y el
+historial de incidencias usan triggers append-only, y la unicidad parcial impide
+más de una incidencia activa por orden. Un rollback de aplicación conserva toda
+la historia; cualquier corrección se hace mediante forward-fix, nunca borrado.
+
+En staging no se ejecuta borrado automático. `otherMessage` sólo existe para
+`OTRO`, permanece con la calificación mientras exista su orden y no se propaga a
+logs, auditoría, métricas, outbox ni notificaciones. Producción sigue bloqueada
+hasta que se aprueben retención y borrado legales de forma independiente.

@@ -13,9 +13,14 @@ async function forward(request: NextRequest, context: { params: Promise<{ path: 
   } catch {
     return problem("AUTH_ACCESS_TOKEN_UNAVAILABLE");
   }
-  const path = (await context.params).path.map(encodeURIComponent).join("/");
+  const path = (await context.params).path;
+  // `basePath` normally removes `/admin` before routing, but accept the
+  // legacy `/api/operations/...` shape too so it cannot leak into the API path.
+  const backendPath = (path[0] === "operations" ? path.slice(1) : path)
+    .map(encodeURIComponent)
+    .join("/");
   try {
-    const response = await fetch(`${apiUrl}/v1/admin/${path}`, {
+    const response = await fetch(`${apiUrl}/v1/admin/${backendPath}${request.nextUrl.search}`, {
       method: request.method,
       headers: {
         authorization: `Bearer ${token}`,
@@ -30,7 +35,12 @@ async function forward(request: NextRequest, context: { params: Promise<{ path: 
     });
     return new NextResponse(response.body, {
       status: response.status,
-      headers: { "content-type": response.headers.get("content-type") ?? "application/json" },
+      headers: {
+        "content-type": response.headers.get("content-type") ?? "application/json",
+        ...(response.headers.get("retry-after")
+          ? { "retry-after": response.headers.get("retry-after")! }
+          : {}),
+      },
     });
   } catch {
     return NextResponse.json(

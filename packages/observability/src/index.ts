@@ -28,6 +28,7 @@ export type StructuredLogEntry = {
   environment: string;
   event: string;
   level: LogLevel;
+  metric_value?: number;
   service: string;
   timestamp: string;
 };
@@ -84,6 +85,9 @@ function log(
     environment: options.environment,
     event,
     level,
+    ...(typeof safeFields.metric_value === "number" && safeFields.metric_value >= 0
+      ? { metric_value: safeFields.metric_value }
+      : {}),
     service: options.service,
     timestamp: new Date().toISOString(),
   };

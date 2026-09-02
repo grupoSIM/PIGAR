@@ -93,6 +93,29 @@ enum ChargeResolutionOutcome {
   REQUIERE_PRESUPUESTO
 }
 
+enum RatingReason {
+  CALIDAD_DEL_TRABAJO
+  PUNTUALIDAD
+  TRATO_Y_COMUNICACION
+  CLARIDAD_DEL_PROCESO
+  EXPERIENCIA_GENERAL
+  OTRO
+}
+
+enum AftercareIncidentType {
+  RESULTADO_NO_ESPERADO
+  PROBLEMA_REAPARECIO
+  TRABAJO_INCOMPLETO
+  DANIO_REPORTADO
+  CONSULTA_SOBRE_COBRO
+}
+
+enum AftercareIncidentStatus {
+  ABIERTA
+  EN_TRIAGE
+  CERRADA
+}
+
 model OutboxEvent {
   id String @id @default(uuid()) @db.Uuid
   eventType String @db.VarChar(100)
@@ -171,6 +194,9 @@ model Profile {
   resolutionCommands ResolutionCommand[]
   conformities Conformity[]
   notifications TransactionalNotification[]
+  ratings OrderRating[]
+  aftercareIncidents AftercareIncident[]
+  aftercareIncidentTransitions AftercareIncidentTransition[]
   @@index([role, status])
   @@map("profile")
 }
@@ -249,8 +275,71 @@ model WorkOrder {
   assignmentCommands AssignmentIdempotency[]
   resolution Resolution?
   charge Charge?
+  rating OrderRating?
+  aftercareIncidents AftercareIncident[]
   @@index([state, updatedAt])
   @@map("work_order")
+}
+
+model OrderRating {
+  id String @id @default(uuid()) @db.Uuid
+  workOrderId String @unique @db.Uuid
+  clientProfileId String @db.Uuid
+  stars Int @db.SmallInt
+  reason RatingReason
+  otherMessage String? @db.VarChar(100)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  workOrder WorkOrder @relation(fields: [workOrderId], references: [id], onDelete: Restrict)
+  client Profile @relation(fields: [clientProfileId], references: [id], onDelete: Restrict)
+  @@index([clientProfileId, createdAt, id])
+  @@map("order_rating")
+}
+
+model AftercareIncident {
+  id String @id @default(uuid()) @db.Uuid
+  workOrderId String @db.Uuid
+  clientProfileId String @db.Uuid
+  type AftercareIncidentType
+  status AftercareIncidentStatus @default(ABIERTA)
+  version Int @default(1)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  closedAt DateTime? @db.Timestamptz(3)
+  workOrder WorkOrder @relation(fields: [workOrderId], references: [id], onDelete: Restrict)
+  client Profile @relation(fields: [clientProfileId], references: [id], onDelete: Restrict)
+  transitions AftercareIncidentTransition[]
+  @@unique([id, version])
+  @@index([clientProfileId, createdAt, id])
+  @@index([status, updatedAt, id])
+  @@map("aftercare_incident")
+}
+
+model AftercareIncidentTransition {
+  id String @id @default(uuid()) @db.Uuid
+  incidentId String @db.Uuid
+  sequence Int
+  action String @db.VarChar(30)
+  fromStatus AftercareIncidentStatus?
+  toStatus AftercareIncidentStatus
+  actorProfileId String @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  incident AftercareIncident @relation(fields: [incidentId], references: [id], onDelete: Restrict)
+  actor Profile @relation(fields: [actorProfileId], references: [id], onDelete: Restrict)
+  @@unique([incidentId, sequence])
+  @@index([incidentId, sequence])
+  @@map("aftercare_incident_transition")
+}
+
+model AftercareIdempotency {
+  id String @id @default(uuid()) @db.Uuid
+  actorProfileId String @db.Uuid
+  scope String @db.VarChar(40)
+  idempotencyKey String @db.VarChar(160)
+  payloadHash String @db.Char(64)
+  resultId String? @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([actorProfileId, scope, idempotencyKey])
+  @@map("aftercare_idempotency")
 }
 
 model Resolution {

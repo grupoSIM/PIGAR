@@ -24,6 +24,7 @@ const suites = {
     "scripts/billing.test.mjs",
     "scripts/payment-webhook-http.test.mjs",
     "scripts/notifications.test.mjs",
+    "scripts/aftercare.test.mjs",
   ],
   integration: [
     "scripts/api-health.test.mjs",
@@ -39,6 +40,8 @@ const suites = {
     "scripts/notifications-postgres.test.mjs",
     "scripts/payment-webhook-http.test.mjs",
     "scripts/notifications.test.mjs",
+    "scripts/aftercare.test.mjs",
+    "scripts/aftercare-postgres.test.mjs",
   ],
   e2e: [
     "scripts/e2e-technical.test.mjs",
@@ -48,6 +51,7 @@ const suites = {
     "scripts/billing.test.mjs",
     "scripts/payment-webhook-http.test.mjs",
     "scripts/notifications.test.mjs",
+    "scripts/aftercare.test.mjs",
   ],
   security: [
     "scripts/media-poc.test.mjs",
@@ -64,6 +68,8 @@ const suites = {
     "scripts/notifications-postgres.test.mjs",
     "scripts/payment-webhook-http.test.mjs",
     "scripts/notifications.test.mjs",
+    "scripts/aftercare.test.mjs",
+    "scripts/aftercare-postgres.test.mjs",
   ],
 };
 

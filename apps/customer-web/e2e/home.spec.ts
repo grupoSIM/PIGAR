@@ -227,6 +227,57 @@ test("CLIENT conforma sólo después de un pago aprobado", async ({ page }) => {
   await expect(page.getByRole("button", { name: "Confirmar conformidad" })).toHaveCount(0);
 });
 
+test("CLIENT registra una calificación y una incidencia estructurada de una orden cerrada", async ({
+  page,
+}) => {
+  const request = customerPaymentRequest("00000000-0000-4000-8000-000000000710", "CERRADA", 8);
+  await page.route("**/api/requests", (route) => route.fulfill({ json: { items: [request] } }));
+  await page.route("**/api/requests/*/billing", (route) =>
+    route.fulfill({ json: billingView("APROBADO") }),
+  );
+  await page.route("**/api/requests/*/rating", async (route) => {
+    if (route.request().method() === "GET") return route.fulfill({ status: 404 });
+    expect(route.request().postDataJSON()).toMatchObject({ stars: 5, reason: "PUNTUALIDAD" });
+    return route.fulfill({ json: { id: "00000000-0000-4000-8000-000000000711" } });
+  });
+  await page.route("**/api/requests/*/incidents", async (route) => {
+    if (route.request().method() === "GET") return route.fulfill({ json: { items: [] } });
+    expect(route.request().postDataJSON()).toEqual({ type: "TRABAJO_INCOMPLETO" });
+    return route.fulfill({
+      json: {
+        id: "00000000-0000-4000-8000-000000000712",
+        type: "TRABAJO_INCOMPLETO",
+        status: "ABIERTA",
+        version: 1,
+        createdAt: "2026-09-01T12:00:00.000Z",
+        history: [
+          {
+            sequence: 1,
+            action: "OPEN",
+            fromStatus: null,
+            toStatus: "ABIERTA",
+            actorRole: "CLIENT",
+            createdAt: "2026-09-01T12:00:00.000Z",
+          },
+        ],
+      },
+    });
+  });
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: "Postventa" })).toBeVisible();
+  await page.getByLabel("Estrellas").focus();
+  await expect(page.getByLabel("Estrellas")).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(page.getByLabel("Motivo")).toBeFocused();
+  await page.getByLabel("Motivo").selectOption("PUNTUALIDAD");
+  await page.getByRole("button", { name: "Registrar calificación" }).click();
+  await expect(page.getByText(/no puede editarse/)).toBeVisible();
+  await page.getByLabel("Tipo").selectOption("TRABAJO_INCOMPLETO");
+  await page.getByRole("button", { name: "Abrir incidencia" }).click();
+  await expect(page.getByText("TRABAJO INCOMPLETO — ABIERTA")).toBeVisible();
+  await expect(page.getByRole("list", { name: "Historial de incidencias" })).toContainText("2026");
+});
+
 function customerPaymentRequest(id: string, state: string, version: number) {
   return {
     id,

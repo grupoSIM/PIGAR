@@ -28,6 +28,19 @@ type Order = {
   version: number;
   technician: Technician | null;
 };
+type AftercareIncident = {
+  id: string;
+  type: string;
+  status: "ABIERTA" | "EN_TRIAGE" | "CERRADA";
+  version: number;
+  createdAt?: string;
+  history: Array<{ action: string; toStatus: string; createdAt: string }>;
+};
+type AftercareSupport = {
+  orderId: string;
+  rating: { stars: number; reason: string; otherMessage?: string | null; createdAt: string } | null;
+  incidents: AftercareIncident[];
+};
 
 export function OperationalRequests({
   mediaDeliveryOrigin = "",
@@ -40,6 +53,16 @@ export function OperationalRequests({
   const [technicians, setTechnicians] = useState<Technician[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [actionMessage, setActionMessage] = useState<string>();
+  const [aftercareIncidents, setAftercareIncidents] = useState<AftercareIncident[]>([]);
+  const [incidentError, setIncidentError] = useState<string>();
+  const [incidentReload, setIncidentReload] = useState(0);
+  const [transitioningIncident, setTransitioningIncident] = useState<string>();
+  const [aftercareByOrderId, setAftercareByOrderId] = useState<Record<string, AftercareSupport>>(
+    {},
+  );
+  const [aftercareLoading, setAftercareLoading] = useState<string>();
+  const [incidentStatusFilter, setIncidentStatusFilter] = useState("");
+  const [incidentTypeFilter, setIncidentTypeFilter] = useState("");
 
   useEffect(() => {
     fetch("/admin/api/requests")
@@ -56,6 +79,67 @@ export function OperationalRequests({
       .catch(() => setError("Error al cargar la bandeja de solicitudes."))
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (incidentStatusFilter) params.set("status", incidentStatusFilter);
+    if (incidentTypeFilter) params.set("type", incidentTypeFilter);
+    const query = params.toString();
+    void fetch(`/admin/api/operations/incidents${query ? `?${query}` : ""}`)
+      .then(async (response) => {
+        if (!response.ok) throw new Error("incident-list-failed");
+        return (await response.json()) as { items?: AftercareIncident[] };
+      })
+      .then((data) => {
+        setAftercareIncidents(data.items ?? []);
+        setIncidentError(undefined);
+      })
+      .catch(() => setIncidentError("No pudimos cargar la bandeja de incidencias."));
+  }, [incidentReload, incidentStatusFilter, incidentTypeFilter]);
+
+  async function transitionIncident(incident: AftercareIncident, action: "START_TRIAGE" | "CLOSE") {
+    setTransitioningIncident(incident.id);
+    try {
+      const response = await fetch(`/admin/api/operations/incidents/${incident.id}/transitions`, {
+        method: "POST",
+        headers: { "content-type": "application/json", "idempotency-key": crypto.randomUUID() },
+        body: JSON.stringify({ action, expectedVersion: incident.version }),
+      });
+      if (!response.ok) {
+        setIncidentError(
+          "No se pudo actualizar la incidencia. Actualizá la bandeja e intentá nuevamente.",
+        );
+        return;
+      }
+      const updated = (await response.json()) as AftercareIncident;
+      setAftercareIncidents((current) =>
+        current.map((item) => (item.id === updated.id ? updated : item)),
+      );
+      setIncidentError(undefined);
+      setActionMessage("La transición de postventa quedó registrada.");
+    } catch {
+      setIncidentError("No pudimos conectar con la bandeja. Podés reintentar la acción.");
+    } finally {
+      setTransitioningIncident(undefined);
+    }
+  }
+
+  async function loadAftercare(orderId: string) {
+    setAftercareLoading(orderId);
+    try {
+      const response = await fetch(`/admin/api/operations/orders/${orderId}/aftercare`);
+      if (!response.ok) {
+        setActionMessage("No se pudo cargar la postventa de la orden.");
+        return;
+      }
+      const support = (await response.json()) as AftercareSupport;
+      setAftercareByOrderId((current) => ({ ...current, [orderId]: support }));
+    } catch {
+      setActionMessage("No se pudo conectar con la consulta de postventa.");
+    } finally {
+      setAftercareLoading(undefined);
+    }
+  }
 
   useEffect(() => {
     void Promise.all([
@@ -174,6 +258,83 @@ export function OperationalRequests({
   return (
     <div className="admin-requests">
       <h2>Solicitudes registradas ({items.length})</h2>
+      <section aria-label="Bandeja de incidencias de postventa">
+        <h3>Incidencias de postventa</h3>
+        <div>
+          <label>
+            Filtrar por estado{" "}
+            <select
+              aria-label="Filtrar incidencias por estado"
+              value={incidentStatusFilter}
+              onChange={(event) => setIncidentStatusFilter(event.target.value)}
+            >
+              <option value="">Todos los estados</option>
+              <option value="ABIERTA">ABIERTA</option>
+              <option value="EN_TRIAGE">EN_TRIAGE</option>
+              <option value="CERRADA">CERRADA</option>
+            </select>
+          </label>{" "}
+          <label>
+            Filtrar por tipo{" "}
+            <select
+              aria-label="Filtrar incidencias por tipo"
+              value={incidentTypeFilter}
+              onChange={(event) => setIncidentTypeFilter(event.target.value)}
+            >
+              <option value="">Todos los tipos</option>
+              <option value="RESULTADO_NO_ESPERADO">RESULTADO_NO_ESPERADO</option>
+              <option value="PROBLEMA_REAPARECIO">PROBLEMA_REAPARECIO</option>
+              <option value="TRABAJO_INCOMPLETO">TRABAJO_INCOMPLETO</option>
+              <option value="DANIO_REPORTADO">DANIO_REPORTADO</option>
+              <option value="CONSULTA_SOBRE_COBRO">CONSULTA_SOBRE_COBRO</option>
+            </select>
+          </label>
+        </div>
+        {incidentError && (
+          <p role="alert">
+            {incidentError}{" "}
+            <button type="button" onClick={() => setIncidentReload((current) => current + 1)}>
+              Reintentar
+            </button>
+          </p>
+        )}
+        {aftercareIncidents.length === 0 ? (
+          <p>No hay incidencias registradas.</p>
+        ) : (
+          <ul>
+            {aftercareIncidents.map((incident) => (
+              <li key={incident.id}>
+                {incident.type.replaceAll("_", " ")} — <strong>{incident.status}</strong>
+                {incident.status === "ABIERTA" && (
+                  <button
+                    type="button"
+                    disabled={transitioningIncident === incident.id}
+                    onClick={() => void transitionIncident(incident, "START_TRIAGE")}
+                  >
+                    Iniciar triage
+                  </button>
+                )}
+                {incident.status === "EN_TRIAGE" && (
+                  <button
+                    type="button"
+                    disabled={transitioningIncident === incident.id}
+                    onClick={() => void transitionIncident(incident, "CLOSE")}
+                  >
+                    Cerrar incidencia
+                  </button>
+                )}
+                <ul>
+                  {incident.history.map((entry) => (
+                    <li key={`${entry.action}-${entry.createdAt}`}>
+                      {entry.toStatus} — {new Date(entry.createdAt).toLocaleString("es-AR")}
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
       <form action={createTechnician} className="admin-requests__technician">
         <h3>Registrar técnico</h3>
         <label>
@@ -280,79 +441,128 @@ export function OperationalRequests({
                   )}
                 {orders
                   .filter((order) => order.requestId === item.id)
-                  .map((order) => (
-                    <div key={order.id}>
-                      <p>
-                        <strong>Orden:</strong> {order.state} — {order.technician?.fullName}
-                      </p>
-                      {order.state === "TECNICO_ASIGNADO" && (
-                        <button
-                          type="button"
-                          onClick={() => void transition(order, "MARK_EN_ROUTE")}
-                        >
-                          Marcar en camino
-                        </button>
-                      )}
-                      {(order.state === "TECNICO_ASIGNADO" || order.state === "EN_CAMINO") && (
-                        <button
-                          type="button"
-                          onClick={() => void transition(order, "START_SERVICE")}
-                        >
-                          Iniciar atención
-                        </button>
-                      )}
-                      {order.state === "EN_ATENCION" && (
-                        <button type="button" onClick={() => void transition(order, "FINISH_WORK")}>
-                          Finalizar trabajo
-                        </button>
-                      )}
-                      {order.state === "TRABAJO_FINALIZADO" && (
-                        <button type="button" onClick={() => void resolve(order)}>
-                          Registrar resolución y cargo
-                        </button>
-                      )}
-                      {order.state === "TECNICO_ASIGNADO" && (
-                        <label>
-                          Reasignar técnico
-                          <select
-                            defaultValue=""
-                            onChange={(event) => {
-                              const technicianId = event.target.value;
-                              const reason = window.prompt("Motivo interno de reasignación");
-                              if (technicianId && reason)
-                                void transition(order, "REASSIGN_TECHNICIAN", reason, technicianId);
+                  .map((order) => {
+                    const aftercare = aftercareByOrderId[order.id];
+                    return (
+                      <div key={order.id}>
+                        <p>
+                          <strong>Orden:</strong> {order.state} — {order.technician?.fullName}
+                        </p>
+                        {order.state === "CERRADA" && (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => void loadAftercare(order.id)}
+                              disabled={aftercareLoading === order.id}
+                            >
+                              {aftercareLoading === order.id
+                                ? "Cargando postventa…"
+                                : "Consultar postventa"}
+                            </button>
+                            {aftercare && (
+                              <section aria-label={`Postventa de la orden ${order.id}`}>
+                                <h4>Postventa de la orden</h4>
+                                {aftercare.rating ? (
+                                  <p>
+                                    <strong>Calificación:</strong> {aftercare.rating.stars}/5 —{" "}
+                                    {aftercare.rating.reason.replaceAll("_", " ")}
+                                  </p>
+                                ) : (
+                                  <p>Sin calificación registrada.</p>
+                                )}
+                                <p>
+                                  <strong>Incidencias:</strong> {aftercare.incidents.length}
+                                </p>
+                                {aftercare.incidents.length > 0 && (
+                                  <ul>
+                                    {aftercare.incidents.map((incident) => (
+                                      <li key={incident.id}>
+                                        {incident.type.replaceAll("_", " ")} — {incident.status}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                )}
+                              </section>
+                            )}
+                          </>
+                        )}
+                        {order.state === "TECNICO_ASIGNADO" && (
+                          <button
+                            type="button"
+                            onClick={() => void transition(order, "MARK_EN_ROUTE")}
+                          >
+                            Marcar en camino
+                          </button>
+                        )}
+                        {(order.state === "TECNICO_ASIGNADO" || order.state === "EN_CAMINO") && (
+                          <button
+                            type="button"
+                            onClick={() => void transition(order, "START_SERVICE")}
+                          >
+                            Iniciar atención
+                          </button>
+                        )}
+                        {order.state === "EN_ATENCION" && (
+                          <button
+                            type="button"
+                            onClick={() => void transition(order, "FINISH_WORK")}
+                          >
+                            Finalizar trabajo
+                          </button>
+                        )}
+                        {order.state === "TRABAJO_FINALIZADO" && (
+                          <button type="button" onClick={() => void resolve(order)}>
+                            Registrar resolución y cargo
+                          </button>
+                        )}
+                        {order.state === "TECNICO_ASIGNADO" && (
+                          <label>
+                            Reasignar técnico
+                            <select
+                              defaultValue=""
+                              onChange={(event) => {
+                                const technicianId = event.target.value;
+                                const reason = window.prompt("Motivo interno de reasignación");
+                                if (technicianId && reason)
+                                  void transition(
+                                    order,
+                                    "REASSIGN_TECHNICIAN",
+                                    reason,
+                                    technicianId,
+                                  );
+                              }}
+                            >
+                              <option value="">Seleccioná técnico activo</option>
+                              {technicians
+                                .filter(
+                                  (technician) =>
+                                    technician.status === "ACTIVE" &&
+                                    technician.id !== order.technician?.id,
+                                )
+                                .map((technician) => (
+                                  <option key={technician.id} value={technician.id}>
+                                    {technician.fullName}
+                                  </option>
+                                ))}
+                            </select>
+                          </label>
+                        )}
+                        {!["EN_ATENCION", "TRABAJO_FINALIZADO", "CANCELADA"].includes(
+                          order.state,
+                        ) && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const reason = window.prompt("Motivo interno de cancelación");
+                              if (reason) void transition(order, "CANCEL", reason);
                             }}
                           >
-                            <option value="">Seleccioná técnico activo</option>
-                            {technicians
-                              .filter(
-                                (technician) =>
-                                  technician.status === "ACTIVE" &&
-                                  technician.id !== order.technician?.id,
-                              )
-                              .map((technician) => (
-                                <option key={technician.id} value={technician.id}>
-                                  {technician.fullName}
-                                </option>
-                              ))}
-                          </select>
-                        </label>
-                      )}
-                      {!["EN_ATENCION", "TRABAJO_FINALIZADO", "CANCELADA"].includes(
-                        order.state,
-                      ) && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const reason = window.prompt("Motivo interno de cancelación");
-                            if (reason) void transition(order, "CANCEL", reason);
-                          }}
-                        >
-                          Cancelar orden
-                        </button>
-                      )}
-                    </div>
-                  ))}
+                            Cancelar orden
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
               </div>
             </li>
           ))}
