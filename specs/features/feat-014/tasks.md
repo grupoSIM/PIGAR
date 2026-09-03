@@ -37,3 +37,4 @@ bloqueadas hasta aprobación explícita de la especificación.
 - [x] TASK-014-020 `[NFR-014-001][NFR-014-004][AC-014-011]` Verificar las correcciones con Prettier, ESLint, TypeScript y builds de producción de ambos frontends.
 - [x] TASK-014-021 `[REQ-014-006][AC-014-007][AC-014-008]` Separar la portada ADMIN de las bandejas operativas y agregar una vista dedicada de incidencias en la navegación.
 - [x] TASK-014-022 `[REQ-014-003][REQ-014-005][AC-014-003][AC-014-006]` Aplicar variantes visuales consistentes a las acciones principales y secundarias del portal CLIENT según la paleta aprobada de Stitch.
+- [x] TASK-014-023 `[REQ-014-003][REQ-014-005][AC-014-003][AC-014-006]` Mantener la creación de solicitudes en `/requests/new` y alinear los controles de actualización de notificaciones y solicitudes.
