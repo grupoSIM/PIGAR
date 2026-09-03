@@ -14,6 +14,29 @@ test("página principal de admin carga y muestra PIGAR", async ({ page }) => {
   await expect(page.getByRole("link", { name: "Solicitudes" })).toBeVisible();
 });
 
+test("ADMIN mantiene foco y Escape al abrir el drawer y navega por contextos reales", async ({
+  page,
+}) => {
+  await page.goto("/admin");
+  await expect(page.getByRole("link", { name: "Técnicos" })).toHaveAttribute(
+    "href",
+    "/admin/technicians",
+  );
+  await expect(page.getByRole("link", { name: "Solicitudes" })).toHaveAttribute(
+    "href",
+    "/admin/requests",
+  );
+  await page.setViewportSize({ width: 768, height: 1024 });
+  const toggle = page.getByRole("button", { name: "Abrir navegación" });
+  await toggle.click();
+  await expect(page.getByRole("link", { name: "Bandeja operativa" })).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(page.getByRole("link", { name: "Técnicos" })).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("navigation", { name: "Navegación administrativa" })).toBeHidden();
+  await expect(toggle).toBeFocused();
+});
+
 test("ADMIN asigna y actualiza un hito de una orden", async ({ page }) => {
   const request = {
     id: "00000000-0000-4000-8000-000000000101",

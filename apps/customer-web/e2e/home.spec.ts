@@ -6,8 +6,25 @@ test("página principal carga y muestra PIGAR", async ({ page }) => {
   await expect(page.getByRole("heading", { name: /PIGAR/i })).toBeVisible();
   await expect(page.locator(".product-shell--customer")).toBeVisible();
   await expect(page.locator(".customer-hero")).toBeVisible();
+  await page.goto("/requests/new");
   await expect(page.locator(".request-form")).toBeVisible();
   await expect(page.locator(".request-form > button")).toHaveCSS("min-height", "48px");
+});
+
+test("CLIENT navega por contextos separados de inicio, solicitudes y perfil", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("link", { name: "Nueva solicitud" })).toHaveAttribute(
+    "href",
+    "/requests/new",
+  );
+  await expect(page.getByRole("link", { name: "Mis solicitudes", exact: true })).toHaveAttribute(
+    "href",
+    "/requests",
+  );
+  await expect(page.getByRole("link", { name: "Perfil" })).toHaveAttribute("href", "/profile");
+  await page.getByRole("link", { name: "Nueva solicitud" }).click();
+  await expect(page).toHaveURL(/\/requests\/new$/);
+  await expect(page.getByRole("heading", { name: "Nueva solicitud" })).toBeVisible();
 });
 
 test("CLIENT consulta estado e historial seguro de su orden", async ({ page }) => {
@@ -73,8 +90,10 @@ test("CLIENT consulta estado e historial seguro de su orden", async ({ page }) =
       },
     }),
   );
-  await page.goto("/");
-  await expect(page.getByRole("heading", { name: "Mis solicitudes" })).toBeVisible();
+  await page.goto("/requests");
+  await expect(
+    page.locator("#requests").getByRole("heading", { name: "Mis solicitudes" }),
+  ).toBeVisible();
   await expect(page.getByText(/Técnico asignado: Técnico sintético/)).toBeVisible();
   await page.getByLabel("Oferta vigente").selectOption("00000000-0000-4000-8000-000000000101");
   await page.getByLabel("Descripción del problema").fill("Pérdida sintética");
@@ -89,7 +108,7 @@ test("CLIENT consulta estado e historial seguro de su orden", async ({ page }) =
 
 test("CLIENT puede reiniciar el acceso si la API rechaza su autorización", async ({ page }) => {
   await page.route("**/api/requests", (route) => route.fulfill({ status: 401 }));
-  await page.goto("/");
+  await page.goto("/requests");
   await expect(page.getByRole("link", { name: "Cerrar sesión" })).toBeVisible();
   await expect(page.getByText(/No pudimos autorizar/)).toBeVisible();
   await expect(page.getByRole("link", { name: "Ingresar nuevamente" })).toHaveAttribute(
@@ -155,7 +174,7 @@ test("CLIENT ve una bandeja accesible, marca leído y conserva degradación loca
   await page.route("**/api/requests/*/order", (route) =>
     route.fulfill({ json: { state: "EN_CAMINO" } }),
   );
-  await page.goto("/");
+  await page.goto("/requests");
   await page.getByRole("button", { name: /Notificaciones \(1 sin leer\)/ }).click();
   await expect(page.getByRole("heading", { name: "Notificaciones" })).toBeVisible();
   await expect(page.getByRole("button", { name: /Técnico en camino\. Sin leer/ })).toBeVisible();
@@ -180,7 +199,7 @@ test("CLIENT ve pagos pendiente y rechazado y puede reintentar sin adelantar la 
   await page.route("**/api/requests/*/payment-attempts", (route) =>
     route.fulfill({ json: { state: "CREATED" } }),
   );
-  await page.goto("/");
+  await page.goto("/requests");
   await expect(page.getByText("Estado del pago: PENDIENTE")).toBeVisible();
   await expect(page.getByText("Estado del pago: RECHAZADO")).toBeVisible();
   await page.getByRole("button", { name: "Reintentar pago" }).click();
@@ -220,7 +239,7 @@ test("CLIENT conforma sólo después de un pago aprobado", async ({ page }) => {
     conformed = true;
     await route.fulfill({ json: { orderState: "CERRADA", textVersion: "v1" } });
   });
-  await page.goto("/");
+  await page.goto("/requests");
   await expect(page.getByText("Estado del pago: APROBADO")).toBeVisible();
   await page.getByRole("button", { name: "Confirmar conformidad" }).click();
   await expect(page.getByText(/CERRADA/).first()).toBeVisible();
@@ -304,7 +323,7 @@ test("CLIENT registra una calificación y una incidencia estructurada de una ord
       },
     });
   });
-  await page.goto("/");
+  await page.goto("/requests");
   await expect(page.getByRole("heading", { name: "Postventa" })).toBeVisible();
   await page.getByLabel("Estrellas").focus();
   await expect(page.getByLabel("Estrellas")).toBeFocused();

@@ -20,7 +20,7 @@ export default async function AdminTechniciansPage() {
       ) : (
         <section className="auth-card" aria-label="Acceso administrativo">
           <h2>Acceso interno</h2>
-          <a className="button button--primary" href="/login">
+          <a className="button button--primary" href="/admin/login">
             Iniciar sesión
           </a>
         </section>
