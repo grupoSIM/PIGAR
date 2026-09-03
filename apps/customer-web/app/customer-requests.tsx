@@ -106,7 +106,7 @@ export function CustomerRequests() {
   }, []);
 
   return (
-    <section className="customer-requests" aria-label="Mis solicitudes">
+    <section id="requests" className="customer-requests" aria-label="Mis solicitudes">
       <div className="customer-requests__header">
         <h2>Mis solicitudes</h2>
         <button type="button" onClick={() => void load()} disabled={loading}>
@@ -122,7 +122,7 @@ export function CustomerRequests() {
         </p>
       )}
       {loading && (
-        <p className="customer-requests__state" role="status">
+        <p className="customer-requests__state" role="status" aria-live="polite" aria-busy="true">
           Cargando tus solicitudes…
         </p>
       )}
@@ -133,15 +133,33 @@ export function CustomerRequests() {
       )}
       <ul className="customer-requests__list">
         {items.map((item) => (
-          <li key={item.id}>
-            <strong>{item.offer.category}</strong> — {item.offer.currency} {item.offer.price}
-            <p>
-              Registrada el {new Date(item.createdAt).toLocaleString("es-AR")}.{" "}
-              {item.order?.state ?? "Pendiente de asignación"}
-            </p>
-            {item.order?.technician && <p>Técnico asignado: {item.order.technician.fullName}</p>}
-            {item.billing && (
+          <li key={item.id} className="customer-request-card">
+            <div className="customer-request-card__header">
               <div>
+                <span className="customer-request-card__eyebrow">Solicitud de servicio</span>
+                <strong>{item.offer.category}</strong>
+                <p>
+                  {item.offer.currency} {item.offer.price} · Registrada el{" "}
+                  {new Date(item.createdAt).toLocaleString("es-AR")}
+                </p>
+              </div>
+              <span className="customer-status-badge">
+                {item.order?.state ?? "Pendiente de asignación"}
+              </span>
+            </div>
+            {item.order?.technician && (
+              <div className="customer-request-card__assigned">
+                <span className="customer-avatar" aria-hidden="true">
+                  T
+                </span>
+                <p>
+                  Técnico asignado: <strong>{item.order.technician.fullName}</strong>
+                </p>
+              </div>
+            )}
+            {item.billing && (
+              <div className="customer-request-card__billing">
+                <p className="customer-request-card__eyebrow">Resumen de cuenta</p>
                 <p>Resolución: {item.billing.resolution.summary}</p>
                 <p>
                   Cargo: {item.billing.charge.money.currency} {item.billing.charge.money.amount}
@@ -150,16 +168,20 @@ export function CustomerRequests() {
               </div>
             )}
             {item.order && (
-              <ul aria-label="Historial de la orden">
+              <ol className="customer-timeline" aria-label="Historial de la orden">
                 {item.order.history.map((entry) => (
                   <li key={`${entry.action}-${entry.occurredAt}`}>
                     {entry.toState} — {new Date(entry.occurredAt).toLocaleString("es-AR")}
                   </li>
                 ))}
-              </ul>
+              </ol>
             )}
             {item.order?.state === "PENDIENTE_PAGO" && (
-              <button type="button" onClick={() => void pay(item)}>
+              <button
+                className="customer-action customer-action--primary"
+                type="button"
+                onClick={() => void pay(item)}
+              >
                 {item.billing?.payment.status === "RECHAZADO" ||
                 item.billing?.payment.status === "CANCELADO"
                   ? "Reintentar pago"
@@ -167,7 +189,11 @@ export function CustomerRequests() {
               </button>
             )}
             {item.order?.state === "PENDIENTE_CONFORMIDAD" && (
-              <button type="button" onClick={() => void conform(item)}>
+              <button
+                className="customer-action customer-action--primary"
+                type="button"
+                onClick={() => void conform(item)}
+              >
                 Confirmar conformidad
               </button>
             )}

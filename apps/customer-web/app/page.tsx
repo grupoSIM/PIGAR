@@ -1,8 +1,5 @@
 import { ProductShell } from "@pigar/ui";
 import { auth0 } from "../lib/auth0";
-import { RequestForm } from "./request-form";
-import { CustomerRequests } from "./customer-requests";
-import { Notifications } from "./notifications";
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +16,7 @@ export default async function CustomerHome() {
   const logoutHref = `/auth/logout?returnTo=${encodeURIComponent(`${appBaseUrl}/`)}`;
 
   return (
-    <ProductShell audience="clientes" title="Nueva solicitud de PIGAR">
+    <ProductShell audience="clientes" title="Inicio PIGAR" currentPath="/">
       <section className="customer-hero" aria-label="Información de la visita">
         <div>
           <p className="customer-hero__badge">Visita Simple</p>
@@ -37,15 +34,28 @@ export default async function CustomerHome() {
       </section>
       {session ? (
         <>
-          <p className="session-action">
-            <a href={logoutHref}>Cerrar sesión</a>
-          </p>
-          <Notifications />
-          <CustomerRequests />
-          <RequestForm mapsApiKey={process.env["PIGAR_G" + "OOGLE_BROWSER_KEY"]} />
+          <section id="profile" className="session-card" aria-label="Perfil y sesión">
+            <p className="session-card__label">Perfil cliente</p>
+            <p className="session-action">
+              <a href={logoutHref}>Cerrar sesión</a>
+            </p>
+          </section>
+          <section className="customer-home-actions" aria-label="Acciones principales">
+            <p className="customer-hero__badge">Todo en un solo lugar</p>
+            <h2>¿Qué necesitás hacer?</h2>
+            <p>Creá una solicitud nueva o revisá el estado de las que ya tenés.</p>
+            <div className="customer-home-actions__links">
+              <a className="button button--primary" href="/requests/new">
+                Nueva solicitud
+              </a>
+              <a className="button" href="/requests">
+                Ver mis solicitudes
+              </a>
+            </div>
+          </section>
         </>
       ) : (
-        <section className="auth-card" aria-label="Acceso al portal">
+        <section id="profile" className="auth-card" aria-label="Acceso al portal y perfil">
           <h2>¿Ya tenés una solicitud?</h2>
           <p>
             Ingresá con el código que te enviamos por email para crear o seguir tus solicitudes.

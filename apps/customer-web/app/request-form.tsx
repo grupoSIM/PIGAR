@@ -384,6 +384,27 @@ export function RequestForm({ mapsApiKey }: { mapsApiKey?: string | undefined })
 
   return (
     <form className="request-form" action={submit} aria-label="Crear solicitud">
+      <div className="request-form__topbar">
+        <div>
+          <span className="request-form__kicker">Nueva solicitud</span>
+          <p>Te acompañamos en cada paso.</p>
+        </div>
+        <span className="request-form__secure">Proceso seguro</span>
+      </div>
+      <ol className="request-form__stepper" aria-label="Pasos para crear una solicitud">
+        <li className="request-form__stepper-item--active">
+          <span>1</span>
+          <strong>Servicio</strong>
+        </li>
+        <li>
+          <span>2</span>
+          <strong>Domicilio</strong>
+        </li>
+        <li>
+          <span>3</span>
+          <strong>Evidencia</strong>
+        </li>
+      </ol>
       <div className="request-form__heading">
         <span>1</span>
         <div>
@@ -391,6 +412,24 @@ export function RequestForm({ mapsApiKey }: { mapsApiKey?: string | undefined })
           <p>La visita se confirma con la oferta vigente.</p>
         </div>
       </div>
+      {offers.length > 0 && (
+        <div className="request-form__category-grid" aria-label="Servicios disponibles">
+          {offers.map((offer) => (
+            <button
+              key={offer.category.id}
+              className={selectedOfferId === offer.category.id ? "is-selected" : ""}
+              type="button"
+              onClick={() => setSelectedOfferId(offer.category.id)}
+            >
+              <span aria-hidden="true">✦</span>
+              <strong>{offer.category.name}</strong>
+              <small>
+                {offer.currency} {offer.price}
+              </small>
+            </button>
+          ))}
+        </div>
+      )}
       <label className="request-form__field request-form__field--wide">
         Oferta vigente
         <select
@@ -470,6 +509,9 @@ export function RequestForm({ mapsApiKey }: { mapsApiKey?: string | undefined })
         </div>
       </div>
       <label className="request-form__upload">
+        <span className="request-form__upload-icon" aria-hidden="true">
+          ▣
+        </span>
         Elegir fotos o video
         <input name="media" type="file" accept="image/jpeg,image/png,video/mp4" multiple />
       </label>

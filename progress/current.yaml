@@ -1,79 +1,78 @@
 project: PIGAR
-active_feature: null
-phase: done
-updated_at: 2026-09-02T22:02:50-03:00
+active_feature: feat-014
+phase: publication_review
+updated_at: 2026-09-03T09:05:42-03:00
 
-blockers:
-  - La garantía permanece expresamente diferida; cualquier promesa comercial, remedio económico u operativo requiere un discovery y aprobación nuevos.
-  - Producción continúa bloqueada además por TEST-007-014/AC-007-016 hasta resolver el Webhook automático de Mercado Pago.
+blockers: []
 
 architecture_conditions:
   before_specification_approval:
-    - Mantener la orden cerrada y su historial como fuente de verdad; una calificación o incidencia no reabre, altera pagos ni crea una nueva orden automáticamente.
-    - Mantener la garantía fuera de feat-010; no calcular elegibilidad ni ofrecer una promesa de cobertura.
-    - Aplicar los datos, actores, permisos, idempotencia, retención, borrado, logs y pruebas negativas aprobados para calificaciones e incidencias.
-    - Mantener texto libre sólo en `Otro` de la calificación, con revisión focalizada aprobada y los límites documentados; multimedia y canales externos siguen excluidos.
+    - Limitar feat-014 a presentación, navegación y composición frontend; no cambiar reglas, permisos, estados, API, pagos, órdenes, identidad, datos o proveedores.
+    - Mantener visibles y operables notificaciones, pagos/conformidad, rating, incidencias y acciones administrativas aunque no tengan referencia Stitch directa.
+    - No copiar code.html ni incorporar recursos visuales remotos, datos del prototipo o una dependencia/herramienta no aprobada.
+    - Mantener fuera de alcance dashboard/KPIs, tracking, contacto directo con técnico, presupuestos complejos, reportes, pedidos/materiales y portal de operarios.
+    - Definir rutas, estrategia de iconos, baselines y tolerancia visual antes de aprobar la especificación.
   before_production:
     - Validar con asesoría legal los plazos de retención y borrado.
     - Elegir y aprobar un destino externo de backup cifrado y probar una restauración completa.
     - Completar hardening del VPS, modelado de amenazas, monitoreo y respuesta a incidentes.
+    - Resolver TEST-007-014/AC-007-016 del Webhook automático de Mercado Pago.
 
 risks:
-  - Una garantía ambigua puede crear una obligación comercial o legal no prevista.
-  - Comentarios, incidencias o adjuntos pueden contener datos personales y elevar la exposición, retención y superficie de abuso.
-  - Accesos cruzados, duplicados o reaperturas implícitas pueden alterar expectativas de postventa sin modificar el dominio autorizado.
-  - Un flujo de incidencia que cree trabajo, pagos o notificaciones sin contrato explícito extendería el MVP fuera del alcance aprobado.
+  - Copiar fielmente contenido funcional de Stitch podría reintroducir tracking, contacto, KPIs, recomendaciones o flujos no aprobados.
+  - Separar la página monolítica actual puede romper navegación, estado o selectores E2E aunque no cambie el backend.
+  - Las funciones posteriores a Stitch pueden quedar visualmente relegadas u ocultas si no se valida su inventario por pantalla.
+  - Capturas o diffs visuales podrían exponer PII, adjuntos, tokens o URLs firmadas si no usan fixtures sintéticos y máscaras limitadas.
+  - Elegir silenciosamente iconos, snapshots o dependencias de accesibilidad violaría la puerta de arquitectura/especificación.
 
 decisions:
-  - id: ADR-007
+  - id: DEC-014-001
     status: accepted
-    note: El MVP aprobado ofrece estado e historial dentro del portal; email, Web Push y WhatsApp siguen diferidos.
-  - id: DEC-010-001
+    note: Separar la página monolítica en vistas/contextos navegables sin modificar endpoints ni ocultar funciones.
+  - id: DEC-014-002
     status: accepted
-    note: CLIENT propietario puede crear una única calificación inmutable de 1 a 5 estrellas por orden CERRADA, con motivo allowlist y `Otro` obligatorio de 1 a 100 caracteres.
-  - id: DEC-010-002
+    note: Priorizar iconos locales SVG/CSS; cualquier paquete nuevo requiere licencia, peso, alternativa y aprobación.
+  - id: DEC-014-003
     status: accepted
-    note: No se ofrece ni calcula garantía en feat-010; queda diferida como decisión comercial y legal futura.
-  - id: DEC-010-003
+    note: Versionar sólo baselines visuales sintéticos aprobados y seguros.
+  - id: DEC-014-004
     status: accepted
-    note: CLIENT propietario abre una incidencia estructurada por orden CERRADA; ADMIN/DISPATCHER realizan triage y cierre sin crear, reabrir ni alterar órdenes, pagos o conformidad.
-  - id: DEC-010-004
+    note: Definir tolerancia de comparación después de obtener un baseline estable; no inventar un umbral en discovery.
+  - id: DEC-014-005
     status: accepted
-    note: Incidencias usan tipo estructurado sin texto libre ni multimedia. Sólo `Otro` de la calificación admite mensaje de hasta 100 caracteres, con minimización y retención documentadas.
-  - id: DEC-010-005
-    status: accepted
-    note: La postventa se consulta sólo en el portal; no se agregan avisos in-app, email, Web Push, WhatsApp ni proveedores externos.
+    note: Usar Inicio, Mis solicitudes y Perfil como patrón CLIENT sin simular destinos todavía no implementados.
 
 approvals:
   architecture:
-    status: approved_with_conditions
+    status: approved
     approved_by: usuario
-    approved_at: 2026-08-31T00:00:00-03:00
-    note: El usuario aprobó DEC-010-001 a DEC-010-005 y cerrar discovery. Architect Reviewer independiente aprobó con condiciones el texto libre limitado a `Otro`; no autoriza implementación.
+    approved_at: 2026-09-03T09:05:42-03:00
+    note: El usuario aprobó DEC-014-001 a DEC-014-005. No se agrega ADR, proveedor, framework, dependencia ni herramienta; cualquier incorporación futura requiere una decisión separada.
   specification:
     status: approved
     approved_by: usuario
-    approved_at: 2026-09-01T08:49:57-03:00
-    note: El usuario aprobó explícitamente los siete artefactos de feat-010, las allowlists, el ciclo ABIERTA → EN_TRIAGE → CERRADA y los límites de rate limiting; habilita implementación, no publicación.
+    approved_at: 2026-09-03T09:05:42-03:00
+    note: El usuario aprobó explícitamente los seis artefactos de feat-014 y las recomendaciones DEC-014-001 a DEC-014-005; habilita implementación, no publicación.
   verification:
     status: approved
-    approved_by: Aristotle
-    approved_at: 2026-09-02T16:35:00-03:00
-    note: review-9 PASS independiente sobre el estado actual; habilita publication_review.
+    approved_by: reviewer_independiente
+    approved_at: 2026-09-03
+    note: Verificaciones técnicas completadas y revisión independiente PASS registrada el 2026-09-03; habilita publication_review.
   publication:
-    status: approved
-    approved_by: usuario
-    approved_at: 2026-09-02T22:02:50-03:00
-    note: El usuario autorizó cerrar feat-010 e integrar el estado verificado en staging y main.
+    status: pending
+    approved_by: null
+    approved_at: null
+    note: Commit, push, PR, despliegue y publicación no fueron autorizados.
 
 quality:
   status: passed
 
 notes:
-  - Los siete artefactos de feat-010 fueron aprobados explícitamente por el usuario el 2026-09-01; la feature transitó spec_review → approved → implementation → verification → publication_review → done.
-  - review-7 del 2026-09-02 fue FAIL; sus hallazgos se corrigieron y requieren nueva revisión independiente. No habilita publication_review.
-  - review-8 del 2026-09-02 fue FAIL por degradación ADMIN; se corrigió con error accesible, conservación de datos y reintento. review-9 emitió PASS independiente y habilitó publication_review.
-  - feat-010 cerró discovery el 2026-08-31 y se cerró el 2026-09-02 después de funcionar en staging; el commit c6a5518e02dd89cff528131ecb84c3ba6cd88e91 pasó calidad y publicó imágenes.
-  - Architect Reviewer independiente emitió el 2026-08-31 `approved_with_conditions` para el límite aprobado, incluido el texto libre de hasta 100 caracteres exclusivo de `Otro`. No requiere ADR nueva mientras no se agreguen garantía, cambio de orden, dinero, proveedor/canal o multimedia.
-  - La dependencia feat-007 está cerrada en staging; su excepción Webhook continúa bloqueando únicamente producción.
-  - feat-006 y feat-011 permanecen fuera del MVP; feat-008 sigue bloqueada por la dependencia propuesta feat-006.
+  - El usuario aprobó el 2026-09-03 el discovery, la especificación y DEC-014-001 a DEC-014-005; feat-014 transitó a implementation y completó su verificación técnica.
+  - Se inspeccionaron todas las referencias Stitch CLIENT/ADMIN y la implementación actual sin ejecutar los HTML del prototipo.
+  - La matriz completa y las funciones sin referencia se registran en specs/features/feat-014/design.md.
+  - La base visual de feat-013 se conserva; feat-014 cubre además pagos, notificaciones y postventa agregados después.
+  - La verificación visual se realizó con fixtures sintéticos y referencias Stitch mediante inspección CUA y comprobaciones estructurales en los viewports definidos.
+  - Los bloqueos globales de producción, incluida la garantía diferida y el Webhook de Mercado Pago, permanecen vigentes y fuera de feat-014.
+  - feat-014 transitó a implementation el 2026-09-03 después de verificar features.yaml, aprobaciones de especificación y DEC-014-001 a DEC-014-005 aceptadas.
+  - feat-014 transitó a publication_review el 2026-09-03 después de obtener PASS independiente; la aprobación humana de publicación continúa pendiente.

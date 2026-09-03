@@ -44,8 +44,10 @@ type AftercareSupport = {
 
 export function OperationalRequests({
   mediaDeliveryOrigin = "",
+  view = "all",
 }: {
   mediaDeliveryOrigin?: string;
+  view?: "all" | "requests" | "technicians";
 }) {
   const [items, setItems] = useState<RequestItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -247,7 +249,13 @@ export function OperationalRequests({
     setActionMessage("Datos del técnico actualizados.");
   }
 
-  if (loading) return <p role="status">Cargando bandeja de solicitudes…</p>;
+  if (loading) {
+    return (
+      <p role="status" aria-live="polite" aria-busy="true">
+        Cargando bandeja de solicitudes…
+      </p>
+    );
+  }
   if (error)
     return (
       <p className="admin-requests__error" role="status">
@@ -257,317 +265,350 @@ export function OperationalRequests({
 
   return (
     <div className="admin-requests">
-      <h2>Solicitudes registradas ({items.length})</h2>
-      <section aria-label="Bandeja de incidencias de postventa">
-        <h3>Incidencias de postventa</h3>
-        <div>
-          <label>
-            Filtrar por estado{" "}
-            <select
-              aria-label="Filtrar incidencias por estado"
-              value={incidentStatusFilter}
-              onChange={(event) => setIncidentStatusFilter(event.target.value)}
-            >
-              <option value="">Todos los estados</option>
-              <option value="ABIERTA">ABIERTA</option>
-              <option value="EN_TRIAGE">EN_TRIAGE</option>
-              <option value="CERRADA">CERRADA</option>
-            </select>
-          </label>{" "}
-          <label>
-            Filtrar por tipo{" "}
-            <select
-              aria-label="Filtrar incidencias por tipo"
-              value={incidentTypeFilter}
-              onChange={(event) => setIncidentTypeFilter(event.target.value)}
-            >
-              <option value="">Todos los tipos</option>
-              <option value="RESULTADO_NO_ESPERADO">RESULTADO_NO_ESPERADO</option>
-              <option value="PROBLEMA_REAPARECIO">PROBLEMA_REAPARECIO</option>
-              <option value="TRABAJO_INCOMPLETO">TRABAJO_INCOMPLETO</option>
-              <option value="DANIO_REPORTADO">DANIO_REPORTADO</option>
-              <option value="CONSULTA_SOBRE_COBRO">CONSULTA_SOBRE_COBRO</option>
-            </select>
-          </label>
-        </div>
-        {incidentError && (
-          <p role="alert">
-            {incidentError}{" "}
-            <button type="button" onClick={() => setIncidentReload((current) => current + 1)}>
-              Reintentar
-            </button>
-          </p>
-        )}
-        {aftercareIncidents.length === 0 ? (
-          <p>No hay incidencias registradas.</p>
-        ) : (
-          <ul>
-            {aftercareIncidents.map((incident) => (
-              <li key={incident.id}>
-                {incident.type.replaceAll("_", " ")} — <strong>{incident.status}</strong>
-                {incident.status === "ABIERTA" && (
-                  <button
-                    type="button"
-                    disabled={transitioningIncident === incident.id}
-                    onClick={() => void transitionIncident(incident, "START_TRIAGE")}
-                  >
-                    Iniciar triage
-                  </button>
-                )}
-                {incident.status === "EN_TRIAGE" && (
-                  <button
-                    type="button"
-                    disabled={transitioningIncident === incident.id}
-                    onClick={() => void transitionIncident(incident, "CLOSE")}
-                  >
-                    Cerrar incidencia
-                  </button>
-                )}
-                <ul>
-                  {incident.history.map((entry) => (
-                    <li key={`${entry.action}-${entry.createdAt}`}>
-                      {entry.toStatus} — {new Date(entry.createdAt).toLocaleString("es-AR")}
-                    </li>
-                  ))}
-                </ul>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-      <form action={createTechnician} className="admin-requests__technician">
-        <h3>Registrar técnico</h3>
-        <label>
-          Nombre completo
-          <input name="fullName" required maxLength={160} />
-        </label>
-        <label>
-          Teléfono operativo
-          <input name="phone" required maxLength={32} />
-        </label>
-        <button type="submit">Agregar técnico</button>
-      </form>
-      <section id="technicians" aria-label="Técnicos internos">
-        <h3>Técnicos internos</h3>
-        {technicians.length === 0 ? (
-          <p>No hay técnicos registrados.</p>
-        ) : (
-          <ul>
-            {technicians.map((technician) => (
-              <li key={technician.id}>
-                {technician.fullName} — {technician.phone} — {technician.status}
-                <button type="button" onClick={() => void setTechnicianStatus(technician)}>
-                  {technician.status === "ACTIVE" ? "Desactivar" : "Activar"}
-                </button>
-                <button type="button" onClick={() => void editTechnician(technician)}>
-                  Editar
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-      {items.length === 0 ? (
-        <p>No hay solicitudes registradas en la bandeja.</p>
-      ) : (
-        <ul id="requests" className="admin-requests__list">
-          {items.map((item) => (
-            <li key={item.id} className="admin-requests__card">
-              <header className="admin-requests__card-header">
-                <strong>{item.offer.category}</strong> ({item.offer.currency} {item.offer.price})
-                <span
-                  className={`admin-requests__badge admin-requests__badge--${item.completeness.toLowerCase()}`}
-                >
-                  {item.completeness === "READY_FOR_OPERATION"
-                    ? "Operable"
-                    : "Pendiente de multimedia"}
-                </span>
-              </header>
-
-              <div className="admin-requests__card-body">
-                <p>
-                  <strong>Descripción:</strong> {item.description}
-                </p>
-                {item.address && (
-                  <p>
-                    <strong>Domicilio:</strong> {item.address.street} {item.address.number}
-                    {item.address.neighborhood ? `, ${item.address.neighborhood}` : ""}
-                    {item.address.normalizedAddress ? ` (${item.address.normalizedAddress})` : ""}
-                  </p>
-                )}
-
-                {item.media.length > 0 ? (
-                  <div className="admin-requests__media">
-                    <strong>Adjuntos ({item.media.length}):</strong>
-                    <ul>
-                      {item.media.map((m) => (
-                        <li key={m.id}>
-                          <a
-                            href={`${mediaDeliveryOrigin}/admin/api/requests/${item.id}/media/${m.id}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            {m.kind} ({m.mime})
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ) : (
-                  <p>
-                    <em>Sin archivos multimedia adjuntos.</em>
-                  </p>
-                )}
-                {item.completeness === "READY_FOR_OPERATION" &&
-                  !orders.some((order) => order.requestId === item.id) && (
-                    <label>
-                      Asignar técnico
-                      <select
-                        defaultValue=""
-                        onChange={(event) =>
-                          event.target.value && void assign(item.id, event.target.value)
-                        }
-                      >
-                        <option value="">Seleccioná un técnico activo</option>
-                        {technicians
-                          .filter((technician) => technician.status === "ACTIVE")
-                          .map((technician) => (
-                            <option key={technician.id} value={technician.id}>
-                              {technician.fullName}
-                            </option>
-                          ))}
-                      </select>
-                    </label>
+      <h2>
+        {view === "technicians" ? "Técnicos internos" : `Solicitudes registradas (${items.length})`}
+      </h2>
+      {view !== "technicians" && (
+        <section
+          className="admin-requests__incident-panel"
+          aria-label="Bandeja de incidencias de postventa"
+        >
+          <h3>Incidencias de postventa</h3>
+          <div className="admin-requests__filter-bar">
+            <label>
+              Filtrar por estado{" "}
+              <select
+                aria-label="Filtrar incidencias por estado"
+                value={incidentStatusFilter}
+                onChange={(event) => setIncidentStatusFilter(event.target.value)}
+              >
+                <option value="">Todos los estados</option>
+                <option value="ABIERTA">ABIERTA</option>
+                <option value="EN_TRIAGE">EN_TRIAGE</option>
+                <option value="CERRADA">CERRADA</option>
+              </select>
+            </label>{" "}
+            <label>
+              Filtrar por tipo{" "}
+              <select
+                aria-label="Filtrar incidencias por tipo"
+                value={incidentTypeFilter}
+                onChange={(event) => setIncidentTypeFilter(event.target.value)}
+              >
+                <option value="">Todos los tipos</option>
+                <option value="RESULTADO_NO_ESPERADO">RESULTADO_NO_ESPERADO</option>
+                <option value="PROBLEMA_REAPARECIO">PROBLEMA_REAPARECIO</option>
+                <option value="TRABAJO_INCOMPLETO">TRABAJO_INCOMPLETO</option>
+                <option value="DANIO_REPORTADO">DANIO_REPORTADO</option>
+                <option value="CONSULTA_SOBRE_COBRO">CONSULTA_SOBRE_COBRO</option>
+              </select>
+            </label>
+          </div>
+          {incidentError && (
+            <p role="alert">
+              {incidentError}{" "}
+              <button type="button" onClick={() => setIncidentReload((current) => current + 1)}>
+                Reintentar
+              </button>
+            </p>
+          )}
+          {aftercareIncidents.length === 0 ? (
+            <p>No hay incidencias registradas.</p>
+          ) : (
+            <ul>
+              {aftercareIncidents.map((incident) => (
+                <li key={incident.id}>
+                  {incident.type.replaceAll("_", " ")} — <strong>{incident.status}</strong>
+                  {incident.status === "ABIERTA" && (
+                    <button
+                      type="button"
+                      disabled={transitioningIncident === incident.id}
+                      onClick={() => void transitionIncident(incident, "START_TRIAGE")}
+                    >
+                      Iniciar triage
+                    </button>
                   )}
-                {orders
-                  .filter((order) => order.requestId === item.id)
-                  .map((order) => {
-                    const aftercare = aftercareByOrderId[order.id];
-                    return (
-                      <div key={order.id}>
-                        <p>
-                          <strong>Orden:</strong> {order.state} — {order.technician?.fullName}
-                        </p>
-                        {order.state === "CERRADA" && (
-                          <>
-                            <button
-                              type="button"
-                              onClick={() => void loadAftercare(order.id)}
-                              disabled={aftercareLoading === order.id}
-                            >
-                              {aftercareLoading === order.id
-                                ? "Cargando postventa…"
-                                : "Consultar postventa"}
-                            </button>
-                            {aftercare && (
-                              <section aria-label={`Postventa de la orden ${order.id}`}>
-                                <h4>Postventa de la orden</h4>
-                                {aftercare.rating ? (
-                                  <p>
-                                    <strong>Calificación:</strong> {aftercare.rating.stars}/5 —{" "}
-                                    {aftercare.rating.reason.replaceAll("_", " ")}
-                                  </p>
-                                ) : (
-                                  <p>Sin calificación registrada.</p>
-                                )}
-                                <p>
-                                  <strong>Incidencias:</strong> {aftercare.incidents.length}
-                                </p>
-                                {aftercare.incidents.length > 0 && (
-                                  <ul>
-                                    {aftercare.incidents.map((incident) => (
-                                      <li key={incident.id}>
-                                        {incident.type.replaceAll("_", " ")} — {incident.status}
-                                      </li>
-                                    ))}
-                                  </ul>
-                                )}
-                              </section>
-                            )}
-                          </>
-                        )}
-                        {order.state === "TECNICO_ASIGNADO" && (
-                          <button
-                            type="button"
-                            onClick={() => void transition(order, "MARK_EN_ROUTE")}
-                          >
-                            Marcar en camino
-                          </button>
-                        )}
-                        {(order.state === "TECNICO_ASIGNADO" || order.state === "EN_CAMINO") && (
-                          <button
-                            type="button"
-                            onClick={() => void transition(order, "START_SERVICE")}
-                          >
-                            Iniciar atención
-                          </button>
-                        )}
-                        {order.state === "EN_ATENCION" && (
-                          <button
-                            type="button"
-                            onClick={() => void transition(order, "FINISH_WORK")}
-                          >
-                            Finalizar trabajo
-                          </button>
-                        )}
-                        {order.state === "TRABAJO_FINALIZADO" && (
-                          <button type="button" onClick={() => void resolve(order)}>
-                            Registrar resolución y cargo
-                          </button>
-                        )}
-                        {order.state === "TECNICO_ASIGNADO" && (
-                          <label>
-                            Reasignar técnico
-                            <select
-                              defaultValue=""
-                              onChange={(event) => {
-                                const technicianId = event.target.value;
-                                const reason = window.prompt("Motivo interno de reasignación");
-                                if (technicianId && reason)
-                                  void transition(
-                                    order,
-                                    "REASSIGN_TECHNICIAN",
-                                    reason,
-                                    technicianId,
-                                  );
-                              }}
-                            >
-                              <option value="">Seleccioná técnico activo</option>
-                              {technicians
-                                .filter(
-                                  (technician) =>
-                                    technician.status === "ACTIVE" &&
-                                    technician.id !== order.technician?.id,
-                                )
-                                .map((technician) => (
-                                  <option key={technician.id} value={technician.id}>
-                                    {technician.fullName}
-                                  </option>
-                                ))}
-                            </select>
-                          </label>
-                        )}
-                        {!["EN_ATENCION", "TRABAJO_FINALIZADO", "CANCELADA"].includes(
-                          order.state,
-                        ) && (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const reason = window.prompt("Motivo interno de cancelación");
-                              if (reason) void transition(order, "CANCEL", reason);
-                            }}
-                          >
-                            Cancelar orden
-                          </button>
-                        )}
-                      </div>
-                    );
-                  })}
-              </div>
-            </li>
-          ))}
-        </ul>
+                  {incident.status === "EN_TRIAGE" && (
+                    <button
+                      type="button"
+                      disabled={transitioningIncident === incident.id}
+                      onClick={() => void transitionIncident(incident, "CLOSE")}
+                    >
+                      Cerrar incidencia
+                    </button>
+                  )}
+                  <ul>
+                    {incident.history.map((entry) => (
+                      <li key={`${entry.action}-${entry.createdAt}`}>
+                        {entry.toStatus} — {new Date(entry.createdAt).toLocaleString("es-AR")}
+                      </li>
+                    ))}
+                  </ul>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
       )}
+      {view !== "requests" && (
+        <>
+          <form action={createTechnician} className="admin-requests__technician">
+            <h3>Registrar técnico</h3>
+            <label>
+              Nombre completo
+              <input name="fullName" required maxLength={160} />
+            </label>
+            <label>
+              Teléfono operativo
+              <input name="phone" required maxLength={32} />
+            </label>
+            <button type="submit">Agregar técnico</button>
+          </form>
+          <section
+            id="technicians"
+            className="admin-requests__technicians-panel"
+            aria-label="Técnicos internos"
+          >
+            <h3>Técnicos internos</h3>
+            {technicians.length === 0 ? (
+              <p>No hay técnicos registrados.</p>
+            ) : (
+              <ul>
+                {technicians.map((technician) => (
+                  <li key={technician.id}>
+                    {technician.fullName} — {technician.phone} — {technician.status}
+                    <button type="button" onClick={() => void setTechnicianStatus(technician)}>
+                      {technician.status === "ACTIVE" ? "Desactivar" : "Activar"}
+                    </button>
+                    <button type="button" onClick={() => void editTechnician(technician)}>
+                      Editar
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        </>
+      )}
+      {view !== "technicians" &&
+        (items.length === 0 ? (
+          <p>No hay solicitudes registradas en la bandeja.</p>
+        ) : (
+          <>
+            <div className="admin-requests__table-header" aria-hidden="true">
+              <span>Solicitud</span>
+              <span>Servicio y domicilio</span>
+              <span>Estado operativo</span>
+              <span>Acciones</span>
+            </div>
+            <ul id="requests" className="admin-requests__list">
+              {items.map((item) => (
+                <li key={item.id} className="admin-requests__card">
+                  <header className="admin-requests__card-header">
+                    <div>
+                      <span className="admin-requests__eyebrow">Solicitud de servicio</span>
+                      <strong>{item.offer.category}</strong>{" "}
+                      <span>
+                        {item.offer.currency} {item.offer.price}
+                      </span>
+                    </div>
+                    <span
+                      className={`admin-requests__badge admin-requests__badge--${item.completeness.toLowerCase()}`}
+                    >
+                      {item.completeness === "READY_FOR_OPERATION"
+                        ? "Operable"
+                        : "Pendiente de multimedia"}
+                    </span>
+                  </header>
+
+                  <div className="admin-requests__card-body">
+                    <p>
+                      <strong>Descripción:</strong> {item.description}
+                    </p>
+                    {item.address && (
+                      <p>
+                        <strong>Domicilio:</strong> {item.address.street} {item.address.number}
+                        {item.address.neighborhood ? `, ${item.address.neighborhood}` : ""}
+                        {item.address.normalizedAddress
+                          ? ` (${item.address.normalizedAddress})`
+                          : ""}
+                      </p>
+                    )}
+
+                    {item.media.length > 0 ? (
+                      <div className="admin-requests__media">
+                        <strong>Adjuntos ({item.media.length}):</strong>
+                        <ul>
+                          {item.media.map((m) => (
+                            <li key={m.id}>
+                              <a
+                                href={`${mediaDeliveryOrigin}/admin/api/requests/${item.id}/media/${m.id}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                {m.kind} ({m.mime})
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : (
+                      <p>
+                        <em>Sin archivos multimedia adjuntos.</em>
+                      </p>
+                    )}
+                    {item.completeness === "READY_FOR_OPERATION" &&
+                      !orders.some((order) => order.requestId === item.id) && (
+                        <label>
+                          Asignar técnico
+                          <select
+                            defaultValue=""
+                            onChange={(event) =>
+                              event.target.value && void assign(item.id, event.target.value)
+                            }
+                          >
+                            <option value="">Seleccioná un técnico activo</option>
+                            {technicians
+                              .filter((technician) => technician.status === "ACTIVE")
+                              .map((technician) => (
+                                <option key={technician.id} value={technician.id}>
+                                  {technician.fullName}
+                                </option>
+                              ))}
+                          </select>
+                        </label>
+                      )}
+                    {orders
+                      .filter((order) => order.requestId === item.id)
+                      .map((order) => {
+                        const aftercare = aftercareByOrderId[order.id];
+                        return (
+                          <div key={order.id} className="admin-requests__order-actions">
+                            <p>
+                              <strong>Orden:</strong> {order.state} — {order.technician?.fullName}
+                            </p>
+                            {order.state === "CERRADA" && (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={() => void loadAftercare(order.id)}
+                                  disabled={aftercareLoading === order.id}
+                                >
+                                  {aftercareLoading === order.id
+                                    ? "Cargando postventa…"
+                                    : "Consultar postventa"}
+                                </button>
+                                {aftercare && (
+                                  <section aria-label={`Postventa de la orden ${order.id}`}>
+                                    <h4>Postventa de la orden</h4>
+                                    {aftercare.rating ? (
+                                      <p>
+                                        <strong>Calificación:</strong> {aftercare.rating.stars}/5 —{" "}
+                                        {aftercare.rating.reason.replaceAll("_", " ")}
+                                      </p>
+                                    ) : (
+                                      <p>Sin calificación registrada.</p>
+                                    )}
+                                    <p>
+                                      <strong>Incidencias:</strong> {aftercare.incidents.length}
+                                    </p>
+                                    {aftercare.incidents.length > 0 && (
+                                      <ul>
+                                        {aftercare.incidents.map((incident) => (
+                                          <li key={incident.id}>
+                                            {incident.type.replaceAll("_", " ")} — {incident.status}
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    )}
+                                  </section>
+                                )}
+                              </>
+                            )}
+                            {order.state === "TECNICO_ASIGNADO" && (
+                              <button
+                                type="button"
+                                onClick={() => void transition(order, "MARK_EN_ROUTE")}
+                              >
+                                Marcar en camino
+                              </button>
+                            )}
+                            {(order.state === "TECNICO_ASIGNADO" ||
+                              order.state === "EN_CAMINO") && (
+                              <button
+                                type="button"
+                                onClick={() => void transition(order, "START_SERVICE")}
+                              >
+                                Iniciar atención
+                              </button>
+                            )}
+                            {order.state === "EN_ATENCION" && (
+                              <button
+                                type="button"
+                                onClick={() => void transition(order, "FINISH_WORK")}
+                              >
+                                Finalizar trabajo
+                              </button>
+                            )}
+                            {order.state === "TRABAJO_FINALIZADO" && (
+                              <button type="button" onClick={() => void resolve(order)}>
+                                Registrar resolución y cargo
+                              </button>
+                            )}
+                            {order.state === "TECNICO_ASIGNADO" && (
+                              <label>
+                                Reasignar técnico
+                                <select
+                                  defaultValue=""
+                                  onChange={(event) => {
+                                    const technicianId = event.target.value;
+                                    const reason = window.prompt("Motivo interno de reasignación");
+                                    if (technicianId && reason)
+                                      void transition(
+                                        order,
+                                        "REASSIGN_TECHNICIAN",
+                                        reason,
+                                        technicianId,
+                                      );
+                                  }}
+                                >
+                                  <option value="">Seleccioná técnico activo</option>
+                                  {technicians
+                                    .filter(
+                                      (technician) =>
+                                        technician.status === "ACTIVE" &&
+                                        technician.id !== order.technician?.id,
+                                    )
+                                    .map((technician) => (
+                                      <option key={technician.id} value={technician.id}>
+                                        {technician.fullName}
+                                      </option>
+                                    ))}
+                                </select>
+                              </label>
+                            )}
+                            {!["EN_ATENCION", "TRABAJO_FINALIZADO", "CANCELADA"].includes(
+                              order.state,
+                            ) && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const reason = window.prompt("Motivo interno de cancelación");
+                                  if (reason) void transition(order, "CANCEL", reason);
+                                }}
+                              >
+                                Cancelar orden
+                              </button>
+                            )}
+                          </div>
+                        );
+                      })}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </>
+        ))}
       {actionMessage && (
         <p className="admin-requests__notice" role="status">
           {actionMessage}

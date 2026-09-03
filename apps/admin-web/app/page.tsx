@@ -15,7 +15,7 @@ export default async function AdminHome() {
   const logoutHref = `/admin/auth/logout?returnTo=${encodeURIComponent(`${appBaseUrl}/admin`)}`;
 
   return (
-    <ProductShell audience="administración" title="Bandeja operativa de PIGAR">
+    <ProductShell audience="administración" title="Bandeja operativa de PIGAR" currentPath="/admin">
       <section className="admin-intro">
         <p>
           ADMIN y DISPATCHER pueden consultar las solicitudes, su domicilio confirmado y los
@@ -32,7 +32,7 @@ export default async function AdminHome() {
         <section className="auth-card" aria-label="Acceso administrativo">
           <h2>Acceso interno</h2>
           <p>Ingresá con tu cuenta administrativa y el segundo factor configurado.</p>
-          <a className="button button--primary" href="/admin/login">
+          <a className="button button--primary" href="/login">
             Iniciar sesión
           </a>
         </section>

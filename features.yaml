@@ -1,6 +1,5 @@
 version: 1
 project: PIGAR
-status: implementation
 
 features:
   - id: feat-001
@@ -8,7 +7,7 @@ features:
     status: done
     priority: must
     depends_on: []
-    note: Etapa técnica cerrada: revisión independiente, publicación y CI remoto aprobados. Hostinger sigue reservado para testing/staging; producción requiere un entorno y aprobación independientes.
+    note: "Etapa técnica cerrada: revisión independiente, publicación y CI remoto aprobados. Hostinger sigue reservado para testing/staging; producción requiere un entorno y aprobación independientes."
 
   - id: feat-012
     name: Staging técnico en Hostinger
@@ -48,6 +47,13 @@ features:
     depends_on: [feat-002, feat-004, feat-005]
     note: Adopta como referencia los paquetes Stitch ya validados; normaliza componentes y pantallas existentes sin modificar reglas de negocio ni incluir pantallas de pagos, presupuestos, operarios, KPIs o notificaciones.
 
+  - id: feat-014
+    name: Alineación visual integral con Stitch
+    status: publication_review
+    priority: should
+    depends_on: [feat-013, feat-007, feat-009, feat-010]
+    note: Especificación y DEC-014-001 a DEC-014-005 aprobadas por el usuario el 2026-09-03. Implementación, verificación técnica y revisión independiente PASS completadas; queda pendiente aprobación humana de publicación. Conserva reglas, permisos, estados, contratos y flujos y no autoriza publicación.
+
   - id: feat-006
     name: Flujo móvil del operario para viaje, arribo y diagnóstico
     status: proposed
@@ -73,7 +79,7 @@ features:
     status: done
     priority: should
     depends_on: [feat-005]
-    note: Integrada, publicada y validada en staging el 2026-08-31: calidad e imágenes del SHA e91707f, migración y UAT sintética superadas. Los proveedores externos permanecen fuera del MVP.
+    note: "Integrada, publicada y validada en staging el 2026-08-31: calidad e imágenes del SHA e91707f, migración y UAT sintética superadas. Los proveedores externos permanecen fuera del MVP."
 
   - id: feat-010
     name: Calificaciones, garantía e incidencias
