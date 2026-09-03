@@ -247,7 +247,8 @@ a {
 }
 .button,
 .request-form button,
-.customer-requests button {
+.customer-requests button,
+.notifications__control {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -624,7 +625,8 @@ a {
   font-weight: 700;
 }
 .request-form button:disabled,
-.customer-requests button:disabled {
+.customer-requests button:disabled,
+.notifications__control:disabled {
   cursor: wait;
   opacity: 0.62;
 }

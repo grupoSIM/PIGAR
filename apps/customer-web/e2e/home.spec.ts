@@ -22,6 +22,12 @@ test("CLIENT navega por contextos separados de inicio, solicitudes y perfil", as
     "/requests",
   );
   await expect(page.getByRole("link", { name: "Perfil" })).toHaveAttribute("href", "/profile");
+  await page.goto("/requests");
+  await expect(page.locator(".request-form")).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Nueva solicitud" })).toHaveAttribute(
+    "href",
+    "/requests/new",
+  );
   await page.getByRole("link", { name: "Nueva solicitud" }).click();
   await expect(page).toHaveURL(/\/requests\/new$/);
   await expect(page.getByRole("heading", { name: "Nueva solicitud" })).toBeVisible();
@@ -175,8 +181,15 @@ test("CLIENT ve una bandeja accesible, marca leído y conserva degradación loca
     route.fulfill({ json: { state: "EN_CAMINO" } }),
   );
   await page.goto("/requests");
+  await expect(page.locator(".request-form")).toHaveCount(0);
   await page.getByRole("button", { name: /Notificaciones \(1 sin leer\)/ }).click();
   await expect(page.getByRole("heading", { name: "Notificaciones" })).toBeVisible();
+  await expect(page.locator(".customer-requests__header button")).toHaveClass(
+    /customer-action--secondary/,
+  );
+  await expect(page.locator(".notifications__control").last()).toHaveClass(
+    /customer-action--secondary/,
+  );
   await expect(page.getByRole("button", { name: /Técnico en camino\. Sin leer/ })).toBeVisible();
   await page.getByRole("button", { name: "Cargar más" }).click();
   await expect(page.getByRole("button", { name: /Pago confirmado\. Sin leer/ })).toBeVisible();

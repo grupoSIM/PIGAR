@@ -92,14 +92,18 @@ export function Notifications() {
           </ul>
           {page?.nextCursor && (
             <button
-              className="notifications__control"
+              className="customer-action customer-action--secondary notifications__control"
               type="button"
               onClick={() => void load(page.nextCursor ?? undefined, true)}
             >
               Cargar más
             </button>
           )}
-          <button className="notifications__control" type="button" onClick={() => void load()}>
+          <button
+            className="customer-action customer-action--secondary notifications__control"
+            type="button"
+            onClick={() => void load()}
+          >
             Actualizar
           </button>
         </div>

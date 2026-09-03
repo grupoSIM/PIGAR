@@ -2,7 +2,6 @@ import { ProductShell } from "@pigar/ui";
 import { auth0 } from "../../lib/auth0";
 import { CustomerRequests } from "../customer-requests";
 import { Notifications } from "../notifications";
-import { RequestForm } from "../request-form";
 
 export const dynamic = "force-dynamic";
 
@@ -28,7 +27,6 @@ export default async function CustomerRequestsPage() {
           </p>
           <Notifications />
           <CustomerRequests />
-          <RequestForm mapsApiKey={process.env["PIGAR_G" + "OOGLE_BROWSER_KEY"]} />
         </>
       ) : (
         <section className="auth-card" aria-label="Acceso al portal">
