@@ -1,7 +1,7 @@
 project: PIGAR
 active_feature: feat-014
-phase: publication_review
-updated_at: 2026-09-03T09:05:42-03:00
+phase: done
+updated_at: 2026-09-03T10:49:22-03:00
 
 blockers: []
 
@@ -52,17 +52,17 @@ approvals:
     status: approved
     approved_by: usuario
     approved_at: 2026-09-03T09:05:42-03:00
-    note: El usuario aprobó explícitamente los seis artefactos de feat-014 y las recomendaciones DEC-014-001 a DEC-014-005; habilita implementación, no publicación.
+    note: El usuario aprobó explícitamente los seis artefactos de feat-014 y las recomendaciones DEC-014-001 a DEC-014-005; habilitó implementación.
   verification:
     status: approved
     approved_by: reviewer_independiente
     approved_at: 2026-09-03
     note: Verificaciones técnicas completadas y revisión independiente PASS registrada el 2026-09-03; habilita publication_review.
   publication:
-    status: pending
-    approved_by: null
-    approved_at: null
-    note: Commit, push, PR, despliegue y publicación no fueron autorizados.
+    status: approved
+    approved_by: usuario
+    approved_at: 2026-09-03T10:49:22-03:00
+    note: El usuario autorizó publicar en staging. Commits 32f116a y dcf71a8 fueron publicados en staging; CI 33762658191 pasó y publicó las imágenes app/nginx en GHCR.
 
 quality:
   status: passed
@@ -75,4 +75,5 @@ notes:
   - La verificación visual se realizó con fixtures sintéticos y referencias Stitch mediante inspección CUA y comprobaciones estructurales en los viewports definidos.
   - Los bloqueos globales de producción, incluida la garantía diferida y el Webhook de Mercado Pago, permanecen vigentes y fuera de feat-014.
   - feat-014 transitó a implementation el 2026-09-03 después de verificar features.yaml, aprobaciones de especificación y DEC-014-001 a DEC-014-005 aceptadas.
-  - feat-014 transitó a publication_review el 2026-09-03 después de obtener PASS independiente; la aprobación humana de publicación continúa pendiente.
+  - feat-014 transitó a publication_review el 2026-09-03 después de obtener PASS independiente y luego a done tras publicar en staging.
+  - La calidad remota y las imágenes de staging del SHA dcf71a8a72ea521826ed87139d31495cae041aee fueron validadas por el workflow 33762658191.

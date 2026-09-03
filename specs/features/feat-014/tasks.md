@@ -29,4 +29,4 @@ bloqueadas hasta aprobación explícita de la especificación.
 - [x] TASK-014-015 Resolver DEC-014-001 a DEC-014-005 y llevar el borrador a `spec_review`. Aprobadas por el usuario el 2026-09-03.
 - [x] TASK-014-016 Obtener `approvals.specification.status: approved` antes de TASK-014-005. Aprobada por el usuario el 2026-09-03.
 - [x] TASK-014-017 Obtener revisión independiente para `publication_review` después de implementar/verificar. PASS registrado el 2026-09-03.
-- [ ] TASK-014-018 Obtener autorización explícita antes de commit, push, PR, despliegue o publicación.
+- [x] TASK-014-018 Obtener autorización explícita antes de commit, push, PR, despliegue o publicación. Autorización del usuario para publicar en staging y publicación verificada en CI 33762658191 el 2026-09-03.

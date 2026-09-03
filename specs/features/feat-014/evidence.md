@@ -1,8 +1,7 @@
 # Evidencia — feat-014: Alineación visual integral con Stitch
 
-- Estado: `publication_review`; implementación, verificación técnica y revisión
-  independiente PASS completadas. La aprobación humana de publicación sigue
-  pendiente.
+- Estado: `done`; implementación, verificación técnica, revisión independiente
+  PASS y publicación en staging completadas.
 - Esta evidencia cubre discovery, implementación visual, regresión funcional y
   verificaciones reproducibles de feat-014.
 
@@ -68,27 +67,29 @@ Escape, ciclo de Tab y restauración del foco al botón de apertura.
 | 2026-09-03 | Playwright ADMIN directo contra `http://127.0.0.1:3001`                                                                                              | passed    | 8/8 escenarios ADMIN: bandeja, contextos, drawer/foco, adjuntos, asignación, hitos, cargo e incidencias.                                                                                                                                              |
 | 2026-09-03 | `apps/admin-web/node_modules/.bin/playwright.cmd test --config=playwright.config.ts`                                                                 | passed    | Repetición final de la suite ADMIN: 8 tests passed, 0 failed; confirmó rutas reales y foco inicial, Tab, Escape y restauración del drawer.                                                                                                            |
 | 2026-09-03 | `node scripts/run-test-suite.mjs integration`                                                                                                        | passed    | 57 tests: 55 pass, 0 fail, 2 skipped por diseño. PostgreSQL real disponible mediante Docker Desktop.                                                                                                                                                  |
+| 2026-09-03 | Repetición escalada de `node scripts/run-test-suite.mjs integration`                                                                                 | passed    | 57 tests: 55 pass, 0 fail, 2 skipped; confirmó PostgreSQL real y contratos de pagos/órdenes/transiciones.                                                                                                                                             |
 | 2026-09-03 | `node scripts/run-test-suite.mjs security`                                                                                                           | passed    | 70 tests: 68 pass, 0 fail, 2 skipped por diseño.                                                                                                                                                                                                      |
+| 2026-09-03 | Repetición escalada de `node scripts/run-test-suite.mjs security`                                                                                    | passed    | 70 tests: 68 pass, 0 fail, 2 skipped; confirmó roles, PII, recursos y superficies permitidas.                                                                                                                                                         |
 | 2026-09-03 | Playwright estructural CLIENT en 360/390/768/1280 y ADMIN en 768/1024/1440/1600                                                                      | passed    | Sin overflow horizontal en los 8 viewports; headings presentes, rutas separadas, controles navegables y 0 recursos visuales remotos.                                                                                                                  |
 | 2026-09-03 | Inspección CUA del árbol accesible y estados cargando/error; checklist CSS de foco, touch, drawer/rail y reduced motion + caso Playwright Escape/Tab | passed    | Shells separados, navegación real, foco inicial/ciclo/restauración del drawer, estados semánticos, `aria-live`/`aria-busy` y `prefers-reduced-motion`.                                                                                                |
-| 2026-09-03 | Inspección visual CLIENT/ADMIN junto a `stitch/**/screen.png` + captura sintética en 17 contextos                                                    | passed    | Artefactos `artifacts/feat-014/visual/*.png` (17 capturas en 8 viewports) y `artifacts/feat-014-visual/README.md`; se alinearon jerarquía, color, cards, stepper, timeline, rail/drawer y densidad; se excluyeron funciones no soportadas por el MVP. |
+| 2026-09-03 | Inspección visual CLIENT/ADMIN junto a `stitch/**/screen.png` + captura sintética en 28 contextos                                                    | passed    | Artefactos `artifacts/feat-014-visual/*.png` (28 capturas en 8 viewports); se alinearon jerarquía, color, cards, stepper, timeline, rail/drawer y densidad; se excluyeron funciones no soportadas por el MVP. |
 
 ## Evidencia auditable por criterio
 
 | Criterio   | Pantalla/viewport y artefacto                                                                                                            | Prueba y resultado                                                                                         |
 | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| AC-014-001 | `artifacts/feat-014/visual/`: CLIENT 360/390/768/1280 y ADMIN 768/1024/1440/1600                                                         | Tokens locales, Prettier, unit 52/52 y ausencia de recursos remotos; verified.                             |
-| AC-014-002 | Acceso/shell CLIENT en 360/390/768/1280; capturas sintéticas completas en `artifacts/feat-014/visual/`                                   | Build CLIENT, AX tree CUA y estructura Playwright; verified.                                               |
+| AC-014-001 | `artifacts/feat-014-visual/`: CLIENT 360/390/768/1280 y ADMIN 768/1024/1440/1600                                                         | Tokens locales, Prettier, unit 52/52 y ausencia de recursos remotos; verified.                             |
+| AC-014-002 | Acceso/shell CLIENT en 360/390/768/1280; capturas sintéticas completas en `artifacts/feat-014-visual/`                                   | Build CLIENT, AX tree CUA y estructura Playwright; verified.                                               |
 | AC-014-003 | Inicio, Mis solicitudes y Nueva solicitud CLIENT en 360/390/768/1280                                                                     | E2E CLIENT 8/8 y estados de oferta/domicilio/evidencia; verified.                                          |
 | AC-014-004 | Cards/timeline CLIENT y estados de orden                                                                                                 | E2E CLIENT + security 68/68; PII ajena/contacto/ETA no presentes; verified.                                |
 | AC-014-005 | Pago, reintento y conformidad CLIENT                                                                                                     | E2E CLIENT + integration 55/55; verified.                                                                  |
 | AC-014-006 | Notificaciones, rating e incidencias CLIENT                                                                                              | E2E CLIENT 8/8 + security 68/68; degradación y allowlists preservadas; verified.                           |
-| AC-014-007 | Shell ADMIN drawer/rail en 768/1024/1440/1600; capturas sintéticas completas en `artifacts/feat-014/visual/`                             | E2E ADMIN 8/8 + estructura Playwright en 768/1024/1440/1600; verified.                                     |
+| AC-014-007 | Shell ADMIN drawer/rail en 768/1024/1440/1600; capturas sintéticas completas en `artifacts/feat-014-visual/`                             | E2E ADMIN 8/8 + estructura Playwright en 768/1024/1440/1600; verified.                                     |
 | AC-014-008 | Bandeja/detalle ADMIN, lista densa y estados                                                                                             | E2E ADMIN 8/8 + security; sin KPIs, tracking, recomendaciones, exportación ni nueva orden falsa; verified. |
 | AC-014-009 | Técnicos/asignación ADMIN en 768/1024/1440/1600                                                                                          | E2E ADMIN + estructura responsive; asignación manual sin métricas inferidas; verified.                     |
 | AC-014-010 | Hitos, resolución, cargo y soporte ADMIN                                                                                                 | E2E ADMIN + integration/security; acciones y confirmaciones existentes conservadas; verified.              |
 | AC-014-011 | Loading/vacío/error/success CLIENT/ADMIN en 8 viewports                                                                                  | Checker estructural Playwright, AX tree CUA, foco, reduced motion y `aria-live`/`aria-busy`; verified.     |
-| AC-014-012 | Capturas sintéticas `artifacts/feat-014/visual/*.png` + `artifacts/feat-014-visual/README.md` de cobertura y matriz de comandos anterior | 16 E2E, unit/integration/security, builds, lint, docs y diff-check; verified; Reviewer independiente PASS. |
+| AC-014-012 | Capturas sintéticas `artifacts/feat-014-visual/*.png` + README de cobertura y matriz de comandos anterior | 16 E2E, unit/integration/security, builds, lint, docs y diff-check; verified; Reviewer independiente PASS. |
 
 El comando canónico `pnpm test:e2e:frontends` también se intentó sin alterar el
 worktree, pero pnpm abortó antes de ejecutar por la diferencia entre el runtime
@@ -123,13 +124,18 @@ logging, retención o despliegue nuevo.
   sintéticas limpias para CLIENT 360/390/768/1280 y ADMIN 768/1024/1440/1600;
   `ProductShell` ahora recibe el contexto de ruta y marca `aria-current` sólo
   en el destino activo; se ejecutó la medición local de contraste con 0 fallos.
-- Nueva revisión independiente: `PASS`, 2026-09-03. Se habilita `publication_review`;
-  no autoriza commit, push, PR, despliegue ni publicación.
+- Nueva revisión independiente: `PASS`, 2026-09-03. Se habilitó
+  `publication_review`.
 
 ## Publicación
 
 - Aprobación de especificación: usuario, 2026-09-03T09:05:42-03:00.
-- Revisión independiente: `PASS`, 2026-09-03; habilita `publication_review`.
-- Commit: no autorizado.
-- Rama actual observada: `staging`; no se creó rama.
-- Push/PR/despliegue/publicación: no autorizados y no realizados.
+- Revisión independiente: `PASS`, 2026-09-03; habilitó `publication_review`.
+- Autorización humana de publicación: usuario, mensaje «perfecto, publica en staging»,
+  2026-09-03.
+- Commits publicados en `staging`: `32f116a` y corrección `dcf71a8a72ea521826ed87139d31495cae041aee`.
+- CI remoto: [staging quality #33762658191](https://github.com/grupoSIM/PIGAR/actions/runs/33762658191),
+  `success`; verify y `publish-staging-images / publish` pasaron.
+- Imágenes publicadas: `ghcr.io/gruposim/pigar-app:dcf71a8a72ea521826ed87139d31495cae041aee`
+  y `ghcr.io/gruposim/pigar-nginx:dcf71a8a72ea521826ed87139d31495cae041aee`.
+- No se creó PR ni se realizó despliegue productivo.
