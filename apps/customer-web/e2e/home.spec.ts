@@ -231,6 +231,7 @@ test("CLIENT registra una calificación y una incidencia estructurada de una ord
   page,
 }) => {
   const request = customerPaymentRequest("00000000-0000-4000-8000-000000000710", "CERRADA", 8);
+  let incidentStatus: "ABIERTA" | "EN_TRIAGE" = "ABIERTA";
   await page.route("**/api/requests", (route) => route.fulfill({ json: { items: [request] } }));
   await page.route("**/api/requests/*/billing", (route) =>
     route.fulfill({ json: billingView("APROBADO") }),
@@ -241,8 +242,48 @@ test("CLIENT registra una calificación y una incidencia estructurada de una ord
     return route.fulfill({ json: { id: "00000000-0000-4000-8000-000000000711" } });
   });
   await page.route("**/api/requests/*/incidents", async (route) => {
-    if (route.request().method() === "GET") return route.fulfill({ json: { items: [] } });
+    if (route.request().method() === "GET") {
+      return route.fulfill({
+        json: {
+          items:
+            incidentStatus === "ABIERTA"
+              ? []
+              : [
+                  {
+                    id: "00000000-0000-4000-8000-000000000712",
+                    type: "TRABAJO_INCOMPLETO",
+                    status: incidentStatus,
+                    version: incidentStatus === "EN_TRIAGE" ? 2 : 1,
+                    createdAt: "2026-09-01T12:00:00.000Z",
+                    history: [
+                      {
+                        sequence: 1,
+                        action: "OPEN",
+                        fromStatus: null,
+                        toStatus: "ABIERTA",
+                        actorRole: "CLIENT",
+                        createdAt: "2026-09-01T12:00:00.000Z",
+                      },
+                      ...(incidentStatus === "EN_TRIAGE"
+                        ? [
+                            {
+                              sequence: 2,
+                              action: "START_TRIAGE",
+                              fromStatus: "ABIERTA",
+                              toStatus: "EN_TRIAGE",
+                              actorRole: "ADMIN",
+                              createdAt: "2026-09-01T12:05:00.000Z",
+                            },
+                          ]
+                        : []),
+                    ],
+                  },
+                ],
+        },
+      });
+    }
     expect(route.request().postDataJSON()).toEqual({ type: "TRABAJO_INCOMPLETO" });
+    incidentStatus = "ABIERTA";
     return route.fulfill({
       json: {
         id: "00000000-0000-4000-8000-000000000712",
@@ -276,6 +317,9 @@ test("CLIENT registra una calificación y una incidencia estructurada de una ord
   await page.getByRole("button", { name: "Abrir incidencia" }).click();
   await expect(page.getByText("TRABAJO INCOMPLETO — ABIERTA")).toBeVisible();
   await expect(page.getByRole("list", { name: "Historial de incidencias" })).toContainText("2026");
+  incidentStatus = "EN_TRIAGE";
+  await page.getByRole("button", { name: "Actualizar" }).click();
+  await expect(page.getByText("TRABAJO INCOMPLETO — EN_TRIAGE")).toBeVisible();
 });
 
 function customerPaymentRequest(id: string, state: string, version: number) {

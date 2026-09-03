@@ -112,6 +112,7 @@ payloads, IDs, correlaciones ni contenido de `otherMessage`.
 | 2026-09-02 | Docker/Chromium: `pnpm --filter @pigar/admin-web run test:e2e` | passed | ADMIN 7/7; incluye error de carga, reintento, error de transición, filtros, triage/cierre y consulta de soporte por orden. |
 | 2026-09-02 | Revisión independiente final de seguimiento | passed | `review-9.md`: PASS sobre el estado actual; habilita `publication_review`. No autoriza commit, push, PR, publicación ni despliegue. |
 | 2026-09-02 | Node 22: `pnpm typecheck`; `pnpm format:check`; `node scripts/docs-check.mjs`; `git diff --check` | passed | Typecheck global 14/14, formato del alcance de calidad, documentación y whitespace sin errores; los avisos CRLF son del checkout. |
+| 2026-09-02 | Node 22 + Chromium: `CI=1 PIGAR_E2E_PORT=3102 playwright test --grep "registra una calificación"` | passed | E2E focalizado 1/1; confirma que CLIENT vuelve a consultar incidencias al pulsar `Actualizar` y refleja `EN_TRIAGE` sin recargar la página completa. |
 
 ## Criterios de aceptación
 

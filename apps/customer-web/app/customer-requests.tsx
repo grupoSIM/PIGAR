@@ -30,6 +30,7 @@ export function CustomerRequests() {
   const [items, setItems] = useState<CustomerRequest[]>([]);
   const [message, setMessage] = useState<string>();
   const [loading, setLoading] = useState(true);
+  const [aftercareRefreshKey, setAftercareRefreshKey] = useState(0);
 
   async function pay(item: CustomerRequest) {
     if (!item.order) return;
@@ -88,6 +89,7 @@ export function CustomerRequests() {
         }),
       );
       setItems(hydrated);
+      setAftercareRefreshKey((current) => current + 1);
     } catch (error) {
       setMessage(
         error instanceof Error && error.message === "auth"
@@ -169,7 +171,9 @@ export function CustomerRequests() {
                 Confirmar conformidad
               </button>
             )}
-            {item.order?.state === "CERRADA" && <Aftercare requestId={item.id} />}
+            {item.order?.state === "CERRADA" && (
+              <Aftercare requestId={item.id} refreshKey={aftercareRefreshKey} />
+            )}
           </li>
         ))}
       </ul>
@@ -183,7 +187,7 @@ type Incident = {
   status: string;
   history: Array<{ action: string; toStatus: string; createdAt: string }>;
 };
-function Aftercare({ requestId }: { requestId: string }) {
+function Aftercare({ requestId, refreshKey }: { requestId: string; refreshKey: number }) {
   const [reason, setReason] = useState("CALIDAD_DEL_TRABAJO");
   const [stars, setStars] = useState("5");
   const [otherMessage, setOtherMessage] = useState("");
@@ -212,7 +216,7 @@ function Aftercare({ requestId }: { requestId: string }) {
         if (listed.ok) setIncidents(((await listed.json()) as { items?: Incident[] }).items ?? []);
       })
       .catch(() => notify("No pudimos cargar la información de postventa.", "error"));
-  }, [requestId]);
+  }, [requestId, refreshKey]);
 
   useEffect(() => {
     if (noticeKind === "error") noticeRef.current?.focus();

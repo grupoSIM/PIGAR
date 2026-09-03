@@ -32,7 +32,8 @@ sólo tras ejecutar sus pruebas aplicables y registrar comando/salida en
       escapado, incidencia estructurada e historial sólo lectura, sin promesas ni
       canales.
       Verificada mediante build CLIENT y E2E sintética de alta de calificación e
-      incidencia; evidencia 2026-09-01.
+      incidencia; el refresco manual también vuelve a consultar el estado de la
+      incidencia y fue verificado con E2E CLIENT 1/1; evidencia 2026-09-02.
 - [x] TASK-010-006 `[REQ-010-006][REQ-010-007][NFR-010-005][NFR-010-008][AC-010-006][AC-010-007][AC-010-012][AC-010-013]`
       Incorporar consulta de soporte y bandeja accesible ADMIN/DISPATCHER con
       sólo próxima transición válida, sin edición, reapertura, dinero o mensajes.
