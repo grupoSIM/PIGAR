@@ -1,6 +1,6 @@
 # Plan de pruebas — feat-010: Calificaciones e incidencias de postventa
 
-Estado: `publication_review`. Los escenarios TEST-010 se ejecutaron contra
+Estado: `done`. Los escenarios TEST-010 se ejecutaron contra
 fixtures sintéticos y sus comandos/salidas están registrados en `evidence.md`.
 La novena revisión independiente PASS está registrada en `review-9.md`.
 

@@ -1,6 +1,6 @@
 # Diseño — feat-010: Calificaciones e incidencias de postventa
 
-- Estado: `publication_review`.
+- Estado: `done`.
 - Arquitectura: `approved_with_conditions`.
 - Límite: diseño de postventa dentro del portal, sin garantía, dinero, nueva
   orden, proveedor, canal, multimedia ni outbox.

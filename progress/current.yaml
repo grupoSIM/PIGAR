@@ -1,7 +1,7 @@
 project: PIGAR
-active_feature: feat-010
-phase: publication_review
-updated_at: 2026-09-02T16:40:00-03:00
+active_feature: null
+phase: done
+updated_at: 2026-09-02T22:02:50-03:00
 
 blockers:
   - La garantía permanece expresamente diferida; cualquier promesa comercial, remedio económico u operativo requiere un discovery y aprobación nuevos.
@@ -61,17 +61,19 @@ approvals:
     approved_at: 2026-09-02T16:35:00-03:00
     note: review-9 PASS independiente sobre el estado actual; habilita publication_review.
   publication:
-    status: pending
-    note: No hay publicación autorizada para feat-010.
+    status: approved
+    approved_by: usuario
+    approved_at: 2026-09-02T22:02:50-03:00
+    note: El usuario autorizó cerrar feat-010 e integrar el estado verificado en staging y main.
 
 quality:
   status: passed
 
 notes:
-  - Los siete artefactos de feat-010 fueron aprobados explícitamente por el usuario el 2026-09-01; la feature transitó spec_review → approved → implementation y volvió a verification tras correcciones posteriores a review-6. La aprobación no autoriza commit, push, PR, publicación ni despliegue.
+  - Los siete artefactos de feat-010 fueron aprobados explícitamente por el usuario el 2026-09-01; la feature transitó spec_review → approved → implementation → verification → publication_review → done.
   - review-7 del 2026-09-02 fue FAIL; sus hallazgos se corrigieron y requieren nueva revisión independiente. No habilita publication_review.
   - review-8 del 2026-09-02 fue FAIL por degradación ADMIN; se corrigió con error accesible, conservación de datos y reintento. review-9 emitió PASS independiente y habilitó publication_review.
-  - feat-010 cerró discovery el 2026-08-31 por autorización explícita del usuario y se encuentra en publication_review. No autoriza publicación ni despliegue sin la puerta humana correspondiente.
+  - feat-010 cerró discovery el 2026-08-31 y se cerró el 2026-09-02 después de funcionar en staging; el commit c6a5518e02dd89cff528131ecb84c3ba6cd88e91 pasó calidad y publicó imágenes.
   - Architect Reviewer independiente emitió el 2026-08-31 `approved_with_conditions` para el límite aprobado, incluido el texto libre de hasta 100 caracteres exclusivo de `Otro`. No requiere ADR nueva mientras no se agreguen garantía, cambio de orden, dinero, proveedor/canal o multimedia.
   - La dependencia feat-007 está cerrada en staging; su excepción Webhook continúa bloqueando únicamente producción.
   - feat-006 y feat-011 permanecen fuera del MVP; feat-008 sigue bloqueada por la dependencia propuesta feat-006.

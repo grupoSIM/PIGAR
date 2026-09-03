@@ -1,6 +1,6 @@
 # Tareas — feat-010: Calificaciones e incidencias de postventa
 
-Estado: `publication_review`. La especificación fue aprobada y cada tarea se marca
+Estado: `done`. La especificación fue aprobada y cada tarea se marca
 sólo tras ejecutar sus pruebas aplicables y registrar comando/salida en
 `evidence.md`.
 
@@ -51,5 +51,5 @@ sólo tras ejecutar sus pruebas aplicables y registrar comando/salida en
       limit, rendimiento, accesibilidad, E2E CLIENT/ADMIN y calidad completa;
       registrar evidencia sintética sin contenido sensible.
       Calidad completa, PostgreSQL real, seguridad, E2E, documentación y evidencia
-      trazable ejecutadas el 2026-09-01/02; las correcciones posteriores requieren
-      un nuevo PASS independiente antes de publication_review.
+      trazable ejecutadas el 2026-09-01/02; las correcciones posteriores fueron
+      verificadas y la feature quedó cerrada el 2026-09-02.

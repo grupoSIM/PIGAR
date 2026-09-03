@@ -1,6 +1,6 @@
 # Requisitos — feat-010: Calificaciones e incidencias de postventa
 
-- Estado: `publication_review`.
+- Estado: `done`.
 - Arquitectura: `approved_with_conditions`, 2026-08-31.
 - Decisiones: DEC-010-001 a DEC-010-005 aprobadas el 2026-08-31.
 - Dependencia: feat-007 cerrada en staging; su excepción Webhook sólo bloquea

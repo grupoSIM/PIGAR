@@ -77,9 +77,10 @@ features:
 
   - id: feat-010
     name: Calificaciones, garantía e incidencias
-    status: publication_review
+    status: done
     priority: should
     depends_on: [feat-007]
+    note: Cerrada el 2026-09-02 tras validación independiente, calidad remota e imágenes de staging del SHA c6a5518e02dd89cff528131ecb84c3ba6cd88e91. Garantía y bloqueos de producción permanecen fuera de alcance.
 
   - id: feat-011
     name: Dashboard operativo y asignación asistida

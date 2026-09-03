@@ -1,8 +1,9 @@
 # Aceptación — feat-010: Calificaciones e incidencias de postventa
 
-Estado: `publication_review`. Los criterios cuentan con resultados registrados
+Estado: `done`. Los criterios cuentan con resultados registrados
 en `evidence.md` y la novena revisión independiente PASS está en `review-9.md`.
-La publicación permanece pendiente de autorización humana explícita.
+La publicación en staging y la integración en main fueron autorizadas por el
+usuario después de la validación remota del workflow #82.
 
 ## AC-010-001 — Calificación válida y única
 

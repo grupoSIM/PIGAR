@@ -2,13 +2,15 @@
 
 ## Estado y alcance
 
-Estado: `publication_review`; la matriz de pruebas y calidad está completa con
+Estado: `done`; la matriz de pruebas y calidad está completa con
 comandos y salidas vigentes. La novena revisión independiente emitió PASS en
-`review-9.md` sobre el estado actual; la publicación continúa pendiente de
-autorización humana explícita.
+`review-9.md` sobre el estado actual. La validación remota del commit
+`c6a5518e02dd89cff528131ecb84c3ba6cd88e91` pasó calidad y publicó las imágenes
+de staging.
 
-La implementación incluye migración, API y dos interfaces. No se realizaron
-commit, push, PR, publicación ni despliegue.
+La implementación incluye migración, API y dos interfaces. Fue integrada en
+`staging` y autorizada para integración en `main`; no se abrió PR ni se ejecutó
+un despliegue productivo.
 
 ## Resumen de cambios propuestos
 
@@ -162,5 +164,7 @@ aprobación de especificación y autorización de staging.
 ## Publicación
 
 - Aprobación de especificación: `approved`.
-- Aprobación de publicación: `pending`.
-- Commit/rama/PR/despliegue: no realizados ni autorizados.
+- Aprobación de publicación: `approved` por el usuario el 2026-09-02.
+- Commit de implementación: `c6a5518e02dd89cff528131ecb84c3ba6cd88e91`.
+- Workflow remoto: #82, calidad e imágenes de staging `success`.
+- Integración: `staging` y `main`; no se abrió PR ni se ejecutó un despliegue productivo.
