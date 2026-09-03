@@ -75,7 +75,7 @@ export function OperationalRequests({
   view = "all",
 }: {
   mediaDeliveryOrigin?: string;
-  view?: "all" | "requests" | "technicians";
+  view?: "all" | "requests" | "technicians" | "incidents";
 }) {
   const [items, setItems] = useState<RequestItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -294,9 +294,13 @@ export function OperationalRequests({
   return (
     <div className="admin-requests">
       <h2>
-        {view === "technicians" ? "Técnicos internos" : `Solicitudes registradas (${items.length})`}
+        {view === "technicians"
+          ? "Técnicos internos"
+          : view === "incidents"
+            ? "Incidencias de postventa"
+            : `Solicitudes registradas (${items.length})`}
       </h2>
-      {view !== "technicians" && (
+      {(view === "all" || view === "incidents") && (
         <section
           className="admin-requests__incident-panel"
           aria-label="Bandeja de incidencias de postventa"
@@ -379,7 +383,7 @@ export function OperationalRequests({
           )}
         </section>
       )}
-      {view !== "requests" && (
+      {(view === "all" || view === "technicians") && (
         <>
           <form action={createTechnician} className="admin-requests__technician">
             <h3>Registrar técnico</h3>
@@ -419,7 +423,7 @@ export function OperationalRequests({
           </section>
         </>
       )}
-      {view !== "technicians" &&
+      {(view === "all" || view === "requests") &&
         (items.length === 0 ? (
           <p>No hay solicitudes registradas en la bandeja.</p>
         ) : (

@@ -91,11 +91,15 @@ export function Notifications() {
             ))}
           </ul>
           {page?.nextCursor && (
-            <button type="button" onClick={() => void load(page.nextCursor ?? undefined, true)}>
+            <button
+              className="notifications__control"
+              type="button"
+              onClick={() => void load(page.nextCursor ?? undefined, true)}
+            >
               Cargar más
             </button>
           )}
-          <button type="button" onClick={() => void load()}>
+          <button className="notifications__control" type="button" onClick={() => void load()}>
             Actualizar
           </button>
         </div>

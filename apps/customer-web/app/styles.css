@@ -296,6 +296,24 @@ a {
 .customer-requests__header button:hover:not(:disabled) {
   background: var(--pigar-blue-soft);
 }
+.customer-action--primary {
+  color: var(--pigar-navy);
+  border-color: transparent;
+  background: var(--pigar-yellow);
+}
+.customer-action--primary:hover:not(:disabled) {
+  background: #eab31d;
+}
+.customer-action--secondary,
+.notifications__control {
+  color: var(--pigar-blue);
+  border-color: var(--pigar-blue);
+  background: #fff;
+}
+.customer-action--secondary:hover:not(:disabled),
+.notifications__control:hover:not(:disabled) {
+  background: var(--pigar-blue-soft);
+}
 .notifications {
   position: relative;
   z-index: 2;
@@ -363,6 +381,9 @@ a {
 }
 .notifications li button:hover {
   background: var(--pigar-blue-soft);
+}
+.notifications__control {
+  width: 100%;
 }
 .notifications li time,
 .notifications li button span:last-child {
@@ -552,6 +573,9 @@ a {
   color: var(--pigar-blue);
   border-color: var(--pigar-blue);
   background: #fff;
+}
+.request-form__location-button:hover:not(:disabled) {
+  background: var(--pigar-blue-soft);
 }
 .request-form__map {
   min-height: 280px;
@@ -821,6 +845,15 @@ a {
   width: 100%;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgb(121 89 0 / 16%);
+}
+.customer-action.customer-action--secondary {
+  border-radius: 10px;
+}
+.request-form__retry button.customer-action--secondary {
+  color: var(--pigar-blue);
+  border-color: var(--pigar-blue);
+  background: #fff;
+  box-shadow: none;
 }
 .request-form {
   gap: 24px;

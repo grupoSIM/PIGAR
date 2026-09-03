@@ -1,5 +1,4 @@
 import { ProductShell } from "@pigar/ui";
-import { OperationalRequests } from "./operational-requests";
 import { auth0 } from "../lib/auth0";
 
 export default async function AdminHome() {
@@ -41,9 +40,30 @@ export default async function AdminHome() {
           <p className="session-action">
             <a href={logoutHref}>Cerrar sesión</a>
           </p>
-          <OperationalRequests
-            mediaDeliveryOrigin={process.env.PIGAR_MEDIA_DELIVERY_ORIGIN ?? ""}
-          />
+          <section className="admin-home" aria-label="Accesos operativos">
+            <div className="admin-home__intro">
+              <p className="admin-home__eyebrow">Panel de control</p>
+              <h2>Elegí un área para continuar</h2>
+              <p>
+                Las bandejas operativas están separadas para que cada tarea tenga su propio
+                contexto.
+              </p>
+            </div>
+            <div className="admin-home__links">
+              <a className="admin-home__link" href="/admin/requests">
+                <strong>Solicitudes</strong>
+                <span>Consultá solicitudes, adjuntos, asignaciones y órdenes de trabajo.</span>
+              </a>
+              <a className="admin-home__link" href="/admin/incidents">
+                <strong>Incidencias</strong>
+                <span>Revisá la postventa y avanzá sus estados de atención.</span>
+              </a>
+              <a className="admin-home__link" href="/admin/technicians">
+                <strong>Técnicos</strong>
+                <span>Administrá técnicos internos y su disponibilidad operativa.</span>
+              </a>
+            </div>
+          </section>
         </>
       )}
     </ProductShell>

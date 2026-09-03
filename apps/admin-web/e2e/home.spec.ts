@@ -12,6 +12,8 @@ test("página principal de admin carga y muestra PIGAR", async ({ page }) => {
   await page.getByRole("button", { name: "Abrir navegación" }).click();
   await expect(page.getByRole("link", { name: "Técnicos" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Solicitudes" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Incidencias" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Solicitudes registradas/ })).toHaveCount(0);
 });
 
 test("ADMIN mantiene foco y Escape al abrir el drawer y navega por contextos reales", async ({
@@ -26,6 +28,10 @@ test("ADMIN mantiene foco y Escape al abrir el drawer y navega por contextos rea
     "href",
     "/admin/requests",
   );
+  await expect(page.getByRole("link", { name: "Incidencias" })).toHaveAttribute(
+    "href",
+    "/admin/incidents",
+  );
   await page.setViewportSize({ width: 768, height: 1024 });
   const toggle = page.getByRole("button", { name: "Abrir navegación" });
   await toggle.click();
@@ -35,6 +41,38 @@ test("ADMIN mantiene foco y Escape al abrir el drawer y navega por contextos rea
   await page.keyboard.press("Escape");
   await expect(page.getByRole("navigation", { name: "Navegación administrativa" })).toBeHidden();
   await expect(toggle).toBeFocused();
+});
+
+test("ADMIN navega a las vistas dedicadas de técnicos, solicitudes e incidencias", async ({
+  page,
+}) => {
+  await page.route("**/admin/api/requests", (route) => route.fulfill({ json: { items: [] } }));
+  await page.route("**/admin/api/operations/technicians", (route) =>
+    route.fulfill({ json: { items: [] } }),
+  );
+  await page.route("**/admin/api/operations/orders", (route) =>
+    route.fulfill({ json: { items: [] } }),
+  );
+  await page.route("**/admin/api/operations/incidents**", (route) =>
+    route.fulfill({ json: { items: [] } }),
+  );
+  await page.goto("/admin");
+  await page.getByRole("link", { name: "Técnicos" }).click();
+  await expect(page).toHaveURL(/\/admin\/technicians$/);
+  await expect(page.getByRole("heading", { name: "Técnicos" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Técnicos internos", level: 2 })).toBeVisible();
+
+  await page.getByRole("link", { name: "Solicitudes" }).click();
+  await expect(page).toHaveURL(/\/admin\/requests$/);
+  await expect(page.getByRole("heading", { name: "Solicitudes" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Solicitudes registradas/ })).toBeVisible();
+
+  await page.getByRole("link", { name: "Incidencias" }).click();
+  await expect(page).toHaveURL(/\/admin\/incidents$/);
+  await expect(page.getByRole("heading", { name: "Incidencias" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Incidencias de postventa", level: 2 }),
+  ).toBeVisible();
 });
 
 test("ADMIN asigna y actualiza un hito de una orden", async ({ page }) => {
@@ -83,7 +121,7 @@ test("ADMIN asigna y actualiza un hito de una orden", async ({ page }) => {
       },
     }),
   );
-  await page.goto("/admin");
+  await page.goto("/admin/requests");
   await page.getByLabel("Asignar técnico").selectOption(technician.id);
   await expect(page.getByText("Técnico asignado. La orden quedó registrada.")).toBeVisible();
   await page.getByRole("button", { name: "Marcar en camino" }).click();
@@ -115,7 +153,7 @@ test("ADMIN abre los adjuntos mediante la entrega privada", async ({ page }) => 
   await page.route("**/admin/api/operations/orders", (route) =>
     route.fulfill({ json: { items: [] } }),
   );
-  await page.goto("/admin");
+  await page.goto("/admin/requests");
   await expect(page.getByRole("link", { name: "IMAGE (image/png)" })).toHaveAttribute(
     "href",
     `http://127.0.0.1:8088/admin/api/requests/${request.id}/media/${mediaId}`,
@@ -153,7 +191,7 @@ test("ADMIN registra la resolución y crea el cargo congelado", async ({ page })
     await route.fulfill({ json: { ...order, state: "PENDIENTE_PAGO", version: 5 } });
   });
   page.on("dialog", (dialog) => dialog.accept("Trabajo sintético finalizado"));
-  await page.goto("/admin");
+  await page.goto("/admin/requests");
   await page.getByRole("button", { name: "Registrar resolución y cargo" }).click();
   await expect(
     page.getByText("Resolución registrada. El cliente puede iniciar el pago."),
@@ -223,7 +261,7 @@ test("ADMIN inicia triage y cierra una incidencia estructurada", async ({ page }
       },
     });
   });
-  await page.goto("/admin");
+  await page.goto("/admin/incidents");
   await page.getByLabel("Filtrar incidencias por estado").focus();
   await expect(page.getByLabel("Filtrar incidencias por estado")).toBeFocused();
   await page.getByLabel("Filtrar incidencias por estado").selectOption("ABIERTA");
@@ -285,7 +323,7 @@ test("ADMIN consulta rating e incidencias de una orden cerrada", async ({ page }
       },
     }),
   );
-  await page.goto("/admin");
+  await page.goto("/admin/requests");
   await page.getByRole("button", { name: "Consultar postventa" }).click();
   await expect(page.getByText("Calificación: 4/5 — PUNTUALIDAD")).toBeVisible();
   await expect(page.getByText("Incidencias: 0")).toBeVisible();
@@ -318,7 +356,7 @@ test("ADMIN distingue error de bandeja y permite reintentar", async ({ page }) =
   await page.route("**/admin/api/operations/incidents/*/transitions", (route) =>
     route.abort("failed"),
   );
-  await page.goto("/admin");
+  await page.goto("/admin/incidents");
   const incidentAlert = page.locator('p[role="alert"]');
   await expect(incidentAlert).toContainText("No pudimos cargar");
   await page.getByRole("button", { name: "Reintentar" }).click();

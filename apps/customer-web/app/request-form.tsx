@@ -441,7 +441,11 @@ export function RequestForm({ mapsApiKey }: { mapsApiKey?: string | undefined })
       </div>
       <div className="request-form__map-tools">
         <div ref={autocompleteRef} className="request-form__autocomplete" />
-        <button className="request-form__location-button" type="button" onClick={locateMe}>
+        <button
+          className="request-form__location-button customer-action--secondary"
+          type="button"
+          onClick={locateMe}
+        >
           Usar mi ubicación actual
         </button>
         <p role="status">{mapStatus}</p>
@@ -510,6 +514,7 @@ export function RequestForm({ mapsApiKey }: { mapsApiKey?: string | undefined })
             />
           </label>
           <button
+            className="customer-action--secondary"
             type="button"
             disabled={submitting || !pendingEvidence.length}
             onClick={retryEvidence}
@@ -520,7 +525,7 @@ export function RequestForm({ mapsApiKey }: { mapsApiKey?: string | undefined })
       )}
       {createdRequestId && (
         <div className="request-form__retry">
-          <button type="button" onClick={refreshOrder}>
+          <button className="customer-action--secondary" type="button" onClick={refreshOrder}>
             Consultar estado de la orden
           </button>
           {orderStatus && (

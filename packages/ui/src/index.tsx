@@ -19,7 +19,9 @@ export function ProductShell({ audience, title, currentPath, children }: Product
       ? "/admin"
       : currentPath.startsWith("/admin/technicians")
         ? "/admin/technicians"
-        : "/admin/requests";
+        : currentPath.startsWith("/admin/incidents")
+          ? "/admin/incidents"
+          : "/admin/requests";
   const [isNavigationOpen, setIsNavigationOpen] = useState(false);
   const navigationToggleRef = useRef<HTMLButtonElement>(null);
   const navigationRef = useRef<HTMLElement>(null);
@@ -116,6 +118,14 @@ export function ProductShell({ audience, title, currentPath, children }: Product
               onClick={closeNavigation}
             >
               Solicitudes
+            </a>
+            <a
+              className={`product-shell__nav-link${activeAdminPath === "/admin/incidents" ? " product-shell__nav-link--active" : ""}`}
+              href="/admin/incidents"
+              aria-current={activeAdminPath === "/admin/incidents" ? "page" : undefined}
+              onClick={closeNavigation}
+            >
+              Incidencias
             </a>
           </nav>
           <p className="product-shell__sidebar-note">

@@ -115,7 +115,12 @@ export function CustomerRequests() {
     <section id="requests" className="customer-requests" aria-label="Mis solicitudes">
       <div className="customer-requests__header">
         <h2>Mis solicitudes</h2>
-        <button type="button" onClick={() => void load()} disabled={loading}>
+        <button
+          className="customer-action customer-action--secondary"
+          type="button"
+          onClick={() => void load()}
+          disabled={loading}
+        >
           {loading ? "Actualizando…" : "Actualizar"}
         </button>
       </div>
@@ -389,7 +394,11 @@ function Aftercare({ requestId, refreshKey }: { requestId: string; refreshKey: n
                 )}
               </label>
             )}
-            <button type="submit" disabled={submitting !== null}>
+            <button
+              className="customer-action customer-action--primary"
+              type="submit"
+              disabled={submitting !== null}
+            >
               {submitting === "rating" ? "Registrando…" : "Registrar calificación"}
             </button>
           </fieldset>
@@ -419,7 +428,11 @@ function Aftercare({ requestId, refreshKey }: { requestId: string; refreshKey: n
               ))}
             </select>
           </label>
-          <button type="submit" disabled={submitting !== null}>
+          <button
+            className="customer-action customer-action--secondary"
+            type="submit"
+            disabled={submitting !== null}
+          >
             {submitting === "incident" ? "Abriendo…" : "Abrir incidencia"}
           </button>
         </fieldset>
