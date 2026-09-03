@@ -66,10 +66,15 @@ test("[notifications] sólo el worker reclama outbox y clasifica reintentos con 
   assert.match(worker, /ON CONFLICT \("sourceEventId", "recipientProfileId"\) DO NOTHING/);
 });
 
-test("[notifications] la UI consume cursores y refleja el marcado antes de navegar", async () => {
+test("[notifications] la UI consume cursores y refleja el marcado sin abandonar la vista", async () => {
   const ui = await readFile(path.join(root, "apps/customer-web/app/notifications.tsx"), "utf8");
   assert.match(ui, /nextCursor/);
   assert.match(ui, /Cargar más/);
   assert.match(ui, /items\.map\(\(notice\).*updated/);
-  assert.match(ui, /\/api\/requests\/\$\{encodeURIComponent\(item\.target\.requestId\)\}\/order/);
+  assert.doesNotMatch(ui, /window\.location\.assign/);
+  assert.doesNotMatch(
+    ui,
+    /\/api\/requests\/\$\{encodeURIComponent\(item\.target\.requestId\)\}\/order/,
+  );
+  assert.match(ui, /notifications__item--unread/);
 });
