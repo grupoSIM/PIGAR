@@ -158,7 +158,7 @@ test("ADMIN registra la resolución y crea el cargo congelado", async ({ page })
   await expect(
     page.getByText("Resolución registrada. El cliente puede iniciar el pago."),
   ).toBeVisible();
-  await expect(page.getByText(/Orden: PENDIENTE_PAGO/)).toBeVisible();
+  await expect(page.getByText(/Orden: Pago pendiente/)).toBeVisible();
   expect(resolutionBody).toEqual({
     outcome: "RESUELTO_EN_VISITA",
     summary: "Trabajo sintético finalizado",
@@ -232,9 +232,9 @@ test("ADMIN inicia triage y cierra una incidencia estructurada", async ({ page }
   await expect.poll(() => incidentListUrls.at(-1) ?? "").toContain("type=TRABAJO_INCOMPLETO");
   const incidentRegion = page.getByRole("region", { name: "Bandeja de incidencias de postventa" });
   await page.getByRole("button", { name: "Iniciar triage" }).click();
-  await expect(incidentRegion.getByText("EN_TRIAGE", { exact: true }).last()).toBeVisible();
+  await expect(incidentRegion.getByText("En revisión", { exact: true }).last()).toBeVisible();
   await page.getByRole("button", { name: "Cerrar incidencia" }).click();
-  await expect(incidentRegion.getByText("CERRADA", { exact: true }).last()).toBeVisible();
+  await expect(incidentRegion.getByText("Cerrada", { exact: true }).last()).toBeVisible();
   await expect(
     incidentRegion.getByRole("list").filter({ hasText: "CERRADA" }).last(),
   ).toContainText("2026");

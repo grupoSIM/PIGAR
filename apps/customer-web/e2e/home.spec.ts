@@ -95,7 +95,7 @@ test("CLIENT consulta estado e historial seguro de su orden", async ({ page }) =
     page.locator("#requests").getByRole("heading", { name: "Mis solicitudes" }),
   ).toBeVisible();
   await expect(page.getByText(/Técnico asignado: Técnico sintético/)).toBeVisible();
-  await page.getByLabel("Oferta vigente").selectOption("00000000-0000-4000-8000-000000000101");
+  await page.getByRole("button", { name: /Visita Simple/ }).click();
   await page.getByLabel("Descripción del problema").fill("Pérdida sintética");
   await page.getByLabel("Calle", { exact: true }).fill("Calle sintética");
   await page.getByLabel("Número").fill("123");
@@ -200,13 +200,13 @@ test("CLIENT ve pagos pendiente y rechazado y puede reintentar sin adelantar la 
     route.fulfill({ json: { state: "CREATED" } }),
   );
   await page.goto("/requests");
-  await expect(page.getByText("Estado del pago: PENDIENTE")).toBeVisible();
-  await expect(page.getByText("Estado del pago: RECHAZADO")).toBeVisible();
+  await expect(page.getByText("Estado del pago: Pago pendiente")).toBeVisible();
+  await expect(page.getByText("Estado del pago: Pago rechazado")).toBeVisible();
   await page.getByRole("button", { name: "Reintentar pago" }).click();
   await expect(
     page.getByText("Estamos verificando el pago. No se generó un enlace seguro disponible."),
   ).toBeVisible();
-  await expect(page.getByText(/PENDIENTE_PAGO/).first()).toBeVisible();
+  await expect(page.getByText("Pago pendiente").first()).toBeVisible();
 });
 
 test("CLIENT conforma sólo después de un pago aprobado", async ({ page }) => {
@@ -334,11 +334,11 @@ test("CLIENT registra una calificación y una incidencia estructurada de una ord
   await expect(page.getByText(/no puede editarse/)).toBeVisible();
   await page.getByLabel("Tipo").selectOption("TRABAJO_INCOMPLETO");
   await page.getByRole("button", { name: "Abrir incidencia" }).click();
-  await expect(page.getByText("TRABAJO INCOMPLETO — ABIERTA")).toBeVisible();
+  await expect(page.getByText("Trabajo incompleto — Abierta")).toBeVisible();
   await expect(page.getByRole("list", { name: "Historial de incidencias" })).toContainText("2026");
   incidentStatus = "EN_TRIAGE";
   await page.getByRole("button", { name: "Actualizar" }).click();
-  await expect(page.getByText("TRABAJO INCOMPLETO — EN_TRIAGE")).toBeVisible();
+  await expect(page.getByText("Trabajo incompleto — En revisión")).toBeVisible();
 });
 
 function customerPaymentRequest(id: string, state: string, version: number) {
