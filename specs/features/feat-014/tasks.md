@@ -30,3 +30,8 @@ bloqueadas hasta aprobación explícita de la especificación.
 - [x] TASK-014-016 Obtener `approvals.specification.status: approved` antes de TASK-014-005. Aprobada por el usuario el 2026-09-03.
 - [x] TASK-014-017 Obtener revisión independiente para `publication_review` después de implementar/verificar. PASS registrado el 2026-09-03.
 - [x] TASK-014-018 Obtener autorización explícita antes de commit, push, PR, despliegue o publicación. Autorización del usuario para publicar en staging y publicación verificada en CI 33762658191 el 2026-09-03.
+
+## Correcciones posteriores a la revisión de staging
+
+- [x] TASK-014-019 `[REQ-014-003][REQ-014-005][REQ-014-006][AC-014-003][AC-014-006][AC-014-007]` Corregir navegación ADMIN visible, formulario CLIENT de una sola pantalla, notificaciones sin redirección y presentación de estados sin códigos internos ni conectores visuales.
+- [x] TASK-014-020 `[NFR-014-001][NFR-014-004][AC-014-011]` Verificar las correcciones con Prettier, ESLint, TypeScript y builds de producción de ambos frontends.

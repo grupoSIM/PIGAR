@@ -42,6 +42,34 @@ type AftercareSupport = {
   incidents: AftercareIncident[];
 };
 
+const STATUS_LABELS: Record<string, string> = {
+  ABIERTA: "Abierta",
+  EN_TRIAGE: "En revisión",
+  CERRADA: "Cerrada",
+  TECNICO_ASIGNADO: "Técnico asignado",
+  EN_CAMINO: "Técnico en camino",
+  EN_ATENCION: "Atención en curso",
+  TRABAJO_FINALIZADO: "Trabajo finalizado",
+  PENDIENTE_PAGO: "Pago pendiente",
+  PENDIENTE_CONFORMIDAD: "Pendiente de conformidad",
+  CANCELADA: "Solicitud cancelada",
+  ACTIVE: "Activo",
+  INACTIVE: "Inactivo",
+};
+const INCIDENT_TYPE_LABELS: Record<string, string> = {
+  RESULTADO_NO_ESPERADO: "Resultado no esperado",
+  PROBLEMA_REAPARECIO: "El problema reapareció",
+  TRABAJO_INCOMPLETO: "Trabajo incompleto",
+  DANIO_REPORTADO: "Daño reportado",
+  CONSULTA_SOBRE_COBRO: "Consulta sobre cobro",
+};
+function statusLabel(value: string): string {
+  const label = STATUS_LABELS[value] ?? INCIDENT_TYPE_LABELS[value];
+  if (label) return label;
+  const humanized = value.replaceAll("_", " ").toLocaleLowerCase("es-AR");
+  return humanized.charAt(0).toLocaleUpperCase("es-AR") + humanized.slice(1);
+}
+
 export function OperationalRequests({
   mediaDeliveryOrigin = "",
   view = "all",
@@ -283,9 +311,9 @@ export function OperationalRequests({
                 onChange={(event) => setIncidentStatusFilter(event.target.value)}
               >
                 <option value="">Todos los estados</option>
-                <option value="ABIERTA">ABIERTA</option>
-                <option value="EN_TRIAGE">EN_TRIAGE</option>
-                <option value="CERRADA">CERRADA</option>
+                <option value="ABIERTA">Abierta</option>
+                <option value="EN_TRIAGE">En revisión</option>
+                <option value="CERRADA">Cerrada</option>
               </select>
             </label>{" "}
             <label>
@@ -296,11 +324,11 @@ export function OperationalRequests({
                 onChange={(event) => setIncidentTypeFilter(event.target.value)}
               >
                 <option value="">Todos los tipos</option>
-                <option value="RESULTADO_NO_ESPERADO">RESULTADO_NO_ESPERADO</option>
-                <option value="PROBLEMA_REAPARECIO">PROBLEMA_REAPARECIO</option>
-                <option value="TRABAJO_INCOMPLETO">TRABAJO_INCOMPLETO</option>
-                <option value="DANIO_REPORTADO">DANIO_REPORTADO</option>
-                <option value="CONSULTA_SOBRE_COBRO">CONSULTA_SOBRE_COBRO</option>
+                <option value="RESULTADO_NO_ESPERADO">Resultado no esperado</option>
+                <option value="PROBLEMA_REAPARECIO">El problema reapareció</option>
+                <option value="TRABAJO_INCOMPLETO">Trabajo incompleto</option>
+                <option value="DANIO_REPORTADO">Daño reportado</option>
+                <option value="CONSULTA_SOBRE_COBRO">Consulta sobre cobro</option>
               </select>
             </label>
           </div>
@@ -318,7 +346,7 @@ export function OperationalRequests({
             <ul>
               {aftercareIncidents.map((incident) => (
                 <li key={incident.id}>
-                  {incident.type.replaceAll("_", " ")} — <strong>{incident.status}</strong>
+                  {statusLabel(incident.type)} — <strong>{statusLabel(incident.status)}</strong>
                   {incident.status === "ABIERTA" && (
                     <button
                       type="button"
@@ -340,7 +368,8 @@ export function OperationalRequests({
                   <ul>
                     {incident.history.map((entry) => (
                       <li key={`${entry.action}-${entry.createdAt}`}>
-                        {entry.toStatus} — {new Date(entry.createdAt).toLocaleString("es-AR")}
+                        {statusLabel(entry.toStatus)} —{" "}
+                        {new Date(entry.createdAt).toLocaleString("es-AR")}
                       </li>
                     ))}
                   </ul>
@@ -376,7 +405,7 @@ export function OperationalRequests({
               <ul>
                 {technicians.map((technician) => (
                   <li key={technician.id}>
-                    {technician.fullName} — {technician.phone} — {technician.status}
+                    {technician.fullName} — {technician.phone} — {statusLabel(technician.status)}
                     <button type="button" onClick={() => void setTechnicianStatus(technician)}>
                       {technician.status === "ACTIVE" ? "Desactivar" : "Activar"}
                     </button>
@@ -485,7 +514,8 @@ export function OperationalRequests({
                         return (
                           <div key={order.id} className="admin-requests__order-actions">
                             <p>
-                              <strong>Orden:</strong> {order.state} — {order.technician?.fullName}
+                              <strong>Orden:</strong> {statusLabel(order.state)} —{" "}
+                              {order.technician?.fullName}
                             </p>
                             {order.state === "CERRADA" && (
                               <>
@@ -516,7 +546,8 @@ export function OperationalRequests({
                                       <ul>
                                         {aftercare.incidents.map((incident) => (
                                           <li key={incident.id}>
-                                            {incident.type.replaceAll("_", " ")} — {incident.status}
+                                            {statusLabel(incident.type)} —{" "}
+                                            {statusLabel(incident.status)}
                                           </li>
                                         ))}
                                       </ul>

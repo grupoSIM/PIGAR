@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { formatOrderState } from "./status-labels";
 
 type Offer = {
   category: { id: string; name: string; scope: string };
@@ -376,8 +377,8 @@ export function RequestForm({ mapsApiKey }: { mapsApiKey?: string | undefined })
     };
     setOrderStatus({
       summary: order.technician
-        ? `${order.state} — técnico asignado: ${order.technician.fullName}`
-        : order.state,
+        ? `${formatOrderState(order.state)} — técnico asignado: ${order.technician.fullName}`
+        : formatOrderState(order.state),
       history: order.history,
     });
   }
@@ -387,26 +388,11 @@ export function RequestForm({ mapsApiKey }: { mapsApiKey?: string | undefined })
       <div className="request-form__topbar">
         <div>
           <span className="request-form__kicker">Nueva solicitud</span>
-          <p>Te acompañamos en cada paso.</p>
+          <p>Completá los datos en una sola pantalla.</p>
         </div>
         <span className="request-form__secure">Proceso seguro</span>
       </div>
-      <ol className="request-form__stepper" aria-label="Pasos para crear una solicitud">
-        <li className="request-form__stepper-item--active">
-          <span>1</span>
-          <strong>Servicio</strong>
-        </li>
-        <li>
-          <span>2</span>
-          <strong>Domicilio</strong>
-        </li>
-        <li>
-          <span>3</span>
-          <strong>Evidencia</strong>
-        </li>
-      </ol>
       <div className="request-form__heading">
-        <span>1</span>
         <div>
           <h2>Contanos qué necesitás</h2>
           <p>La visita se confirma con la oferta vigente.</p>
@@ -417,6 +403,7 @@ export function RequestForm({ mapsApiKey }: { mapsApiKey?: string | undefined })
           {offers.map((offer) => (
             <button
               key={offer.category.id}
+              aria-pressed={selectedOfferId === offer.category.id}
               className={selectedOfferId === offer.category.id ? "is-selected" : ""}
               type="button"
               onClick={() => setSelectedOfferId(offer.category.id)}
@@ -430,23 +417,9 @@ export function RequestForm({ mapsApiKey }: { mapsApiKey?: string | undefined })
           ))}
         </div>
       )}
-      <label className="request-form__field request-form__field--wide">
-        Oferta vigente
-        <select
-          value={selectedOfferId}
-          onChange={(event) => setSelectedOfferId(event.target.value)}
-          required
-        >
-          <option value="">Seleccioná una oferta</option>
-          {offers.map((offer) => (
-            <option key={offer.category.id} value={offer.category.id}>
-              {offer.category.name} — {offer.currency} {offer.price}
-            </option>
-          ))}
-        </select>
-      </label>
       {offers.find((offer) => offer.category.id === selectedOfferId) && (
         <p className="request-form__offer">
+          Oferta vigente:{" "}
           {offers.find((offer) => offer.category.id === selectedOfferId)?.category.scope}
         </p>
       )}
@@ -461,7 +434,6 @@ export function RequestForm({ mapsApiKey }: { mapsApiKey?: string | undefined })
       </label>
 
       <div className="request-form__heading">
-        <span>2</span>
         <div>
           <h2>Elegí el domicilio</h2>
           <p>Buscá una dirección o mové el pin. También podés ingresarlo manualmente.</p>
@@ -502,7 +474,6 @@ export function RequestForm({ mapsApiKey }: { mapsApiKey?: string | undefined })
       <input name="normalizedAddress" type="hidden" />
 
       <div className="request-form__heading">
-        <span>3</span>
         <div>
           <h2>Sumá evidencia</h2>
           <p>Hasta 5 imágenes (10 MB cada una) y 1 video MP4 (50 MB).</p>
@@ -559,7 +530,8 @@ export function RequestForm({ mapsApiKey }: { mapsApiKey?: string | undefined })
                 <ul>
                   {orderStatus.history.map((item) => (
                     <li key={`${item.action}-${item.occurredAt}`}>
-                      {item.toState} — {new Date(item.occurredAt).toLocaleString("es-AR")}
+                      {formatOrderState(item.toState)} —{" "}
+                      {new Date(item.occurredAt).toLocaleString("es-AR")}
                     </li>
                   ))}
                 </ul>

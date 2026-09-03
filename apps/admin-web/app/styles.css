@@ -745,44 +745,31 @@ a {
 }
 @media (min-width: 1024px) and (max-width: 1439px) {
   .product-shell {
-    grid-template-columns: 72px minmax(0, 1fr);
+    grid-template-columns: 220px minmax(0, 1fr);
   }
   .product-shell__sidebar {
-    align-items: center;
-    padding-inline: 12px;
+    align-items: stretch;
+    padding-inline: 16px;
   }
   .product-shell__brand strong,
-  .product-shell__role,
-  .product-shell__sidebar-note {
-    display: none;
+  .product-shell__role {
+    display: inline;
   }
   .product-shell__nav-link {
-    width: 48px;
-    font-size: 0;
-  }
-  .product-shell__brand {
-    width: 48px;
-    justify-content: center;
+    width: auto;
+    font-size: 0.92rem;
   }
   .product-shell__nav {
-    width: 48px;
+    width: auto;
   }
   .product-shell__nav-link {
-    padding: 0;
-  }
-  .product-shell__nav-link::after {
-    width: 20px;
-    height: 20px;
-    margin: auto;
-    border: 2px solid currentColor;
-    border-radius: 4px;
-    content: "";
+    padding: 11px 12px;
   }
   .product-shell__nav-link--active::before {
-    left: -12px;
+    left: -16px;
   }
   .product-shell__content {
-    width: min(100% - 48px, 1500px);
+    width: min(100% - 40px, 1500px);
   }
 }
 @media (max-width: 1023px) {

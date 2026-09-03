@@ -1,6 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import {
+  formatIncidentStatus,
+  formatIncidentType,
+  formatOrderState,
+  formatPaymentStatus,
+} from "./status-labels";
 
 type BillingView = {
   resolution: { summary: string };
@@ -144,7 +150,7 @@ export function CustomerRequests() {
                 </p>
               </div>
               <span className="customer-status-badge">
-                {item.order?.state ?? "Pendiente de asignación"}
+                {item.order ? formatOrderState(item.order.state) : "Pendiente de asignación"}
               </span>
             </div>
             {item.order?.technician && (
@@ -164,14 +170,15 @@ export function CustomerRequests() {
                 <p>
                   Cargo: {item.billing.charge.money.currency} {item.billing.charge.money.amount}
                 </p>
-                <p>Estado del pago: {item.billing.payment.status}</p>
+                <p>Estado del pago: {formatPaymentStatus(item.billing.payment.status)}</p>
               </div>
             )}
             {item.order && (
               <ol className="customer-timeline" aria-label="Historial de la orden">
                 {item.order.history.map((entry) => (
                   <li key={`${entry.action}-${entry.occurredAt}`}>
-                    {entry.toState} — {new Date(entry.occurredAt).toLocaleString("es-AR")}
+                    {formatOrderState(entry.toState)} —{" "}
+                    {new Date(entry.occurredAt).toLocaleString("es-AR")}
                   </li>
                 ))}
               </ol>
@@ -421,11 +428,12 @@ function Aftercare({ requestId, refreshKey }: { requestId: string; refreshKey: n
         <ul aria-label="Historial de incidencias">
           {incidents.map((incident) => (
             <li key={incident.id}>
-              {incident.type.replaceAll("_", " ")} — {incident.status}
+              {formatIncidentType(incident.type)} — {formatIncidentStatus(incident.status)}
               <ul>
                 {incident.history.map((entry) => (
                   <li key={`${entry.action}-${entry.createdAt}`}>
-                    {entry.toStatus} — {new Date(entry.createdAt).toLocaleString("es-AR")}
+                    {formatIncidentStatus(entry.toStatus)} —{" "}
+                    {new Date(entry.createdAt).toLocaleString("es-AR")}
                   </li>
                 ))}
               </ul>

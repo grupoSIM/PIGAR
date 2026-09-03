@@ -49,14 +49,6 @@ export function Notifications() {
             },
       );
     }
-    const response = await fetch(
-      `/api/requests/${encodeURIComponent(item.target.requestId)}/order`,
-    );
-    if (!response.ok) {
-      setError(true);
-      return;
-    }
-    window.location.assign(`/?request=${encodeURIComponent(item.target.requestId)}`);
   }
   return (
     <section className="notifications" aria-label="Notificaciones">
@@ -75,7 +67,14 @@ export function Notifications() {
           {page?.items.length === 0 && <p>No tenés notificaciones todavía.</p>}
           <ul>
             {page?.items.map((item) => (
-              <li key={item.id}>
+              <li
+                key={item.id}
+                className={
+                  item.readAt
+                    ? "notifications__item"
+                    : "notifications__item notifications__item--unread"
+                }
+              >
                 <button
                   type="button"
                   onClick={() => void visit(item)}
