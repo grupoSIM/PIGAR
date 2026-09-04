@@ -1,7 +1,7 @@
 # Plan de pruebas — feat-014: Alineación visual integral con Stitch
 
-- Estado: `verified`; ejecución técnica y revisión independiente PASS completadas
-  el 2026-09-03; habilita `publication_review`.
+- Estado: `done`; ejecución técnica, revisión independiente PASS y publicación en
+  staging completadas el 2026-09-03.
 - Fixtures: identidades, domicilios, teléfonos, IDs, pagos y adjuntos
   exclusivamente sintéticos. Las capturas no incluirán tokens, URLs firmadas,
   rutas internas ni datos reales.

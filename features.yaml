@@ -52,7 +52,7 @@ features:
     status: done
     priority: should
     depends_on: [feat-013, feat-007, feat-009, feat-010]
-    note: Especificación y DEC-014-001 a DEC-014-005 aprobadas por el usuario el 2026-09-03. Implementación, verificación técnica, revisión independiente PASS y publicación en staging completadas en el SHA dcf71a8a72ea521826ed87139d31495cae041aee mediante CI 33762658191. Conserva reglas, permisos, estados, contratos y flujos.
+    note: Especificación y DEC-014-001 a DEC-014-005 aprobadas por el usuario el 2026-09-03. Implementación, verificación técnica, revisión independiente PASS y publicación en staging completadas en el SHA 14b11ad656dbda4194820e6639cea2082d563e1b mediante CI 33790815734. Conserva reglas, permisos, estados, contratos y flujos.
 
   - id: feat-006
     name: Flujo móvil del operario para viaje, arribo y diagnóstico

@@ -1,7 +1,7 @@
 project: PIGAR
-active_feature: feat-014
+active_feature: null
 phase: done
-updated_at: 2026-09-03T10:49:22-03:00
+updated_at: 2026-09-03T22:46:32-03:00
 
 blockers: []
 
@@ -62,7 +62,7 @@ approvals:
     status: approved
     approved_by: usuario
     approved_at: 2026-09-03T10:49:22-03:00
-    note: El usuario autorizó publicar en staging. Commits 32f116a y dcf71a8 fueron publicados en staging; CI 33762658191 pasó y publicó las imágenes app/nginx en GHCR.
+    note: El usuario autorizó publicar en staging. El SHA 14b11ad656dbda4194820e6639cea2082d563e1b pasó CI 33790815734 y publicó las imágenes app/nginx en GHCR.
 
 quality:
   status: passed
@@ -76,4 +76,5 @@ notes:
   - Los bloqueos globales de producción, incluida la garantía diferida y el Webhook de Mercado Pago, permanecen vigentes y fuera de feat-014.
   - feat-014 transitó a implementation el 2026-09-03 después de verificar features.yaml, aprobaciones de especificación y DEC-014-001 a DEC-014-005 aceptadas.
   - feat-014 transitó a publication_review el 2026-09-03 después de obtener PASS independiente y luego a done tras publicar en staging.
-  - La calidad remota y las imágenes de staging del SHA dcf71a8a72ea521826ed87139d31495cae041aee fueron validadas por el workflow 33762658191.
+  - La calidad remota y las imágenes de staging del SHA 14b11ad656dbda4194820e6639cea2082d563e1b fueron validadas por el workflow 33790815734.
+  - feat-014 queda cerrada en `staging`; `main` conserva su estado independiente y no se realizó merge productivo.

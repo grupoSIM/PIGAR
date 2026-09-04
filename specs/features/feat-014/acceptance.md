@@ -1,8 +1,7 @@
 # Aceptación — feat-014: Alineación visual integral con Stitch
 
-- Estado: `verified`; aprobación de especificación del usuario, verificación
-  técnica y revisión independiente PASS completadas el 2026-09-03; pendiente
-  únicamente la aprobación humana de publicación.
+- Estado: `done`; aprobación de especificación del usuario, verificación técnica,
+  revisión independiente PASS y publicación en staging completadas el 2026-09-03.
 - Regla: una comparación visual no reemplaza la prueba funcional ni de
   accesibilidad. Toda diferencia aceptada debe figurar en `design.md`.
 

@@ -1,12 +1,12 @@
 # Requisitos — feat-014: Alineación visual integral con Stitch
 
-- Estado: `approved`; especificación y DEC-014-001 a DEC-014-005 aprobadas por el usuario el 2026-09-03.
+- Estado: `done`; especificación y DEC-014-001 a DEC-014-005 aprobadas por el usuario el 2026-09-03; publicación en staging verificada.
 - Inicio: 2026-09-03.
 - Dependencias: `feat-013`, `feat-007`, `feat-009` y `feat-010` cerradas.
 - Fuente visual: todos los `screen.png`, `code.html` y `DESIGN.md` bajo
   `stitch/aplicacion_cliente/` y `stitch/backoffice/`.
-- Puerta: la aprobación habilita implementación. No habilita commit, push, PR,
-  despliegue ni publicación.
+- Puerta: la publicación en staging quedó autorizada y verificada; producción
+  permanece fuera de alcance.
 
 ## Objetivo y alcance
 

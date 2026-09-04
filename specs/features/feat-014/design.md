@@ -1,6 +1,6 @@
 # Diseño — feat-014: Alineación visual integral con Stitch
 
-- Estado: `approved`; aprobado por el usuario el 2026-09-03 para implementación, no publicación.
+- Estado: `done`; aprobado por el usuario el 2026-09-03 e integrado en staging.
 - Autoridad visual: `screen.png` y `DESIGN.md`; `code.html` sólo documenta
   estructura aparente y nunca se ejecuta ni copia.
 
