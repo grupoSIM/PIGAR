@@ -347,6 +347,18 @@ function Aftercare({ requestId, refreshKey }: { requestId: string; refreshKey: n
         >
           <fieldset>
             <legend>Calificá el trabajo</legend>
+            <div className="stitch-stars-visual" aria-hidden="true" style={{ display: "flex", gap: "8px", fontSize: "32px", color: "#fec330", margin: "8px 0" }}>
+              {[1, 2, 3, 4, 5].map((s) => (
+                <span
+                  key={s}
+                  className="material-symbols-outlined"
+                  style={{ fontVariationSettings: `'FILL' ${s <= Number(stars) ? 1 : 0}, 'wght' 600`, cursor: "pointer", fontSize: "32px" }}
+                  onClick={() => setStars(String(s))}
+                >
+                  star
+                </span>
+              ))}
+            </div>
             <label>
               Estrellas{" "}
               <select value={stars} onChange={(event) => setStars(event.target.value)}>

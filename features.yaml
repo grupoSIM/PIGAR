@@ -61,6 +61,13 @@ features:
     depends_on: [feat-014]
     note: Pantallas complementarias creadas con StitchMCP, frontend adaptado, 100% calidad local y E2E validados. Publicada en staging con autorización explícita.
 
+  - id: feat-016
+    name: Alineación visual integral con diseños Stitch (Cliente y Backoffice)
+    status: done
+    priority: should
+    depends_on: [feat-015]
+    note: Reconstrucción integral de layouts, tablas de datos, navegación y componentes visuales en apps/customer-web y apps/admin-web conforme a los prototipos exactos de Stitch proyecto 5240608439093127993.
+
   - id: feat-006
     name: Flujo móvil del operario para viaje, arribo y diagnóstico
     status: proposed

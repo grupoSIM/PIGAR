@@ -1,3 +1,6 @@
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap");
+
 @font-face {
   font-family: "Hanken Grotesk";
   src: url("/fonts/HankenGrotesk-400.ttf") format("truetype");
@@ -951,3 +954,705 @@ a {
     animation-duration: 0.01ms !important;
   }
 }
+
+/* ==========================================================================
+   Stitch UI - Backoffice Table, Bento, TopBar and Components
+   ========================================================================== */
+
+.product-shell__topbar-admin {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 16px;
+}
+.product-shell__searchbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f2f4f6;
+  border-radius: 8px;
+  padding: 6px 14px;
+  max-width: 440px;
+  width: 100%;
+}
+.product-shell__search-icon {
+  color: #58636a;
+  font-size: 20px;
+}
+.product-shell__search-input {
+  border: none;
+  background: transparent;
+  outline: none;
+  width: 100%;
+  font-size: 0.88rem;
+  color: #191c1e;
+}
+.product-shell__topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.product-shell__icon-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid #d5dde2;
+  background: #fff;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  color: #414751;
+}
+.product-shell__topbar-divider {
+  width: 1px;
+  height: 28px;
+  background: #d5dde2;
+  margin: 0 4px;
+}
+.product-shell__new-order-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #003f74;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  text-decoration: none;
+}
+.product-shell__new-order-btn:hover {
+  opacity: 0.95;
+}
+
+.product-shell__brand-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.product-shell__brand-logo {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 8px;
+  color: #fff;
+  background: #003f74;
+  font-weight: 900;
+}
+.product-shell__nav-icon {
+  font-size: 20px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+.product-shell__sidebar-footer {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.product-shell__profile-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #f8f9fb;
+  border: 1px solid #e0e3e5;
+}
+.product-shell__profile-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid #d5dde2;
+  flex-shrink: 0;
+}
+.product-shell__profile-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.product-shell__profile-name {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #191c1e;
+  display: block;
+}
+.product-shell__profile-sub {
+  font-size: 0.75rem;
+  color: #58636a;
+  display: block;
+}
+
+/* Bento Quick Stats */
+.admin-bento-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.admin-bento-card {
+  background: #fff;
+  border: 1px solid #d5dde2;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.admin-bento-card--primary {
+  background: #003f74;
+  color: #fff;
+  border-color: #003f74;
+}
+.admin-bento-card__label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: #58636a;
+}
+.admin-bento-card--primary .admin-bento-card__label {
+  color: rgba(255, 255, 255, 0.8);
+}
+.admin-bento-card__content {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.admin-bento-card__value {
+  font-size: 2.2rem;
+  font-weight: 800;
+  line-height: 1;
+}
+.admin-bento-card__trend {
+  font-size: 0.82rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+.text-primary {
+  color: #003f74;
+}
+.text-secondary {
+  color: #00639a;
+}
+.text-danger {
+  color: #ba1a1a;
+}
+.text-success {
+  color: #176b38;
+}
+
+/* Filters Bar */
+.admin-filters-bar {
+  background: #fff;
+  border: 1px solid #d5dde2;
+  border-radius: 12px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.admin-filters-bar__group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.admin-filter-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f2f4f6;
+  border: 1px solid #d5dde2;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #191c1e;
+}
+.admin-filter-pill select {
+  background: transparent;
+  border: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  outline: none;
+}
+.admin-filters-bar__clear {
+  background: none;
+  border: none;
+  color: #003f74;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.admin-filters-bar__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Data Table */
+.admin-table-container {
+  background: #fff;
+  border: 1px solid #d5dde2;
+  border-radius: 12px;
+  overflow-x: auto;
+  margin-bottom: 24px;
+}
+.admin-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+.admin-data-table thead tr {
+  background: #f8f9fb;
+  border-bottom: 1px solid #d5dde2;
+}
+.admin-data-table th {
+  padding: 14px 18px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #58636a;
+  text-transform: uppercase;
+}
+.admin-data-table td {
+  padding: 16px 18px;
+  border-bottom: 1px solid #eef2f5;
+  vertical-align: middle;
+}
+.admin-data-table__row:hover {
+  background: #f8fbfd;
+}
+.admin-data-table__id {
+  font-family: "JetBrains Mono", monospace;
+  font-weight: 700;
+  color: #003f74;
+  font-size: 0.88rem;
+  white-space: nowrap;
+}
+.admin-client-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.admin-client-name {
+  font-size: 0.92rem;
+  color: #191c1e;
+}
+.admin-client-address {
+  font-size: 0.8rem;
+  color: #58636a;
+}
+.admin-client-media {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+.admin-media-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.75rem;
+  background: #e3f2fd;
+  color: #003f74;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 600;
+}
+.admin-category-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #191c1e;
+  white-space: nowrap;
+}
+.admin-tech-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.admin-tech-chip__avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #cfe6f2;
+  color: #003f74;
+  font-size: 0.72rem;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+.admin-tech-chip__name {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #191c1e;
+}
+.admin-assign-box {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.admin-assign-select {
+  padding: 4px 8px;
+  font-size: 0.82rem;
+  border-radius: 6px;
+  border: 1px solid #8db8d1;
+  background: #fff;
+}
+.admin-status-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.admin-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  width: fit-content;
+}
+.admin-status-pill__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.admin-status-pill--solicitado {
+  background: #ffdad6;
+  color: #ba1a1a;
+}
+.admin-status-pill--solicitado .admin-status-pill__dot {
+  background: #ba1a1a;
+}
+.admin-status-pill--tecnico_asignado {
+  background: #d3e4ff;
+  color: #003f74;
+}
+.admin-status-pill--tecnico_asignado .admin-status-pill__dot {
+  background: #003f74;
+}
+.admin-status-pill--en_camino,
+.admin-status-pill--en_atencion {
+  background: #cee5ff;
+  color: #00639a;
+}
+.admin-status-pill--en_camino .admin-status-pill__dot,
+.admin-status-pill--en_atencion .admin-status-pill__dot {
+  background: #00639a;
+}
+.admin-status-pill--trabajo_finalizado,
+.admin-status-pill--pendiente_pago {
+  background: #ffecb3;
+  color: #8a5a00;
+}
+.admin-status-pill--trabajo_finalizado .admin-status-pill__dot,
+.admin-status-pill--pendiente_pago .admin-status-pill__dot {
+  background: #8a5a00;
+}
+.admin-status-pill--cerrada {
+  background: #d1e7dd;
+  color: #0f5132;
+}
+.admin-status-pill--cerrada .admin-status-pill__dot {
+  background: #0f5132;
+}
+.admin-order-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+.admin-action-btn {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  border: 1px solid #d5dde2;
+  background: #fff;
+  cursor: pointer;
+}
+.admin-action-btn:hover {
+  background: #f2f4f6;
+}
+.admin-action-btn--primary {
+  background: #003f74;
+  color: #fff;
+  border-color: #003f74;
+}
+.admin-aftercare-badge {
+  display: inline-block;
+  font-size: 0.78rem;
+  background: #eef2f5;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-right: 4px;
+}
+
+/* System Recommendation Card */
+.admin-recommendation-card {
+  display: flex;
+  gap: 16px;
+  background: #f0f7ff;
+  border: 1px solid #c0d8f0;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+.admin-recommendation-card__icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: #003f74;
+  color: #fff;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+.admin-recommendation-card__title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #003f74;
+  margin: 0 0 4px;
+}
+.admin-recommendation-card__text {
+  font-size: 0.88rem;
+  color: #414751;
+  margin: 0 0 12px;
+}
+.admin-recommendation-card__buttons {
+  display: flex;
+  gap: 10px;
+}
+.admin-btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+}
+.admin-btn--primary {
+  background: #003f74;
+  color: #fff;
+}
+.admin-btn--ghost {
+  background: transparent;
+  color: #003f74;
+  text-decoration: underline;
+}
+
+/* Pagination */
+.admin-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  font-size: 0.88rem;
+  color: #58636a;
+}
+.admin-pagination__controls {
+  display: flex;
+  gap: 6px;
+}
+.admin-pagination__btn {
+  min-width: 34px;
+  height: 34px;
+  border-radius: 6px;
+  border: 1px solid #d5dde2;
+  background: #fff;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  cursor: pointer;
+}
+.admin-pagination__btn--active {
+  background: #003f74;
+  color: #fff;
+  border-color: #003f74;
+}
+
+/* Stitch Technician Management */
+.admin-requests__technician {
+  background: #fff;
+  border: 1px solid #dbe2e6;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  display: grid;
+  gap: 16px;
+  max-width: 600px;
+}
+.admin-requests__technician h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #003f74;
+  margin: 0;
+}
+.admin-requests__technician label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #3b4850;
+}
+.admin-requests__technician input {
+  padding: 10px 12px;
+  border: 1px solid #c8d2d8;
+  border-radius: 8px;
+  font-size: 0.95rem;
+}
+.admin-requests__technician button[type="submit"] {
+  width: fit-content;
+  padding: 10px 20px;
+  background: #003f74;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.admin-requests__technician button[type="submit"]:hover {
+  background: #002d54;
+}
+
+.admin-requests__technicians-panel {
+  background: #fff;
+  border: 1px solid #dbe2e6;
+  border-radius: 12px;
+  padding: 24px;
+}
+.admin-requests__technicians-panel h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #003f74;
+  margin: 0 0 16px;
+}
+.admin-requests__technicians-panel ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 12px;
+}
+.admin-requests__technicians-panel li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-radius: 10px;
+  background: #f8fafc;
+  border: 1px solid #eef2f5;
+  font-size: 0.92rem;
+  gap: 12px;
+}
+.admin-requests__technicians-panel li button {
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: 1px solid #d5dde2;
+  background: #fff;
+  font-weight: 600;
+  font-size: 0.82rem;
+  cursor: pointer;
+  color: #003f74;
+}
+
+/* Incidents Panel Stitch Styling */
+.admin-requests__incident-panel {
+  background: #fff;
+  border: 1px solid #dbe2e6;
+  border-radius: 12px;
+  padding: 24px;
+  margin-top: 24px;
+}
+.admin-requests__incident-panel h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #003f74;
+  margin: 0 0 18px;
+}
+.admin-requests__metrics-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.admin-requests__metric-card {
+  padding: 16px 20px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+}
+.admin-requests__metric-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #003f74;
+}
+.admin-requests__metric-label {
+  font-size: 0.8rem;
+  color: #64748b;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.admin-requests__filter-bar {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.admin-requests__filter-bar select {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  font-size: 0.88rem;
+}
+.admin-requests__incident-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 14px;
+}
+.admin-requests__incident-card {
+  padding: 16px 20px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.admin-incident-actions button {
+  padding: 7px 16px;
+  border-radius: 6px;
+  border: none;
+  background: #003f74;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+

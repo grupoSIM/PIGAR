@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap");
+
 @font-face {
   font-family: "Hanken Grotesk";
   src: url("/fonts/HankenGrotesk-400.ttf") format("truetype");
@@ -1039,3 +1041,323 @@ a {
   gap: 12px;
   margin-top: 4px;
 }
+
+/* ==========================================================================
+   Stitch UI - Customer Portal (Mobile First & Modern Components)
+   ========================================================================== */
+
+.product-shell__topbar-customer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+.product-shell__customer-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid #003f74;
+  flex-shrink: 0;
+}
+.product-shell__customer-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.product-shell__bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background: #fff;
+  border-top: 1px solid #d5dde2;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  z-index: 50;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+}
+.product-shell__bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  color: #58636a;
+  text-decoration: none;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 12px;
+}
+.product-shell__bottom-nav-item span.material-symbols-outlined {
+  font-size: 22px;
+}
+.product-shell__bottom-nav-item--active {
+  color: #003f74;
+}
+
+/* Categories Grid */
+.customer-categories-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.customer-category-card {
+  background: #fff;
+  border: 1px solid #d5dde2;
+  border-radius: 14px;
+  padding: 18px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: #191c1e;
+  transition: transform 0.2s;
+}
+.customer-category-card:active {
+  transform: scale(0.97);
+}
+.customer-category-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: #e3f2fd;
+  color: #003f74;
+  display: grid;
+  place-items: center;
+  font-size: 24px;
+}
+.customer-category-name {
+  font-weight: 700;
+  font-size: 0.88rem;
+}
+
+/* Big Stitch CTA */
+.customer-stitch-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  background: #51b2fe;
+  color: #002e4d;
+  padding: 16px;
+  border-radius: 14px;
+  font-weight: 800;
+  font-size: 1.05rem;
+  text-decoration: none;
+  box-shadow: 0 6px 16px rgba(81, 178, 254, 0.35);
+  margin-bottom: 24px;
+  transition: transform 0.2s;
+}
+.customer-stitch-cta:active {
+  transform: scale(0.98);
+}
+
+/* Active Service & Timeline */
+.customer-active-service {
+  background: #fff;
+  border: 1px solid #d5dde2;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+.customer-active-service__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+.customer-active-service__title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #003f74;
+  margin: 0;
+}
+.customer-active-service__desc {
+  font-size: 0.85rem;
+  color: #58636a;
+  margin: 2px 0 0;
+}
+.customer-technician-box {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #f8f9fb;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 16px;
+  border: 1px solid #e0e3e5;
+}
+.customer-technician-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid #003f74;
+  flex-shrink: 0;
+}
+.customer-technician-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.customer-whatsapp-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  background: #25d366;
+  color: #fff;
+  padding: 12px;
+  border-radius: 10px;
+  font-weight: 700;
+  text-decoration: none;
+  margin-top: 10px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+/* Timeline */
+.timeline-step {
+  position: relative;
+  padding-left: 2rem;
+  padding-bottom: 1.4rem;
+}
+.timeline-step::before {
+  content: "";
+  position: absolute;
+  left: 0.45rem;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #c1c7d2;
+}
+.timeline-step:last-child::before {
+  display: none;
+}
+.timeline-dot {
+  position: absolute;
+  left: 0;
+  top: 0.15rem;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: #003f74;
+  border: 2px solid #fff;
+  z-index: 1;
+}
+.timeline-dot.pending {
+  background: #c1c7d2;
+}
+.timeline-step__title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #003f74;
+  margin: 0;
+}
+.timeline-step__time {
+  font-size: 0.78rem;
+  color: #58636a;
+  margin: 2px 0 0;
+}
+
+/* History Card */
+.customer-history-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #e0e3e5;
+  margin-bottom: 10px;
+}
+.customer-history-card__left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.customer-history-card__icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: #f2f4f6;
+  color: #003f74;
+  display: grid;
+  place-items: center;
+}
+
+.customer-technician-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 14px 0;
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 12px;
+}
+
+.customer-technician-avatar img {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.product-shell__bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid #e0e3e5;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 999;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.04);
+}
+
+@media (min-width: 768px) {
+  .product-shell__bottom-nav {
+    display: none;
+  }
+}
+
+.product-shell__bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  text-decoration: none;
+  color: #58636a;
+  font-size: 0.72rem;
+  font-weight: 600;
+  transition: color 0.15s ease;
+}
+
+.product-shell__bottom-nav-item--active,
+.product-shell__bottom-nav-item:hover {
+  color: #003f74;
+}
+
+.product-shell__bottom-nav-item .material-symbols-outlined {
+  font-size: 22px;
+}
+
+@media (max-width: 767px) {
+  .product-shell--customer {
+    padding-bottom: 80px;
+  }
+}
+
+

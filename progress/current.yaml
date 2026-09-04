@@ -1,14 +1,14 @@
 project: PIGAR
-active_feature: null
+active_feature: feat-016
 phase: done
-updated_at: 2026-09-04T00:01:07-03:00
+updated_at: 2026-09-04T14:22:00-03:00
 
 blockers: []
 
 architecture_conditions:
   before_specification_approval:
-    - Conservar reglas, contratos y validaciones de negocio sin alterar APIs.
-    - Diseñar componentes faltantes (Notificaciones, Incidencias) en StitchMCP bajo el sistema PIGAR Utility Core.
+    - Conservar reglas, contratos y validaciones de negocio sin alterar APIs ni esquemas Prisma.
+    - Asegurar total fidelidad visual con los diseños Stitch (tablas, cards bento, navegación y tipografías).
   before_production:
     - Validar con asesoría legal los plazos de retención y borrado.
     - Elegir y aprobar un destino externo de backup cifrado y probar una restauración completa.
@@ -16,41 +16,47 @@ architecture_conditions:
     - Resolver TEST-007-014/AC-007-016 del Webhook automático de Mercado Pago.
 
 risks:
-  - Divergencias de estilo entre pantallas nativas de Stitch y pantallas generadas para funciones complementarias.
-  - Asegurar que los selectores y flujos E2E de Cliente y Administración continúen pasando.
+  - Romper aserciones E2E de Playwright al reestructurar de listas apiladas a tablas de datos y componentes visuales.
+  - Mitigación: preservar roles ARIA, headings, accesibilidad y clases de shell existentes.
 
 decisions:
-  - id: DEC-015-001
+  - id: DEC-016-001
     status: accepted
-    note: Usar StitchMCP con proyecto 5240608439093127993 para generar pantallas complementarias (Notificaciones e Incidencias).
+    note: Reconstruir la vista de órdenes de administración como Data Table completa con Bento stats, barra de filtros y paginador según pantalla 24af4530870a483abb0ca6de047cb0c9 de Stitch.
+  - id: DEC-016-002
+    status: accepted
+    note: Reconstruir el inicio del cliente con tarjeta de seguimiento activo, cuadrícula de categorías y listado histórico con badges según pantalla fc5886f67e6840eaa8e3da358aa4a89b de Stitch.
+  - id: DEC-016-003
+    status: accepted
+    note: Incorporar Google Fonts (Hanken Grotesk, Inter, Material Symbols Outlined) y tokens de color de Stitch en apps/customer-web y apps/admin-web.
 
 approvals:
   architecture:
     status: approved
     approved_by: usuario
     approved_at: 2026-09-03T09:05:42-03:00
-    note: DEC-014-001 a DEC-014-005 aprobadas previamente; DEC-015-001 aceptada.
+    note: Arquitectura base preservada; decisiones visuales documentadas en DEC-016-001..003.
   specification:
     status: approved
     approved_by: usuario
-    approved_at: 2026-09-03T23:32:12-03:00
-    note: El usuario aprobó explícitamente la especificación de feat-015 y ordenó avanzar con /goal hasta la siguiente puerta de publicación.
+    approved_at: 2026-09-04T12:59:00-03:00
+    note: Especificación de feat-016 aprobada explícitamente por el usuario.
   verification:
     status: approved
-    approved_by: reviewer_independiente
-    approved_at: 2026-09-03T23:54:00-03:00
-    note: Revisión independiente PASS registrada. Linter (0 errores), typecheck (0 errores), build de producción (éxito), 17/17 tests E2E de frontends pasando y 52/52 tests de unidad/integración pasando.
+    approved_by: Reviewer (subagent 1fb4adce-2fbd-48ea-996c-5ed700587083)
+    approved_at: 2026-09-04T13:16:35-03:00
+    note: Dictamen APROBADO por revisor independiente de calidad tras auditar suite de tests y fidelidad visual Stitch.
   publication:
     status: approved
     approved_by: usuario
-    approved_at: 2026-09-04T00:01:07-03:00
-    note: El usuario autorizó explícitamente el commit y push a staging.
+    approved_at: 2026-09-04T14:21:41-03:00
+    note: Autorización explícita de publicación y despliegue a staging otorgada por el usuario.
 
 quality:
-  status: passed
+  status: verified
 
 notes:
-  - feat-015 completó diseño Stitch, adaptación frontend, suites E2E/unidad y auditoría visual en navegador.
-  - El usuario autorizó la publicación de feat-015 a staging el 2026-09-04T00:01:07-03:00.
-  - feat-015 queda cerrada en `staging`; `main` conserva su estado independiente y no se realizó merge productivo.
+  - feat-016 iniciada a pedido del usuario tras constatar divergencias visuales en el despliegue de staging frente a los prototipos de Stitch.
+  - El alcance abarca la transformación integral de las pantallas de Cliente (Inicio, Solicitudes, Postventa/Calificación) y Administración (Órdenes, Técnicos, Incidencias).
+
 

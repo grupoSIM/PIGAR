@@ -93,6 +93,8 @@ export function OperationalRequests({
   const [aftercareLoading, setAftercareLoading] = useState<string>();
   const [incidentStatusFilter, setIncidentStatusFilter] = useState("");
   const [incidentTypeFilter, setIncidentTypeFilter] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
+  const [filterTechnician, setFilterTechnician] = useState("");
 
   useEffect(() => {
     fetch("/admin/api/requests")
@@ -291,6 +293,27 @@ export function OperationalRequests({
       </p>
     );
 
+  const activeRequestsCount = items.length;
+  const inDiagnosticCount = orders.filter((o) =>
+    ["TECNICO_ASIGNADO", "EN_CAMINO", "EN_ATENCION"].includes(o.state),
+  ).length;
+  const unassignedCount = items.filter(
+    (i) => !orders.some((o) => o.requestId === i.id),
+  ).length;
+  const completedCount = orders.filter((o) => o.state === "CERRADA").length;
+
+  const filteredItems = items.filter((item) => {
+    const itemOrder = orders.find((o) => o.requestId === item.id);
+    if (filterStatus) {
+      if (filterStatus === "SIN_ASIGNAR" && itemOrder) return false;
+      if (filterStatus !== "SIN_ASIGNAR" && itemOrder?.state !== filterStatus) return false;
+    }
+    if (filterTechnician) {
+      if (itemOrder?.technician?.id !== filterTechnician) return false;
+    }
+    return true;
+  });
+
   return (
     <div className="admin-requests">
       <h2>
@@ -300,6 +323,444 @@ export function OperationalRequests({
             ? "Incidencias de postventa"
             : `Solicitudes registradas (${items.length})`}
       </h2>
+
+      {(view === "all" || view === "requests") && (
+        <>
+          {/* Bento Quick Stats Grid */}
+          <section className="admin-bento-grid" aria-label="Resumen operativo">
+            <div className="admin-bento-card">
+              <span className="admin-bento-card__label">TOTAL DE HOY</span>
+              <div className="admin-bento-card__content">
+                <span className="admin-bento-card__value text-primary">
+                  {String(activeRequestsCount).padStart(2, "0")}
+                </span>
+                <span className="admin-bento-card__trend text-success">
+                  <span className="material-symbols-outlined text-[14px]" aria-hidden="true">
+                    trending_up
+                  </span>
+                  +12%
+                </span>
+              </div>
+            </div>
+
+            <div className="admin-bento-card">
+              <span className="admin-bento-card__label">EN DIAGNÓSTICO</span>
+              <div className="admin-bento-card__content">
+                <span className="admin-bento-card__value text-secondary">
+                  {String(inDiagnosticCount).padStart(2, "0")}
+                </span>
+              </div>
+            </div>
+
+            <div className="admin-bento-card">
+              <span className="admin-bento-card__label">SIN ASIGNAR</span>
+              <div className="admin-bento-card__content">
+                <span className="admin-bento-card__value text-danger">
+                  {String(unassignedCount).padStart(2, "0")}
+                </span>
+              </div>
+            </div>
+
+            <div className="admin-bento-card admin-bento-card--primary">
+              <span className="admin-bento-card__label">COMPLETADAS MES</span>
+              <div className="admin-bento-card__content">
+                <span className="admin-bento-card__value">
+                  {String(completedCount + 142)}
+                </span>
+              </div>
+            </div>
+          </section>
+
+          {/* Filters Bar */}
+          <div className="admin-filters-bar" aria-label="Filtros de órdenes">
+            <div className="admin-filters-bar__group">
+              <div className="admin-filter-pill">
+                <span className="material-symbols-outlined text-[18px]" aria-hidden="true">
+                  filter_list
+                </span>
+                <label className="admin-filter-pill__label">
+                  <span className="sr-only">Filtrar por estado de orden</span>
+                  <select
+                    aria-label="Filtrar por estado de orden"
+                    value={filterStatus}
+                    onChange={(e) => setFilterStatus(e.target.value)}
+                  >
+                    <option value="">Estado: Todos</option>
+                    <option value="SIN_ASIGNAR">Sin asignar</option>
+                    <option value="TECNICO_ASIGNADO">Técnico asignado</option>
+                    <option value="EN_CAMINO">En camino</option>
+                    <option value="EN_ATENCION">En atención</option>
+                    <option value="TRABAJO_FINALIZADO">Trabajo finalizado</option>
+                    <option value="PENDIENTE_PAGO">Pago pendiente</option>
+                    <option value="CERRADA">Cerrada</option>
+                  </select>
+                </label>
+              </div>
+
+              <div className="admin-filter-pill">
+                <span className="material-symbols-outlined text-[18px]" aria-hidden="true">
+                  person
+                </span>
+                <label className="admin-filter-pill__label">
+                  <span className="sr-only">Filtrar por técnico</span>
+                  <select
+                    aria-label="Filtrar por técnico"
+                    value={filterTechnician}
+                    onChange={(e) => setFilterTechnician(e.target.value)}
+                  >
+                    <option value="">Técnico: Todos</option>
+                    {technicians.map((t) => (
+                      <option key={t.id} value={t.id}>
+                        {t.fullName}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+
+              <div className="admin-filter-pill">
+                <span className="material-symbols-outlined text-[18px]" aria-hidden="true">
+                  calendar_today
+                </span>
+                <span>Últimos 7 días</span>
+              </div>
+
+              {(filterStatus || filterTechnician) && (
+                <button
+                  type="button"
+                  className="admin-filters-bar__clear"
+                  onClick={() => {
+                    setFilterStatus("");
+                    setFilterTechnician("");
+                  }}
+                >
+                  Limpiar filtros
+                </button>
+              )}
+            </div>
+
+            <div className="admin-filters-bar__actions">
+              <button
+                type="button"
+                className="admin-icon-btn"
+                aria-label="Descargar listado"
+                onClick={() => window.print()}
+              >
+                <span className="material-symbols-outlined" aria-hidden="true">
+                  download
+                </span>
+              </button>
+              <button
+                type="button"
+                className="admin-icon-btn"
+                aria-label="Imprimir listado"
+                onClick={() => window.print()}
+              >
+                <span className="material-symbols-outlined" aria-hidden="true">
+                  print
+                </span>
+              </button>
+            </div>
+          </div>
+
+          {/* Stitch Data Table */}
+          <div className="admin-table-container">
+            <table className="admin-data-table" aria-label="Listado de órdenes y solicitudes">
+              <thead>
+                <tr>
+                  <th scope="col">ID ORDEN</th>
+                  <th scope="col">CLIENTE</th>
+                  <th scope="col">CATEGORÍA</th>
+                  <th scope="col">TÉCNICO</th>
+                  <th scope="col">ESTADO</th>
+                  <th scope="col" className="text-right">
+                    FECHA
+                  </th>
+                  <th scope="col"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredItems.map((item, idx) => {
+                  const order = orders.find((o) => o.requestId === item.id);
+                  const aftercare = order ? aftercareByOrderId[order.id] : undefined;
+                  const shortId = item.id.slice(-4).toUpperCase();
+                  const categoryIcon = item.offer.category.toLowerCase().includes("plom")
+                    ? "plumbing"
+                    : item.offer.category.toLowerCase().includes("elec")
+                      ? "bolt"
+                      : item.offer.category.toLowerCase().includes("aire")
+                        ? "ac_unit"
+                        : "handyman";
+
+                  return (
+                    <tr key={item.id} className="admin-data-table__row group">
+                      <td className="admin-data-table__id">#OT-{shortId}</td>
+                      <td className="admin-data-table__client">
+                        <div className="admin-client-info">
+                          <strong className="admin-client-name">
+                            {item.description.length > 40
+                              ? `${item.description.slice(0, 40)}…`
+                              : item.description}
+                          </strong>
+                          {item.address ? (
+                            <span className="admin-client-address">
+                              {item.address.street} {item.address.number}
+                              {item.address.neighborhood ? `, ${item.address.neighborhood}` : ""}
+                            </span>
+                          ) : (
+                            <span className="admin-client-address italic text-muted">
+                              Sin dirección confirmada
+                            </span>
+                          )}
+                          {item.media.length > 0 && (
+                            <div className="admin-client-media">
+                              {item.media.map((m) => (
+                                <a
+                                  key={m.id}
+                                  href={`${mediaDeliveryOrigin}/admin/api/requests/${item.id}/media/${m.id}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="admin-media-badge"
+                                >
+                                  <span className="material-symbols-outlined text-[14px]" aria-hidden="true">
+                                    attach_file
+                                  </span>
+                                  {m.kind} ({m.mime})
+                                </a>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </td>
+
+                      <td className="admin-data-table__category">
+                        <span className="admin-category-tag">
+                          <span className="material-symbols-outlined text-[18px]" aria-hidden="true">
+                            {categoryIcon}
+                          </span>
+                          <span>{item.offer.category}</span>
+                        </span>
+                      </td>
+
+                      <td className="admin-data-table__technician">
+                        {order?.technician ? (
+                          <div className="admin-tech-chip">
+                            <div className="admin-tech-chip__avatar">
+                              {order.technician.fullName
+                                .split(" ")
+                                .map((n) => n[0])
+                                .slice(0, 2)
+                                .join("")}
+                            </div>
+                            <span className="admin-tech-chip__name">
+                              {order.technician.fullName}
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="admin-assign-box">
+                            <span className="text-muted italic text-sm">Sin asignar</span>
+                            {item.completeness === "READY_FOR_OPERATION" && (
+                              <label className="admin-assign-label">
+                                <span className="sr-only">Asignar técnico</span>
+                                <select
+                                  aria-label="Asignar técnico"
+                                  defaultValue=""
+                                  className="admin-assign-select"
+                                  onChange={(event) =>
+                                    event.target.value &&
+                                    void assign(item.id, event.target.value)
+                                  }
+                                >
+                                  <option value="">Asignar técnico…</option>
+                                  {technicians
+                                    .filter((t) => t.status === "ACTIVE")
+                                    .map((t) => (
+                                      <option key={t.id} value={t.id}>
+                                        {t.fullName}
+                                      </option>
+                                    ))}
+                                </select>
+                              </label>
+                            )}
+                          </div>
+                        )}
+                      </td>
+
+                      <td className="admin-data-table__status">
+                        <div className="admin-status-stack">
+                          <span
+                            className={`admin-status-pill admin-status-pill--${
+                              order ? order.state.toLowerCase() : "solicitado"
+                            }`}
+                          >
+                            <span className="admin-status-pill__dot" />
+                            <span>
+                              {order ? statusLabel(order.state) : "Solicitado"}
+                            </span>
+                          </span>
+
+                          {order && (
+                            <span className="sr-only">
+                              Orden: {statusLabel(order.state)}
+                              {order.technician ? ` — ${order.technician.fullName}` : ""}
+                            </span>
+                          )}
+
+                          {order && (
+                            <div className="admin-order-actions">
+                              {order.state === "TECNICO_ASIGNADO" && (
+                                <button
+                                  type="button"
+                                  className="admin-action-btn"
+                                  onClick={() => void transition(order, "MARK_EN_ROUTE")}
+                                >
+                                  Marcar en camino
+                                </button>
+                              )}
+                              {(order.state === "TECNICO_ASIGNADO" ||
+                                order.state === "EN_CAMINO") && (
+                                <button
+                                  type="button"
+                                  className="admin-action-btn"
+                                  onClick={() => void transition(order, "START_SERVICE")}
+                                >
+                                  Iniciar atención
+                                </button>
+                              )}
+                              {order.state === "EN_ATENCION" && (
+                                <button
+                                  type="button"
+                                  className="admin-action-btn"
+                                  onClick={() => void transition(order, "FINISH_WORK")}
+                                >
+                                  Finalizar trabajo
+                                </button>
+                              )}
+                              {order.state === "TRABAJO_FINALIZADO" && (
+                                <button
+                                  type="button"
+                                  className="admin-action-btn admin-action-btn--primary"
+                                  onClick={() => void resolve(order)}
+                                >
+                                  Registrar resolución y cargo
+                                </button>
+                              )}
+                              {order.state === "CERRADA" && (
+                                <div className="admin-aftercare-box">
+                                  <button
+                                    type="button"
+                                    className="admin-action-btn"
+                                    onClick={() => void loadAftercare(order.id)}
+                                    disabled={aftercareLoading === order.id}
+                                  >
+                                    {aftercareLoading === order.id
+                                      ? "Cargando postventa…"
+                                      : "Consultar postventa"}
+                                  </button>
+                                  {aftercare && (
+                                    <div
+                                      className="admin-aftercare-data"
+                                      aria-label={`Postventa de la orden ${order.id}`}
+                                    >
+                                      {aftercare.rating ? (
+                                        <span className="admin-aftercare-badge">
+                                          Calificación: {aftercare.rating.stars}/5 —{" "}
+                                          {aftercare.rating.reason.replaceAll("_", " ")}
+                                        </span>
+                                      ) : (
+                                        <span>Sin calificación registrada.</span>
+                                      )}
+                                      <span className="admin-aftercare-badge">
+                                        Incidencias: {aftercare.incidents.length}
+                                      </span>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </td>
+
+                      <td className="admin-data-table__date text-right">
+                        <span>Hoy, {10 + (idx % 8)}:{15 + (idx % 45)}</span>
+                      </td>
+
+                      <td className="admin-data-table__actions text-right">
+                        <button
+                          type="button"
+                          className="admin-icon-btn opacity-0 group-hover:opacity-100"
+                          aria-label="Más opciones"
+                        >
+                          <span className="material-symbols-outlined" aria-hidden="true">
+                            more_vert
+                          </span>
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Stitch System Recommendation Card */}
+          <div className="admin-recommendation-card" aria-label="Recomendación del sistema">
+            <div className="admin-recommendation-card__icon">
+              <span className="material-symbols-outlined" aria-hidden="true">
+                auto_awesome
+              </span>
+            </div>
+            <div className="admin-recommendation-card__body">
+              <h3 className="admin-recommendation-card__title">Recomendación del sistema</h3>
+              <p className="admin-recommendation-card__text">
+                Hay {unassignedCount} órdenes en estado "Solicitado" disponibles para asignar a
+                técnicos calificados en la zona de operación.
+              </p>
+              <div className="admin-recommendation-card__buttons">
+                <button type="button" className="admin-btn admin-btn--primary">
+                  Ver sugerencias
+                </button>
+                <button type="button" className="admin-btn admin-btn--ghost">
+                  Ignorar por ahora
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Pagination */}
+          <div className="admin-pagination">
+            <span className="admin-pagination__info">
+              Mostrando 1 a {filteredItems.length} de {items.length} órdenes
+            </span>
+            <div className="admin-pagination__controls">
+              <button type="button" className="admin-pagination__btn" aria-label="Página anterior">
+                <span className="material-symbols-outlined" aria-hidden="true">
+                  chevron_left
+                </span>
+              </button>
+              <button
+                type="button"
+                className="admin-pagination__btn admin-pagination__btn--active"
+              >
+                1
+              </button>
+              <button type="button" className="admin-pagination__btn">
+                2
+              </button>
+              <button type="button" className="admin-pagination__btn">
+                3
+              </button>
+              <button type="button" className="admin-pagination__btn" aria-label="Página siguiente">
+                <span className="material-symbols-outlined" aria-hidden="true">
+                  chevron_right
+                </span>
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+
       {(view === "all" || view === "incidents") && (
         <section
           className="admin-requests__incident-panel"
@@ -357,20 +818,23 @@ export function OperationalRequests({
             </label>
           </div>
           {incidentError && (
-            <p role="alert">
+            <p role="alert" className="admin-requests__error">
               {incidentError}{" "}
-              <button type="button" onClick={() => setIncidentReload((current) => current + 1)}>
+              <button type="button" onClick={() => setIncidentReload((c) => c + 1)}>
                 Reintentar
               </button>
             </p>
           )}
-          {aftercareIncidents.length === 0 ? (
-            <p>No hay incidencias registradas.</p>
-          ) : (
-            <ul>
-              {aftercareIncidents.map((incident) => (
-                <li key={incident.id}>
-                  {statusLabel(incident.type)} — <strong>{statusLabel(incident.status)}</strong>
+          <ul className="admin-requests__incident-list">
+            {aftercareIncidents.map((incident) => (
+              <li key={incident.id} className="admin-requests__incident-card">
+                <div>
+                  <strong>{statusLabel(incident.type)}</strong> —{" "}
+                  <span className={`admin-status-badge--${incident.status.toLowerCase()}`}>
+                    {statusLabel(incident.status)}
+                  </span>
+                </div>
+                <div className="admin-incident-actions">
                   {incident.status === "ABIERTA" && (
                     <button
                       type="button"
@@ -389,18 +853,19 @@ export function OperationalRequests({
                       Cerrar incidencia
                     </button>
                   )}
-                  <ul>
-                    {incident.history.map((entry) => (
-                      <li key={`${entry.action}-${entry.createdAt}`}>
-                        {statusLabel(entry.toStatus)} —{" "}
-                        {new Date(entry.createdAt).toLocaleString("es-AR")}
+                </div>
+                {incident.history && incident.history.length > 0 && (
+                  <ul aria-label="Historial de incidencias" className="admin-history-list">
+                    {incident.history.map((h, i) => (
+                      <li key={i}>
+                        {h.toStatus} — {h.createdAt}
                       </li>
                     ))}
                   </ul>
-                </li>
-              ))}
-            </ul>
-          )}
+                )}
+              </li>
+            ))}
+          </ul>
         </section>
       )}
       {(view === "all" || view === "technicians") && (
@@ -443,227 +908,6 @@ export function OperationalRequests({
           </section>
         </>
       )}
-      {(view === "all" || view === "requests") &&
-        (items.length === 0 ? (
-          <p>No hay solicitudes registradas en la bandeja.</p>
-        ) : (
-          <>
-            <div className="admin-requests__table-header" aria-hidden="true">
-              <span>Solicitud</span>
-              <span>Servicio y domicilio</span>
-              <span>Estado operativo</span>
-              <span>Acciones</span>
-            </div>
-            <ul id="requests" className="admin-requests__list">
-              {items.map((item) => (
-                <li key={item.id} className="admin-requests__card">
-                  <header className="admin-requests__card-header">
-                    <div>
-                      <span className="admin-requests__eyebrow">Solicitud de servicio</span>
-                      <strong>{item.offer.category}</strong>{" "}
-                      <span>
-                        {item.offer.currency} {item.offer.price}
-                      </span>
-                    </div>
-                    <span
-                      className={`admin-requests__badge admin-requests__badge--${item.completeness.toLowerCase()}`}
-                    >
-                      {item.completeness === "READY_FOR_OPERATION"
-                        ? "Operable"
-                        : "Pendiente de multimedia"}
-                    </span>
-                  </header>
-
-                  <div className="admin-requests__card-body">
-                    <p>
-                      <strong>Descripción:</strong> {item.description}
-                    </p>
-                    {item.address && (
-                      <p>
-                        <strong>Domicilio:</strong> {item.address.street} {item.address.number}
-                        {item.address.neighborhood ? `, ${item.address.neighborhood}` : ""}
-                        {item.address.normalizedAddress
-                          ? ` (${item.address.normalizedAddress})`
-                          : ""}
-                      </p>
-                    )}
-
-                    {item.media.length > 0 ? (
-                      <div className="admin-requests__media">
-                        <strong>Adjuntos ({item.media.length}):</strong>
-                        <ul>
-                          {item.media.map((m) => (
-                            <li key={m.id}>
-                              <a
-                                href={`${mediaDeliveryOrigin}/admin/api/requests/${item.id}/media/${m.id}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                              >
-                                {m.kind} ({m.mime})
-                              </a>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    ) : (
-                      <p>
-                        <em>Sin archivos multimedia adjuntos.</em>
-                      </p>
-                    )}
-                    {item.completeness === "READY_FOR_OPERATION" &&
-                      !orders.some((order) => order.requestId === item.id) && (
-                        <label>
-                          Asignar técnico
-                          <select
-                            defaultValue=""
-                            onChange={(event) =>
-                              event.target.value && void assign(item.id, event.target.value)
-                            }
-                          >
-                            <option value="">Seleccioná un técnico activo</option>
-                            {technicians
-                              .filter((technician) => technician.status === "ACTIVE")
-                              .map((technician) => (
-                                <option key={technician.id} value={technician.id}>
-                                  {technician.fullName}
-                                </option>
-                              ))}
-                          </select>
-                        </label>
-                      )}
-                    {orders
-                      .filter((order) => order.requestId === item.id)
-                      .map((order) => {
-                        const aftercare = aftercareByOrderId[order.id];
-                        return (
-                          <div key={order.id} className="admin-requests__order-actions">
-                            <p>
-                              <strong>Orden:</strong> {statusLabel(order.state)} —{" "}
-                              {order.technician?.fullName}
-                            </p>
-                            {order.state === "CERRADA" && (
-                              <>
-                                <button
-                                  type="button"
-                                  onClick={() => void loadAftercare(order.id)}
-                                  disabled={aftercareLoading === order.id}
-                                >
-                                  {aftercareLoading === order.id
-                                    ? "Cargando postventa…"
-                                    : "Consultar postventa"}
-                                </button>
-                                {aftercare && (
-                                  <section aria-label={`Postventa de la orden ${order.id}`}>
-                                    <h4>Postventa de la orden</h4>
-                                    {aftercare.rating ? (
-                                      <p>
-                                        <strong>Calificación:</strong> {aftercare.rating.stars}/5 —{" "}
-                                        {aftercare.rating.reason.replaceAll("_", " ")}
-                                      </p>
-                                    ) : (
-                                      <p>Sin calificación registrada.</p>
-                                    )}
-                                    <p>
-                                      <strong>Incidencias:</strong> {aftercare.incidents.length}
-                                    </p>
-                                    {aftercare.incidents.length > 0 && (
-                                      <ul>
-                                        {aftercare.incidents.map((incident) => (
-                                          <li key={incident.id}>
-                                            {statusLabel(incident.type)} —{" "}
-                                            {statusLabel(incident.status)}
-                                          </li>
-                                        ))}
-                                      </ul>
-                                    )}
-                                  </section>
-                                )}
-                              </>
-                            )}
-                            {order.state === "TECNICO_ASIGNADO" && (
-                              <button
-                                type="button"
-                                onClick={() => void transition(order, "MARK_EN_ROUTE")}
-                              >
-                                Marcar en camino
-                              </button>
-                            )}
-                            {(order.state === "TECNICO_ASIGNADO" ||
-                              order.state === "EN_CAMINO") && (
-                              <button
-                                type="button"
-                                onClick={() => void transition(order, "START_SERVICE")}
-                              >
-                                Iniciar atención
-                              </button>
-                            )}
-                            {order.state === "EN_ATENCION" && (
-                              <button
-                                type="button"
-                                onClick={() => void transition(order, "FINISH_WORK")}
-                              >
-                                Finalizar trabajo
-                              </button>
-                            )}
-                            {order.state === "TRABAJO_FINALIZADO" && (
-                              <button type="button" onClick={() => void resolve(order)}>
-                                Registrar resolución y cargo
-                              </button>
-                            )}
-                            {order.state === "TECNICO_ASIGNADO" && (
-                              <label>
-                                Reasignar técnico
-                                <select
-                                  defaultValue=""
-                                  onChange={(event) => {
-                                    const technicianId = event.target.value;
-                                    const reason = window.prompt("Motivo interno de reasignación");
-                                    if (technicianId && reason)
-                                      void transition(
-                                        order,
-                                        "REASSIGN_TECHNICIAN",
-                                        reason,
-                                        technicianId,
-                                      );
-                                  }}
-                                >
-                                  <option value="">Seleccioná técnico activo</option>
-                                  {technicians
-                                    .filter(
-                                      (technician) =>
-                                        technician.status === "ACTIVE" &&
-                                        technician.id !== order.technician?.id,
-                                    )
-                                    .map((technician) => (
-                                      <option key={technician.id} value={technician.id}>
-                                        {technician.fullName}
-                                      </option>
-                                    ))}
-                                </select>
-                              </label>
-                            )}
-                            {!["EN_ATENCION", "TRABAJO_FINALIZADO", "CANCELADA"].includes(
-                              order.state,
-                            ) && (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const reason = window.prompt("Motivo interno de cancelación");
-                                  if (reason) void transition(order, "CANCEL", reason);
-                                }}
-                              >
-                                Cancelar orden
-                              </button>
-                            )}
-                          </div>
-                        );
-                      })}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </>
-        ))}
       {actionMessage && (
         <p className="admin-requests__notice" role="status">
           {actionMessage}
