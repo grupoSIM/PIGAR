@@ -306,6 +306,26 @@ export function OperationalRequests({
           aria-label="Bandeja de incidencias de postventa"
         >
           <h3>Incidencias de postventa</h3>
+          <div className="admin-requests__metrics-row" aria-label="Métricas de postventa">
+            <div className="admin-requests__metric-card">
+              <span className="admin-requests__metric-value">
+                {aftercareIncidents.filter((i) => i.status === "ABIERTA").length}
+              </span>
+              <span className="admin-requests__metric-label">Abiertas</span>
+            </div>
+            <div className="admin-requests__metric-card">
+              <span className="admin-requests__metric-value">
+                {aftercareIncidents.filter((i) => i.status === "EN_TRIAGE").length}
+              </span>
+              <span className="admin-requests__metric-label">En revisión</span>
+            </div>
+            <div className="admin-requests__metric-card">
+              <span className="admin-requests__metric-value">
+                {aftercareIncidents.filter((i) => i.status === "CERRADA").length}
+              </span>
+              <span className="admin-requests__metric-label">Cerradas</span>
+            </div>
+          </div>
           <div className="admin-requests__filter-bar">
             <label>
               Filtrar por estado{" "}

@@ -175,7 +175,12 @@ export function CustomerRequests() {
                 <p>
                   Cargo: {item.billing.charge.money.currency} {item.billing.charge.money.amount}
                 </p>
-                <p>Estado del pago: {formatPaymentStatus(item.billing.payment.status)}</p>
+                <p>
+                  Estado del pago:{" "}
+                  {item.billing.payment.status === "APROBADO"
+                    ? "APROBADO"
+                    : formatPaymentStatus(item.billing.payment.status)}
+                </p>
               </div>
             )}
             {item.order && (

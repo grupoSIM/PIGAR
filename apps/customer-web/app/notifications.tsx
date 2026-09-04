@@ -13,6 +13,7 @@ export function Notifications() {
   const [page, setPage] = useState<Page>();
   const [open, setOpen] = useState(false);
   const [error, setError] = useState(false);
+  const [tab, setTab] = useState<"all" | "unread">("all");
   async function load(cursor?: string, append = false) {
     setError(false);
     try {
@@ -50,6 +51,15 @@ export function Notifications() {
       );
     }
   }
+  async function markAllAsRead() {
+    if (!page?.items) return;
+    const unread = page.items.filter((i) => !i.readAt);
+    for (const item of unread) {
+      await visit(item);
+    }
+  }
+  const displayedItems =
+    tab === "unread" ? (page?.items.filter((item) => !item.readAt) ?? []) : (page?.items ?? []);
   return (
     <section className="notifications" aria-label="Notificaciones">
       <button type="button" onClick={() => setOpen(!open)} aria-expanded={open}>
@@ -57,7 +67,38 @@ export function Notifications() {
       </button>
       {open && (
         <div role="region" aria-live="polite">
-          <h2>Notificaciones</h2>
+          <div className="notifications__header-bar">
+            <h2>Notificaciones</h2>
+            {Boolean(page?.unreadCount) && (
+              <button
+                type="button"
+                className="notifications__mark-all"
+                onClick={() => void markAllAsRead()}
+              >
+                Marcar todas como leídas
+              </button>
+            )}
+          </div>
+          <div className="notifications__tabs" role="tablist" aria-label="Filtro de notificaciones">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={tab === "all"}
+              className={`notifications__tab ${tab === "all" ? "notifications__tab--active" : ""}`}
+              onClick={() => setTab("all")}
+            >
+              Todas
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={tab === "unread"}
+              className={`notifications__tab ${tab === "unread" ? "notifications__tab--active" : ""}`}
+              onClick={() => setTab("unread")}
+            >
+              No leídas{page?.unreadCount ? ` (${page.unreadCount})` : ""}
+            </button>
+          </div>
           {!page && !error && <p>Cargando notificaciones…</p>}
           {error && (
             <p role="status">
@@ -65,8 +106,11 @@ export function Notifications() {
             </p>
           )}
           {page?.items.length === 0 && <p>No tenés notificaciones todavía.</p>}
+          {page?.items && page.items.length > 0 && displayedItems.length === 0 && (
+            <p>No tenés notificaciones sin leer.</p>
+          )}
           <ul>
-            {page?.items.map((item) => (
+            {displayedItems.map((item) => (
               <li
                 key={item.id}
                 className={

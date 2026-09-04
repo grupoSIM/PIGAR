@@ -54,6 +54,13 @@ features:
     depends_on: [feat-013, feat-007, feat-009, feat-010]
     note: Especificación y DEC-014-001 a DEC-014-005 aprobadas por el usuario el 2026-09-03. Implementación, verificación técnica, revisión independiente PASS y publicación en staging completadas en el SHA 14b11ad656dbda4194820e6639cea2082d563e1b mediante CI 33790815734. Conserva reglas, permisos, estados, contratos y flujos.
 
+  - id: feat-015
+    name: Adaptación y extensión visual con Stitch (Cliente y Backoffice)
+    status: done
+    priority: should
+    depends_on: [feat-014]
+    note: Pantallas complementarias creadas con StitchMCP, frontend adaptado, 100% calidad local y E2E validados. Publicada en staging con autorización explícita.
+
   - id: feat-006
     name: Flujo móvil del operario para viaje, arribo y diagnóstico
     status: proposed

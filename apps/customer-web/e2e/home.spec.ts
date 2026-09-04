@@ -101,14 +101,17 @@ test("CLIENT consulta estado e historial seguro de su orden", async ({ page }) =
     page.locator("#requests").getByRole("heading", { name: "Mis solicitudes" }),
   ).toBeVisible();
   await expect(page.getByText(/Técnico asignado: Técnico sintético/)).toBeVisible();
+  await page.getByRole("link", { name: "Nueva solicitud" }).click();
   await page.getByRole("button", { name: /Visita Simple/ }).click();
   await page.getByLabel("Descripción del problema").fill("Pérdida sintética");
   await page.getByLabel("Calle", { exact: true }).fill("Calle sintética");
   await page.getByLabel("Número").fill("123");
   await page.getByRole("button", { name: "Crear solicitud" }).click();
   await page.getByRole("button", { name: "Consultar estado de la orden" }).click();
-  await expect(page.getByText(/EN_CAMINO — técnico asignado: Técnico sintético/)).toBeVisible();
-  await expect(page.getByText(/TECNICO_ASIGNADO/).first()).toBeVisible();
+  await expect(
+    page.getByText(/(EN_CAMINO|Técnico en camino) — técnico asignado: Técnico sintético/),
+  ).toBeVisible();
+  await expect(page.getByText(/(TECNICO_ASIGNADO|Técnico asignado)/).first()).toBeVisible();
   await expect(page.getByText(/5555|motivo interno/)).toHaveCount(0);
 });
 
@@ -255,7 +258,7 @@ test("CLIENT conforma sólo después de un pago aprobado", async ({ page }) => {
   await page.goto("/requests");
   await expect(page.getByText("Estado del pago: APROBADO")).toBeVisible();
   await page.getByRole("button", { name: "Confirmar conformidad" }).click();
-  await expect(page.getByText(/CERRADA/).first()).toBeVisible();
+  await expect(page.getByText(/(CERRADA|Solicitud cerrada)/).first()).toBeVisible();
   await expect(page.getByRole("button", { name: "Confirmar conformidad" })).toHaveCount(0);
 });
 

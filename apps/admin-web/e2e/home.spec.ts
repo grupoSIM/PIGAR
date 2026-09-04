@@ -10,9 +10,9 @@ test("página principal de admin carga y muestra PIGAR", async ({ page }) => {
   await page.setViewportSize({ width: 768, height: 1024 });
   await expect(page.getByRole("navigation", { name: "Navegación administrativa" })).toBeHidden();
   await page.getByRole("button", { name: "Abrir navegación" }).click();
-  await expect(page.getByRole("link", { name: "Técnicos" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Solicitudes" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Incidencias" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Técnicos", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Solicitudes", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Incidencias", exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: /Solicitudes registradas/ })).toHaveCount(0);
 });
 
@@ -20,15 +20,15 @@ test("ADMIN mantiene foco y Escape al abrir el drawer y navega por contextos rea
   page,
 }) => {
   await page.goto("/admin");
-  await expect(page.getByRole("link", { name: "Técnicos" })).toHaveAttribute(
+  await expect(page.getByRole("link", { name: "Técnicos", exact: true })).toHaveAttribute(
     "href",
     "/admin/technicians",
   );
-  await expect(page.getByRole("link", { name: "Solicitudes" })).toHaveAttribute(
+  await expect(page.getByRole("link", { name: "Solicitudes", exact: true })).toHaveAttribute(
     "href",
     "/admin/requests",
   );
-  await expect(page.getByRole("link", { name: "Incidencias" })).toHaveAttribute(
+  await expect(page.getByRole("link", { name: "Incidencias", exact: true })).toHaveAttribute(
     "href",
     "/admin/incidents",
   );
@@ -37,7 +37,7 @@ test("ADMIN mantiene foco y Escape al abrir el drawer y navega por contextos rea
   await toggle.click();
   await expect(page.getByRole("link", { name: "Bandeja operativa" })).toBeFocused();
   await page.keyboard.press("Tab");
-  await expect(page.getByRole("link", { name: "Técnicos" })).toBeFocused();
+  await expect(page.getByRole("link", { name: "Técnicos", exact: true })).toBeFocused();
   await page.keyboard.press("Escape");
   await expect(page.getByRole("navigation", { name: "Navegación administrativa" })).toBeHidden();
   await expect(toggle).toBeFocused();
@@ -57,17 +57,17 @@ test("ADMIN navega a las vistas dedicadas de técnicos, solicitudes e incidencia
     route.fulfill({ json: { items: [] } }),
   );
   await page.goto("/admin");
-  await page.getByRole("link", { name: "Técnicos" }).click();
+  await page.getByRole("link", { name: "Técnicos", exact: true }).click();
   await expect(page).toHaveURL(/\/admin\/technicians$/);
   await expect(page.getByRole("heading", { name: "Técnicos" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Técnicos internos", level: 2 })).toBeVisible();
 
-  await page.getByRole("link", { name: "Solicitudes" }).click();
+  await page.getByRole("link", { name: "Solicitudes", exact: true }).click();
   await expect(page).toHaveURL(/\/admin\/requests$/);
   await expect(page.getByRole("heading", { name: "Solicitudes" })).toBeVisible();
   await expect(page.getByRole("heading", { name: /Solicitudes registradas/ })).toBeVisible();
 
-  await page.getByRole("link", { name: "Incidencias" }).click();
+  await page.getByRole("link", { name: "Incidencias", exact: true }).click();
   await expect(page).toHaveURL(/\/admin\/incidents$/);
   await expect(page.getByRole("heading", { name: "Incidencias" })).toBeVisible();
   await expect(
@@ -125,7 +125,7 @@ test("ADMIN asigna y actualiza un hito de una orden", async ({ page }) => {
   await page.getByLabel("Asignar técnico").selectOption(technician.id);
   await expect(page.getByText("Técnico asignado. La orden quedó registrada.")).toBeVisible();
   await page.getByRole("button", { name: "Marcar en camino" }).click();
-  await expect(page.getByText(/Orden: EN_CAMINO/)).toBeVisible();
+  await expect(page.getByText(/Orden: (EN_CAMINO|Técnico en camino)/)).toBeVisible();
 });
 
 test("ADMIN abre los adjuntos mediante la entrega privada", async ({ page }) => {

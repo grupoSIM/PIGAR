@@ -344,6 +344,51 @@ a {
   margin: 0;
   font-size: 1.1rem;
 }
+.notifications__header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.notifications__mark-all {
+  border: none;
+  background: transparent;
+  color: var(--pigar-blue);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 8px;
+  min-height: auto;
+  text-decoration: underline;
+}
+.notifications__mark-all:hover {
+  color: var(--pigar-navy);
+}
+.notifications__tabs {
+  display: flex;
+  gap: 8px;
+  background: #e3f0f8;
+  padding: 4px;
+  border-radius: 8px;
+}
+.notifications__tab {
+  flex: 1;
+  min-height: 36px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--pigar-muted);
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  text-align: center;
+}
+.notifications__tab--active {
+  background: var(--pigar-navy);
+  color: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
 .notifications p {
   margin: 0;
   color: var(--pigar-muted);

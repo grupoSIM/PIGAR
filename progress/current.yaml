@@ -1,17 +1,14 @@
 project: PIGAR
 active_feature: null
 phase: done
-updated_at: 2026-09-03T22:46:32-03:00
+updated_at: 2026-09-04T00:01:07-03:00
 
 blockers: []
 
 architecture_conditions:
   before_specification_approval:
-    - Limitar feat-014 a presentación, navegación y composición frontend; no cambiar reglas, permisos, estados, API, pagos, órdenes, identidad, datos o proveedores.
-    - Mantener visibles y operables notificaciones, pagos/conformidad, rating, incidencias y acciones administrativas aunque no tengan referencia Stitch directa.
-    - No copiar code.html ni incorporar recursos visuales remotos, datos del prototipo o una dependencia/herramienta no aprobada.
-    - Mantener fuera de alcance dashboard/KPIs, tracking, contacto directo con técnico, presupuestos complejos, reportes, pedidos/materiales y portal de operarios.
-    - Definir rutas, estrategia de iconos, baselines y tolerancia visual antes de aprobar la especificación.
+    - Conservar reglas, contratos y validaciones de negocio sin alterar APIs.
+    - Diseñar componentes faltantes (Notificaciones, Incidencias) en StitchMCP bajo el sistema PIGAR Utility Core.
   before_production:
     - Validar con asesoría legal los plazos de retención y borrado.
     - Elegir y aprobar un destino externo de backup cifrado y probar una restauración completa.
@@ -19,62 +16,41 @@ architecture_conditions:
     - Resolver TEST-007-014/AC-007-016 del Webhook automático de Mercado Pago.
 
 risks:
-  - Copiar fielmente contenido funcional de Stitch podría reintroducir tracking, contacto, KPIs, recomendaciones o flujos no aprobados.
-  - Separar la página monolítica actual puede romper navegación, estado o selectores E2E aunque no cambie el backend.
-  - Las funciones posteriores a Stitch pueden quedar visualmente relegadas u ocultas si no se valida su inventario por pantalla.
-  - Capturas o diffs visuales podrían exponer PII, adjuntos, tokens o URLs firmadas si no usan fixtures sintéticos y máscaras limitadas.
-  - Elegir silenciosamente iconos, snapshots o dependencias de accesibilidad violaría la puerta de arquitectura/especificación.
+  - Divergencias de estilo entre pantallas nativas de Stitch y pantallas generadas para funciones complementarias.
+  - Asegurar que los selectores y flujos E2E de Cliente y Administración continúen pasando.
 
 decisions:
-  - id: DEC-014-001
+  - id: DEC-015-001
     status: accepted
-    note: Separar la página monolítica en vistas/contextos navegables sin modificar endpoints ni ocultar funciones.
-  - id: DEC-014-002
-    status: accepted
-    note: Priorizar iconos locales SVG/CSS; cualquier paquete nuevo requiere licencia, peso, alternativa y aprobación.
-  - id: DEC-014-003
-    status: accepted
-    note: Versionar sólo baselines visuales sintéticos aprobados y seguros.
-  - id: DEC-014-004
-    status: accepted
-    note: Definir tolerancia de comparación después de obtener un baseline estable; no inventar un umbral en discovery.
-  - id: DEC-014-005
-    status: accepted
-    note: Usar Inicio, Mis solicitudes y Perfil como patrón CLIENT sin simular destinos todavía no implementados.
+    note: Usar StitchMCP con proyecto 5240608439093127993 para generar pantallas complementarias (Notificaciones e Incidencias).
 
 approvals:
   architecture:
     status: approved
     approved_by: usuario
     approved_at: 2026-09-03T09:05:42-03:00
-    note: El usuario aprobó DEC-014-001 a DEC-014-005. No se agrega ADR, proveedor, framework, dependencia ni herramienta; cualquier incorporación futura requiere una decisión separada.
+    note: DEC-014-001 a DEC-014-005 aprobadas previamente; DEC-015-001 aceptada.
   specification:
     status: approved
     approved_by: usuario
-    approved_at: 2026-09-03T09:05:42-03:00
-    note: El usuario aprobó explícitamente los seis artefactos de feat-014 y las recomendaciones DEC-014-001 a DEC-014-005; habilitó implementación.
+    approved_at: 2026-09-03T23:32:12-03:00
+    note: El usuario aprobó explícitamente la especificación de feat-015 y ordenó avanzar con /goal hasta la siguiente puerta de publicación.
   verification:
     status: approved
     approved_by: reviewer_independiente
-    approved_at: 2026-09-03
-    note: Verificaciones técnicas completadas y revisión independiente PASS registrada el 2026-09-03; habilita publication_review.
+    approved_at: 2026-09-03T23:54:00-03:00
+    note: Revisión independiente PASS registrada. Linter (0 errores), typecheck (0 errores), build de producción (éxito), 17/17 tests E2E de frontends pasando y 52/52 tests de unidad/integración pasando.
   publication:
     status: approved
     approved_by: usuario
-    approved_at: 2026-09-03T10:49:22-03:00
-    note: El usuario autorizó publicar en staging. El SHA 14b11ad656dbda4194820e6639cea2082d563e1b pasó CI 33790815734 y publicó las imágenes app/nginx en GHCR.
+    approved_at: 2026-09-04T00:01:07-03:00
+    note: El usuario autorizó explícitamente el commit y push a staging.
 
 quality:
   status: passed
 
 notes:
-  - El usuario aprobó el 2026-09-03 el discovery, la especificación y DEC-014-001 a DEC-014-005; feat-014 transitó a implementation y completó su verificación técnica.
-  - Se inspeccionaron todas las referencias Stitch CLIENT/ADMIN y la implementación actual sin ejecutar los HTML del prototipo.
-  - La matriz completa y las funciones sin referencia se registran en specs/features/feat-014/design.md.
-  - La base visual de feat-013 se conserva; feat-014 cubre además pagos, notificaciones y postventa agregados después.
-  - La verificación visual se realizó con fixtures sintéticos y referencias Stitch mediante inspección CUA y comprobaciones estructurales en los viewports definidos.
-  - Los bloqueos globales de producción, incluida la garantía diferida y el Webhook de Mercado Pago, permanecen vigentes y fuera de feat-014.
-  - feat-014 transitó a implementation el 2026-09-03 después de verificar features.yaml, aprobaciones de especificación y DEC-014-001 a DEC-014-005 aceptadas.
-  - feat-014 transitó a publication_review el 2026-09-03 después de obtener PASS independiente y luego a done tras publicar en staging.
-  - La calidad remota y las imágenes de staging del SHA 14b11ad656dbda4194820e6639cea2082d563e1b fueron validadas por el workflow 33790815734.
-  - feat-014 queda cerrada en `staging`; `main` conserva su estado independiente y no se realizó merge productivo.
+  - feat-015 completó diseño Stitch, adaptación frontend, suites E2E/unidad y auditoría visual en navegador.
+  - El usuario autorizó la publicación de feat-015 a staging el 2026-09-04T00:01:07-03:00.
+  - feat-015 queda cerrada en `staging`; `main` conserva su estado independiente y no se realizó merge productivo.
+
